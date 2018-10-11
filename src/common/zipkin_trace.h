@@ -13,8 +13,6 @@
 #define SIGNED_RIGHT_SHIFT_IS 1
 #define ARITHMETIC_RIGHT_SHIFT 1
 
-//#include <blkin/blkin-lib/jtracer.hpp>
-
 #else // !WITH_BLKIN
 
 // add stubs for noop Trace and Endpoint

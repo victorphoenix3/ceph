@@ -31,7 +31,6 @@
 #include "common/item_history.h"
 #include "msg/MessageRef.h"
 
-
 // ======================================================
 
 // abstract Connection, for keeping per-connection state

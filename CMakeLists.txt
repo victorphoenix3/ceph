@@ -418,10 +418,14 @@ if(WITH_DPDK)
 endif()
 
 option(WITH_BLKIN "Use blkin to emit LTTng tracepoints for Zipkin" OFF)
-if(WITH_BLKIN)
-  set(BLKIN_LIBRARIES blkin ${LTTNGUST_LIBRARIES} lttng-ust-fork)
-  include_directories(SYSTEM src/blkin/blkin-lib)
-endif(WITH_BLKIN)
+
+#if(NOT WITH_BLKIN)
+find_package(OPENTRACE REQUIRED)
+find_package(JAEGER REQUIRED)
+find_package(YAMLCPP REQUIRED)
+set(BLKIN_LIBRARIES ${JAEGER_LIBRARIES} ${OPENTRACE_LIBRARIES} ${YAMLCPP_LIBRARIES})
+include_directories(SYSTEM ${JAEGER_INCLUDE_DIRS} ${YAMLCPP_INCLUDE_DIRS} ${OPENTRACE_INCLUDE_DIRS})
+  #endif(WITH_BLKIN)
 
 option(WITH_BOOST_CONTEXT "Enable boost::asio stackful coroutines" ON)
 if(WITH_BOOST_CONTEXT)
@@ -543,7 +547,7 @@ find_package(ZLIB REQUIRED)
 option(WITH_EVENTTRACE "Event tracing support" OFF)
 
 #option for LTTng
-option(WITH_LTTNG "LTTng tracing is enabled" ON)
+option(WITH_LTTNG "LTTng tracing is enabled" OFF)
 if(${WITH_LTTNG})
   find_package(LTTngUST REQUIRED)
   find_program(LTTNG_GEN_TP
@@ -631,7 +635,13 @@ option(WITH_SEASTAR "Build seastar components")
 set(HAVE_SEASTAR ${WITH_SEASTAR})
 
 # Boost
-option(WITH_SYSTEM_BOOST "require and build with system Boost" OFF)
+option(WITH_SYSTEM_BOOST "require and build with system Boost" ON)
+
+### my_addition ###
+#if(WITH_SYSTEM_BOOST)
+#    SET(Boost_USE_STATIC_LIBS OFF)
+#endif()
+### end_my_addition ###
 
 # Boost::thread depends on Boost::atomic, so list it explicitly.
 set(BOOST_COMPONENTS

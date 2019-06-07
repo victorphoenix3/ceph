@@ -661,7 +661,8 @@ int librados::IoCtxImpl::writesame(const object_t& oid, bufferlist& bl,
 }
 
 int librados::IoCtxImpl::operate(const object_t& oid, ::ObjectOperation *o,
-				 ceph::real_time *pmtime, int flags)
+				 ceph::real_time *pmtime, int flags,
+                                 const std::unique_ptr<opentracing::Span>& parent_trace)
 {
   ceph::real_time ut = (pmtime ? *pmtime :
     ceph::real_clock::now());
@@ -684,6 +685,16 @@ int librados::IoCtxImpl::operate(const object_t& oid, ::ObjectOperation *o,
   int op = o->ops[0].op.op;
   ldout(client->cct, 10) << ceph_osd_op_name(op) << " oid=" << oid
 			 << " nspace=" << oloc.nspace << dendl;
+
+  if (parent_trace) {
+      auto span = opentracing::Tracer::Global()->StartSpan(
+        "IoCtxImpl::operate, rados operate", { opentracing::ChildOf(&parent_trace->context()) });
+  }
+  
+  else{
+      auto span = opentracing::Tracer::Global()->StartSpan("IoCtxImpl::operate, rados operate");
+  }
+
   Objecter::Op *objecter_op = objecter->prepare_mutate_op(oid, oloc,
 							  *o, snapc, ut, flags,
 							  oncommit, &ver);

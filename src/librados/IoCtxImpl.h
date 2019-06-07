@@ -27,6 +27,7 @@
 #include "include/xlist.h"
 #include "osd/osd_types.h"
 #include "osdc/Objecter.h"
+#include "include/tracer.h"
 
 class RadosClient;
 
@@ -151,7 +152,7 @@ struct librados::IoCtxImpl {
   int getxattrs(const object_t& oid, map<string, bufferlist>& attrset);
   int rmxattr(const object_t& oid, const char *name);
 
-  int operate(const object_t& oid, ::ObjectOperation *o, ceph::real_time *pmtime, int flags=0);
+  int operate(const object_t& oid, ::ObjectOperation *o, ceph::real_time *pmtime, int flags=0,const std::unique_ptr<opentracing::Span>& parent_trace = NULL); 
   int operate_read(const object_t& oid, ::ObjectOperation *o, bufferlist *pbl, int flags=0);
   int aio_operate(const object_t& oid, ::ObjectOperation *o,
 		  AioCompletionImpl *c, const SnapContext& snap_context,

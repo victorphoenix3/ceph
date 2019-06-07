@@ -21,6 +21,7 @@
 #include "common/dout.h"
 #include "common/strtol.h"
 #include "common/valgrind.h"
+#include "include/tracer.h"
 #include "common/zipkin_trace.h"
 
 #define dout_subsys ceph_subsys_
@@ -104,7 +105,10 @@ void common_init_finish(CephContext *cct)
   }
   cct->_finished = true;
   cct->init_crypto();
-  ZTracer::ztrace_init();
+
+  init_jaeger_tracer(cct->_conf->name.to_cstr());
+  //ZTracer::jtrace_init();
+  //ZTracer::ztrace_init();
 
   if (!cct->_log->is_started()) {
     cct->_log->start();

@@ -413,10 +413,15 @@ if(WITH_DPDK)
 endif()
 
 option(WITH_BLKIN "Use blkin to emit LTTng tracepoints for Zipkin" OFF)
-if(WITH_BLKIN)
-  set(BLKIN_LIBRARIES blkin ${LTTNGUST_LIBRARIES} lttng-ust-fork)
-  include_directories(SYSTEM src/blkin/blkin-lib)
-endif(WITH_BLKIN)
+
+#if(NOT WITH_BLKIN)
+find_package(OPENTRACE REQUIRED)
+find_package(JAEGER REQUIRED)
+find_package(YAMLCPP REQUIRED)
+set(BLKIN_LIBRARIES ${JAEGER_LIBRARIES} ${OPENTRACE_LIBRARIES} ${YAMLCPP_LIBRARIES})
+include_directories(SYSTEM ${JAEGER_INCLUDE_DIRS} ${YAMLCPP_INCLUDE_DIRS} ${OPENTRACE_INCLUDE_DIRS})
+  #endif(WITH_BLKIN)
+
 
 option(WITH_BOOST_CONTEXT "Enable boost::asio stackful coroutines" ON)
 if(WITH_BOOST_CONTEXT)

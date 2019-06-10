@@ -413,10 +413,18 @@ if(WITH_DPDK)
 endif()
 
 option(WITH_BLKIN "Use blkin to emit LTTng tracepoints for Zipkin" OFF)
-if(WITH_BLKIN)
-  set(BLKIN_LIBRARIES blkin ${LTTNGUST_LIBRARIES} lttng-ust-fork)
-  include_directories(SYSTEM src/blkin/blkin-lib)
-endif(WITH_BLKIN)
+
+option(WITH_JAEGER "Use jaeger to create tracepoints and display it in Jaeger UI" ON)
+
+if(WITH_JAEGER)
+  #TODO: handle the case if libraries found locally, why be redundant?
+  #set(JAEGER_DIR "${CMAKE_CURRENT_LIST_DIR}/jaegertracing/jaeger-client-cpp")
+  find_package(OPENTRACE REQUIRED)
+  find_package(JAEGER REQUIRED)
+  find_package(YAMLCPP REQUIRED)
+  set(COMPLETE_JAEGER_LIBRARIES ${JAEGER_LIBRARIES} ${OPENTRACE_LIBRARIES} ${YAMLCPP_LIBRARIES})
+  include_directories(SYSTEM ${JAEGER_INCLUDE_DIRS} ${YAMLCPP_INCLUDE_DIRS} ${OPENTRACE_INCLUDE_DIRS})
+endif(WITH_JAEGER)
 
 option(WITH_BOOST_CONTEXT "Enable boost::asio stackful coroutines" ON)
 if(WITH_BOOST_CONTEXT)

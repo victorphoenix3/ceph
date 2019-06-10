@@ -6876,6 +6876,17 @@ void OSD::dispatch_session_waiting(SessionRef session, OSDMapRef osdmap)
 
 void OSD::ms_fast_dispatch(Message *m)
 {
+  jaeger_ceph::setUpTracer("OSD_TRACING");
+
+  //jaeger_ceph::tracedFunction("entered ms_fast_dispatch");
+  const std::unique_ptr<opentracing::Span>& parent_span = 
+  jaeger_ceph::tracedFunction("traced_ms_fast_dispatch");
+
+  const std::unique_ptr<opentracing::Span>& carrier_span = 
+  jaeger_ceph::tracedSubroutine(parent_span, "sub_routine_ms_fast_dispatch");
+  
+  //opentracing::Tracer::Global()->Close();
+
   FUNCTRACE(cct);
   if (service.is_stopping()) {
     m->put();

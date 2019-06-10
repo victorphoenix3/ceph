@@ -4051,7 +4051,7 @@ PGRef OSD::handle_pg_create_info(const OSDMapRef& osdmap,
     return nullptr;
   }
 
-  PG::PeeringCtx rctx = create_context();
+  PeeringCtx rctx = create_context();
 
   OSDMapRef startmap = get_map(info->epoch);
 
@@ -4086,8 +4086,9 @@ PGRef OSD::handle_pg_create_info(const OSDMapRef& osdmap,
 		 << "the pool allows ec overwrites but is not stored in "
 		 << "bluestore, so deep scrubbing will not detect bitrot";
   }
-  PG::_create(rctx.transaction, pgid, pgid.get_split_bits(pp->get_pg_num()));
-  PG::_init(rctx.transaction, pgid, pp);
+  create_pg_collection(
+    rctx.transaction, pgid, pgid.get_split_bits(pp->get_pg_num()));
+  init_pg_ondisk(rctx.transaction, pgid, pp);
 
   int role = startmap->calc_pg_role(whoami, acting, acting.size());
   if (!pp->is_replicated() && role != pgid.shard) {
@@ -5410,7 +5411,7 @@ void OSD::_preboot(epoch_t oldest, epoch_t newest)
     if (osdmap->get_epoch() > newest - 1) {
       exit(0);
     }
-  } else if (osdmap->test_flag(CEPH_OSDMAP_NOUP) || osdmap->is_noup(whoami)) {
+  } else if (osdmap->is_noup(whoami)) {
     derr << "osdmap NOUP flag is set, waiting for it to clear" << dendl;
   } else if (!osdmap->test_flag(CEPH_OSDMAP_SORTBITWISE)) {
     derr << "osdmap SORTBITWISE OSDMap flag is NOT set; please set it"
@@ -7724,9 +7725,7 @@ void OSD::_committed_osd_maps(epoch_t first, epoch_t last, MOSDMap *m)
       }
     }
 
-    if ((osdmap->test_flag(CEPH_OSDMAP_NOUP) !=
-        newmap->test_flag(CEPH_OSDMAP_NOUP)) ||
-        (osdmap->is_noup(whoami) != newmap->is_noup(whoami))) {
+    if (osdmap->is_noup(whoami) != newmap->is_noup(whoami)) {
       dout(10) << __func__ << " NOUP flag changed in " << newmap->get_epoch()
 	       << dendl;
       if (is_booting()) {
@@ -8026,7 +8025,7 @@ void OSD::_finish_splits(set<PGRef>& pgs)
   dout(10) << __func__ << " " << pgs << dendl;
   if (is_stopping())
     return;
-  PG::PeeringCtx rctx = create_context();
+  PeeringCtx rctx = create_context();
   for (set<PGRef>::iterator i = pgs.begin();
        i != pgs.end();
        ++i) {
@@ -8063,7 +8062,7 @@ bool OSD::advance_pg(
   epoch_t osd_epoch,
   PG *pg,
   ThreadPool::TPHandle &handle,
-  PG::PeeringCtx &rctx)
+  PeeringCtx &rctx)
 {
   if (osd_epoch <= pg->get_osdmap_epoch()) {
     return true;
@@ -8499,7 +8498,7 @@ void OSD::split_pgs(
   const set<spg_t> &childpgids, set<PGRef> *out_pgs,
   OSDMapRef curmap,
   OSDMapRef nextmap,
-  PG::PeeringCtx &rctx)
+  PeeringCtx &rctx)
 {
   unsigned pg_num = nextmap->get_pg_num(parent->pg_id.pool());
   parent->update_snap_mapper_bits(parent->get_pgid().get_split_bits(pg_num));
@@ -8647,12 +8646,12 @@ void OSD::handle_pg_create(OpRequestRef op)
 // ----------------------------------------
 // peering and recovery
 
-PG::PeeringCtx OSD::create_context()
+PeeringCtx OSD::create_context()
 {
-  return PG::PeeringCtx();
+  return PeeringCtx();
 }
 
-void OSD::dispatch_context_transaction(PG::PeeringCtx &ctx, PG *pg,
+void OSD::dispatch_context_transaction(PeeringCtx &ctx, PG *pg,
                                        ThreadPool::TPHandle *handle)
 {
   if (!ctx.transaction.empty() || ctx.transaction.has_contexts()) {
@@ -8664,7 +8663,7 @@ void OSD::dispatch_context_transaction(PG::PeeringCtx &ctx, PG *pg,
   }
 }
 
-void OSD::dispatch_context(PG::PeeringCtx &ctx, PG *pg, OSDMapRef curmap,
+void OSD::dispatch_context(PeeringCtx &ctx, PG *pg, OSDMapRef curmap,
                            ThreadPool::TPHandle *handle)
 {
   if (!service.get_osdmap()->is_up(whoami)) {
@@ -9150,7 +9149,7 @@ void OSD::do_recovery(
 	     << " on " << *pg << dendl;
 
     if (do_unfound) {
-      PG::PeeringCtx rctx = create_context();
+      PeeringCtx rctx = create_context();
       rctx.handle = &handle;
       pg->find_unfound(queued, rctx);
       dispatch_context(rctx, pg, pg->get_osdmap());
@@ -9326,7 +9325,7 @@ void OSD::dequeue_peering_evt(
   PGPeeringEventRef evt,
   ThreadPool::TPHandle& handle)
 {
-  PG::PeeringCtx rctx = create_context();
+  PeeringCtx rctx = create_context();
   auto curmap = sdata->get_osdmap();
   bool need_up_thru = false;
   epoch_t same_interval_since = 0;

@@ -9,10 +9,6 @@
 //need to update this after
 #ifdef WITH_BLKIN
 
-#define HAVE_CONFIG_H 1
-#define SIGNED_RIGHT_SHIFT_IS 1
-#define ARITHMETIC_RIGHT_SHIFT 1
-
 #else // !WITH_BLKIN
 
 // add stubs for noop Trace and Endpoint

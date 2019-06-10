@@ -157,6 +157,8 @@
 #include "json_spirit/json_spirit_reader.h"
 #include "json_spirit/json_spirit_writer.h"
 
+#include "include/tracer.h"
+
 #ifdef WITH_LTTNG
 #define TRACEPOINT_DEFINE
 #define TRACEPOINT_PROBE_DYNAMIC_LINKAGE
@@ -6695,6 +6697,22 @@ void OSD::dispatch_session_waiting(SessionRef session, OSDMapRef osdmap)
 
 void OSD::ms_fast_dispatch(Message *m)
 {
+
+    jaeger_ceph::setUpTracer();
+    auto span = opentracing::Tracer::Global()->StartSpan("traced_ms_fast_dispatch");
+
+/*
+  void tracedSubroutine(const std::unique_ptr<opentracing::Span>& parentSpan)
+  {
+      auto span = opentracing::Tracer::Global()->StartSpan(
+          "tracedSubroutine-ms_fast_dispatch", { opentracing::ChildOf(&parentSpan->context()) });
+  }
+*/
+   // tracedFunction();
+    // Not stricly necessary to close tracer, but might flush any buffered
+    // spans. See more details in opentracing::Tracer::Close() documentation.
+  opentracing::Tracer::Global()->Close();
+
   FUNCTRACE(cct);
   if (service.is_stopping()) {
     m->put();

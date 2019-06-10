@@ -160,6 +160,7 @@
 
 #include "json_spirit/json_spirit_reader.h"
 #include "json_spirit/json_spirit_writer.h"
+#include "include/tracer.h"
 
 #ifdef WITH_LTTNG
 #define TRACEPOINT_DEFINE
@@ -6885,8 +6886,6 @@ void OSD::ms_fast_dispatch(Message *m)
   const std::unique_ptr<opentracing::Span>& carrier_span = 
   jaeger_ceph::tracedSubroutine(parent_span, "sub_routine_ms_fast_dispatch");
   
-  //opentracing::Tracer::Global()->Close();
-
   FUNCTRACE(cct);
   if (service.is_stopping()) {
     m->put();

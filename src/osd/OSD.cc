@@ -160,6 +160,7 @@
 
 #include "json_spirit/json_spirit_reader.h"
 #include "json_spirit/json_spirit_writer.h"
+#include "include/tracer.h"
 
 #ifdef WITH_LTTNG
 #define TRACEPOINT_DEFINE
@@ -6876,6 +6877,11 @@ void OSD::dispatch_session_waiting(SessionRef session, OSDMapRef osdmap)
 
 void OSD::ms_fast_dispatch(Message *m)
 {
+
+  jaeger_ceph::setUpTracer();
+  jaeger_ceph::tracedFunction();
+  opentracing::Tracer::Global()->Close();
+
   FUNCTRACE(cct);
   if (service.is_stopping()) {
     m->put();

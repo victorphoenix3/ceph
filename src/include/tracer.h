@@ -4,31 +4,36 @@
 
 #include <jaegertracing/Tracer.h>
 
-namespace jaeger_ceph {
+namespace  jaeger_ceph {
 
-void setUpTracer()
+//TODO: find right context for traced subroutine for functions, they don't belong here.
+//TODO: need to place the opentracing span flush
+
+void setUpTracer(const char* serviceToTrace)
 {  const char* configFilePath ="/home/d/config.yml";
    auto configYAML = YAML::LoadFile(configFilePath);
    auto config = jaegertracing::Config::parse(configYAML);
    auto tracer = jaegertracing::Tracer::make(
-        "example-ceph-service", config, jaegertracing::logging::consoleLogger());
+        serviceToTrace, config, jaegertracing::logging::consoleLogger());
    opentracing::Tracer::InitGlobal(
         std::static_pointer_cast<opentracing::Tracer>(tracer));
 }
 
-void tracedSubroutine(const std::unique_ptr<opentracing::Span>& parentSpan)
+const std::unique_ptr<opentracing::Span> tracedSubroutine(
+    const std::unique_ptr<opentracing::Span>& parentSpan, 
+    const char* subRoutineContext)
 {
     auto span = opentracing::Tracer::Global()->StartSpan(
-        "tracedSubroutine-ceph", { opentracing::ChildOf(&parentSpan->context()) });
+       subRoutineContext, { opentracing::ChildOf(&parentSpan->context()) });
+    return span;
 }
 
-void tracedFunction()
+//const std::unique_ptr<opentracing::Span> tracedFunction()
+const std::unique_ptr<opentracing::Span> tracedFunction(const char* funcContext)
 {
-    auto span = opentracing::Tracer::Global()->StartSpan("tracedFunction-ceph");
-    tracedSubroutine(span);
+    auto span = opentracing::Tracer::Global()->StartSpan(funcContext);
+    return span;
 }
-//TODO: find right context for traced subroutine for functions, they don't belong here.
-//TODO: need to place the opentracing span flush
-} 
 
+} 
 

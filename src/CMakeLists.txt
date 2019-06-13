@@ -365,7 +365,7 @@ set(ceph_common_deps
   Boost::iostreams
   ${BLKID_LIBRARIES}
   ${Backtrace_LIBRARIES}
-  ${BLKIN_LIBRARIES}
+  ${JAEGER_LIBRARIES}
   ${CRYPTO_LIBS}
   ${GSSAPI_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT}

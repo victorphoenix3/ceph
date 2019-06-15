@@ -61,6 +61,3 @@
 [submodule "src/c-ares"]
 	path = src/c-ares
 	url = https://github.com/ceph/c-ares.git
-[submodule "jaegertracing/jaeger-client-cpp"]
-	path = jaegertracing/jaeger-client-cpp
-	url = https://github.com/jaegertracing/jaeger-client-cpp.git

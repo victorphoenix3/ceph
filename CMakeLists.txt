@@ -424,16 +424,22 @@ if(WITH_DPDK)
   set(HAVE_DPDK TRUE)
 endif()
 
-option(WITH_BLKIN "Use blkin to emit LTTng tracepoints for Zipkin" OFF)
+#option(WITH_BLKIN "Use blkin to emit LTTng tracepoints for Zipkin" OFF)
+option(WITH_JAEGER "Use jaeger to create tracepoints and display it in Jaeger UI" OFF)
 
-#if(NOT WITH_BLKIN)
-find_package(OPENTRACE REQUIRED)
-find_package(JAEGER REQUIRED)
-find_package(YAMLCPP REQUIRED)
-set(COMPLETE_JAEGER_LIBRARIES ${JAEGER_LIBRARIES} ${OPENTRACE_LIBRARIES} ${YAMLCPP_LIBRARIES})
-include_directories(SYSTEM ${JAEGER_INCLUDE_DIRS} ${YAMLCPP_INCLUDE_DIRS} ${OPENTRACE_INCLUDE_DIRS})
-  #endif(WITH_BLKIN)
+if(WITH_JAEGER)
+  add_subdirectory(jaegertracing/jaeger-client-cpp)
+     
+  #set(JAEGER_LIBRARIES ${CMAKE_CURRENT_SOURCE_DIR}/jaegertracing/jaeger-client-cpp) #CACHE PATH add
+  #if( NOT COMPLETE_JAEGER_LIBRARIES)
+  #set(COMPLETE_JAEGER_LIBRARIES 
+  #    ${JAEGER_LIBRARIES} ${OPENTRACE_LIBRARIES} ${YAMLCPP_LIBRARIES})
+  #find_package(OPENTRACE REQUIRED)
+  #find_package(JAEGER REQUIRED)
+  #find_package(YAMLCPP REQUIRED)
+  #include_directories(SYSTEM ${JAEGER_INCLUDE_DIRS} ${YAMLCPP_INCLUDE_DIRS} ${OPENTRACE_INCLUDE_DIRS})
 
+endif(WITH_JAEGER)
 
 option(WITH_BOOST_CONTEXT "Enable boost::asio stackful coroutines" ON)
 if(WITH_BOOST_CONTEXT)

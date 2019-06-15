@@ -425,17 +425,38 @@ if(WITH_DPDK)
 endif()
 
 #option(WITH_BLKIN "Use blkin to emit LTTng tracepoints for Zipkin" OFF)
-option(WITH_JAEGER "Use jaeger to create tracepoints and display it in Jaeger UI" OFF)
+option(WITH_JAEGER "Use jaeger to create tracepoints and display it in Jaeger UI" ON)
 
 if(WITH_JAEGER)
-  add_subdirectory(jaegertracing/jaeger-client-cpp)
-     
-  #set(JAEGER_LIBRARIES ${CMAKE_CURRENT_SOURCE_DIR}/jaegertracing/jaeger-client-cpp) #CACHE PATH add
+  #TODO: handle the case if libraries found locally, why be redundant?
+  #TODO: do something with those result variables, run a check
+  set(JAEGER_DIR "${CMAKE_SOURCE_DIR}/jaegertracing/jaeger-client-cpp")
+    
+  execute_process(
+    COMMAND cmake .
+    WORKING_DIRECTORY ${JAEGER_DIR}
+    RESULT_VARIABLE JAEGER_BUILT)
+
+  execute_process(
+    #make process command work
+    COMMAND make "-j8" 
+    WORKING_DIRECTORY ${JAEGER_DIR}
+    RESULT_VARIABLE JAEGER_BUILT)
+
+  execute_process(
+    COMMAND sudo make install  
+    WORKING_DIRECTORY ${JAEGER_DIR}
+    RESULT_VARIABLE JAEGER_BUILT)
+
+  find_package(JAEGER REQUIRED)
+  find_package(OPENTRACE REQUIRED)
+  find_package(YAMLCPP REQUIRED)
+  message(STATUS "added jaeger submodule")
+
   #if( NOT COMPLETE_JAEGER_LIBRARIES)
   #set(COMPLETE_JAEGER_LIBRARIES 
   #    ${JAEGER_LIBRARIES} ${OPENTRACE_LIBRARIES} ${YAMLCPP_LIBRARIES})
   #find_package(OPENTRACE REQUIRED)
-  #find_package(JAEGER REQUIRED)
   #find_package(YAMLCPP REQUIRED)
   #include_directories(SYSTEM ${JAEGER_INCLUDE_DIRS} ${YAMLCPP_INCLUDE_DIRS} ${OPENTRACE_INCLUDE_DIRS})
 

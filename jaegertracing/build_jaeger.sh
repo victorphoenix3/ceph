@@ -12,11 +12,10 @@
 ###########################
 
 cwd=`pwd`
-
 #extract links
 while read line
 do
-  projects+=("$line")
+  projects+=( "${line}" ) 
 done < $cwd/git_sources.txt
 
 for project in "${projects[@]}"; do

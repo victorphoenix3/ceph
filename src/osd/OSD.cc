@@ -6707,6 +6707,8 @@ void OSD::ms_fast_dispatch(Message *m)
   const std::unique_ptr<opentracing::Span>& carrier_span = 
   jaeger_ceph::tracedSubroutine(parent_span, "sub_routine_ms_fast_dispatch");
   
+  std::string inject_test_string = jaeger_ceph::inject(parent_span,"inject_placeholder_const_char");
+  jaeger_ceph::extract(parent_span, "hello-extract", "metadata_placeholder"); 
   //opentracing::Tracer::Global()->Close();
 
   FUNCTRACE(cct);

@@ -16,13 +16,14 @@ void setUpTracer(const char* serviceToTrace)
         std::static_pointer_cast<opentracing::Tracer>(tracer));
 }
 
-void tracedSubroutine(std::unique_ptr<opentracing::Span>& parentSpan,
+std::unique_ptr<opentracing::Span> tracedSubroutine(std::unique_ptr<opentracing::Span>& parentSpan,
                       const char* subRoutineContext)
 {
     auto span = opentracing::Tracer::Global()->StartSpan(
         subRoutineContext, { opentracing::ChildOf(&parentSpan->context()) });
     span->SetTag("simple tag in subroutineCtx", 124);
     span->Finish();
+    return span;
 }
 
 std::unique_ptr<opentracing::Span> tracedFunction(const char* funcContext)

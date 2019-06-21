@@ -6764,16 +6764,17 @@ void OSD::ms_fast_dispatch(Message *m)
 #endif
     tracepoint(osd, ms_fast_dispatch, reqid.name._type,
         reqid.name._num, reqid.tid, reqid.inc);
-  }
 
 #ifdef WITH_JAEGER
-  std::unique_ptr<opentracing::Span> carrierSpan =
-      jaeger_ceph::tracedSubroutine(parent_span,
-				    "sub_routine_ms_fast_dispatch");
-  parentSpan->Finish();
-  carrierSpan->Finish();
-  opentracing::Tracer::Global()->Close();
+    std::unique_ptr<opentracing::Span> carrierSpan =
+	jaeger_ceph::tracedSubroutine(parentSpan,
+				      "sub_routine_ms_fast_dispatch");
+    parentSpan->Finish();
+    carrierSpan->Finish();
+    opentracing::Tracer::Global()->Close();
 #endif
+  }
+
 
   if (m->trace)
     op->osd_trace.init("osd op", &trace_endpoint, &m->trace);

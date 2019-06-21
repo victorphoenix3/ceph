@@ -425,7 +425,7 @@ if(WITH_DPDK)
 endif()
 
 option(WITH_BLKIN "Use blkin to emit LTTng tracepoints for Zipkin" OFF)
-option(WITH_JAEGER "Use jaeger to create tracepoints and display it in Jaeger UI" ON)
+option(WITH_JAEGER "Use jaeger to create tracepoints and display it on Jaeger UI" ON)
 
 if(WITH_JAEGER)
   #TODO: handle the case if libraries found locally, why be redundant?

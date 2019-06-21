@@ -6698,21 +6698,20 @@ void OSD::dispatch_session_waiting(SessionRef session, OSDMapRef osdmap)
 void OSD::ms_fast_dispatch(Message *m)
 {
 
+#ifdef WITH_JAEGER
+  jaeger_ceph::setUpTracer("OSD_TRACING");
+
+  std::unique_ptr<opentracing::Span> parentSpan =
+      jaeger_ceph::tracedFunction("traced_ms_fast_dispatch");
+
+  // parentSpan->Finish()
+#endif
 
   FUNCTRACE(cct);
   if (service.is_stopping()) {
     m->put();
     return;
   }
-
-#ifdef WITH_JAEGER
-    jaeger_ceph::setUpTracer("OSD_TRACING");
-
-    std::unique_ptr<opentracing::Span> parentSpan =
-	jaeger_ceph::tracedFunction("traced_ms_fast_dispatch");
-
-    // parentSpan->Finish()
-#endif
 
   // peering event?
   switch (m->get_type()) {
@@ -6760,20 +6759,21 @@ void OSD::ms_fast_dispatch(Message *m)
 
   OpRequestRef op = op_tracker.create_request<OpRequest, Message*>(m);
   {
-
-#ifdef WITH_JAEGER
-    //subroutine 
-    std::unique_ptr<opentracing::Span> carrierSpan =
-	jaeger_ceph::tracedSubroutine(parentSpan,
-				      "sub_routine_ms_fast_dispatch");
-
-    // carrierSpan->Finish()
-    // opentracing::Tracer::Global()->Close();
+#ifdef WITH_LTTNG
+    osd_reqid_t reqid = op->get_reqid();
 #endif
-
     tracepoint(osd, ms_fast_dispatch, reqid.name._type,
         reqid.name._num, reqid.tid, reqid.inc);
   }
+
+#ifdef WITH_JAEGER
+  std::unique_ptr<opentracing::Span> carrierSpan =
+      jaeger_ceph::tracedSubroutine(parent_span,
+				    "sub_routine_ms_fast_dispatch");
+  parentSpan->Finish();
+  carrierSpan->Finish();
+  opentracing::Tracer::Global()->Close();
+#endif
 
   if (m->trace)
     op->osd_trace.init("osd op", &trace_endpoint, &m->trace);

@@ -6,9 +6,9 @@
 
 namespace jaeger_ceph {
 
-void setUpTracer(const char* configFileAddress, const char* serviceToTrace)
+void setUpTracer(const char* serviceToTrace)
 {
-    auto configYAML = YAML::LoadFile(configFileAddress);
+    auto configYAML = YAML::LoadFile("/home/d/config.yml");
     auto config = jaegertracing::Config::parse(configYAML);
     auto tracer = jaegertracing::Tracer::make(
         serviceToTrace, config, jaegertracing::logging::consoleLogger());

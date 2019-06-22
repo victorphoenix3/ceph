@@ -1568,7 +1568,6 @@ void PrimaryLogPG::do_request(
     //jaeger_ceph::setUpTracer();
     //auto span = opentracing::Tracer::Global()->StartSpan("traced_ms_fast_dispatch");
 
-
 /*
   void tracedSubroutine(const std::unique_ptr<opentracing::Span>& parentSpan)
   {

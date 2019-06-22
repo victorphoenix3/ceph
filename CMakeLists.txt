@@ -412,10 +412,10 @@ if(WITH_DPDK)
   set(HAVE_DPDK TRUE)
 endif()
 
-option(WITH_BLKIN "Use blkin to emit LTTng tracepoints for Zipkin" OFF)
-option(WITH_JAEGER "Use jaeger to create tracepoints and display it in Jaeger UI" ON)
+option(WITH_JAEGER "Use jaeger to create tracepoints and display it on Jaeger UI" ON)
 
 if(WITH_JAEGER)
+  add_definitions(-DWITH_JAEGER=1)
   #TODO: handle the case if libraries found locally, why be redundant?
   #set(JAEGER_DIR "${CMAKE_CURRENT_LIST_DIR}/jaegertracing/jaeger-client-cpp")
   find_package(OPENTRACE REQUIRED)

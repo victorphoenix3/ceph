@@ -21,6 +21,8 @@ done < $cwd/git_sources.txt
 
 for project in "${projects[@]}"; do
 
+  cd $cwd
+  echo $cwd
   #extract project's name
   basename=$(basename $project)
   filename=${basename%.*}

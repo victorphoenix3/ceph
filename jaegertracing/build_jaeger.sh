@@ -20,8 +20,13 @@ done < $cwd/git_sources.txt
 
 for project in "${projects[@]}"; do
 
+<<<<<<< HEAD
   echo $cwd
   cd $cwd
+=======
+  cd $cwd
+  echo $cwd
+>>>>>>> shell scripts to add jaeger dependencies locally
   #extract project's name
   basename=$(basename $project)
   filename=${basename%.*}

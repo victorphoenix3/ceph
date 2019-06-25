@@ -33,7 +33,14 @@
 class OSD;
 
 class MOSDOp : public MOSDFastDispatchOp {
-private:
+
+// #ifdef WITH_JAEGER
+// #include "include/tracer.h"
+//   public:
+//   JTracer::jspan;
+// #endif
+
+  private:
   static constexpr int HEAD_VERSION = 8;
   static constexpr int COMPAT_VERSION = 3;
 

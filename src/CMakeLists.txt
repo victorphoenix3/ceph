@@ -365,7 +365,6 @@ set(ceph_common_deps
   Boost::iostreams
   ${BLKID_LIBRARIES}
   ${Backtrace_LIBRARIES}
-  ${JAEGER_LIBRARIES}
   ${CRYPTO_LIBS}
   ${GSSAPI_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT}
@@ -393,6 +392,10 @@ endif()
 if(WITH_DPDK)
   list(APPEND ceph_common_deps common_async_dpdk)
 endif()
+
+if (WITH_JAEGER)
+  list(APPEND ${JAEGER_LIBRARIES} ${OPENTRACE_LIBRARIES} ${YAML_LIBRARIES}) 
+endif(WITH_JAEGER)
 
 add_library(common STATIC ${ceph_common_objs})
 target_link_libraries(common ${ceph_common_deps})

@@ -177,7 +177,10 @@ if(HAVE_ARMV8_CRC)
 endif()
 
 target_link_libraries(crc32
-  arch ${JAEGER_LIBRARIES} ${OPENTRACE_LIBRARIES} ${YAMLCPP_LIBRARIES})
+  arch
+  ${JAEGER_LIBRARIES}
+  ${OPENTRACE_LIBRARIES}
+  ${YAML_LIBRARIES})
 
 add_library(common_utf8 STATIC utf8.c)
 

@@ -1580,7 +1580,6 @@ void PrimaryLogPG::do_request(
      JTracer jtracer;
      JTracer::jspan doRequestSpan =
 	jtracer.tracedFunction("do_request_string");
-     doRequestSpan->Finish();
 #endif
 // 
 // #ifdef WITH_JAEGER

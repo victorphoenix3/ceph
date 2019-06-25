@@ -62,5 +62,4 @@ void extract(jspan& span, const char* name,
 }
 
 };
-
 #endif

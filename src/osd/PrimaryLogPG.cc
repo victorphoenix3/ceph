@@ -73,6 +73,10 @@ static ostream& _prefix(std::ostream *_dout, T *pg) {
 #include <sstream>
 #include <utility>
 
+#ifdef WITH_JAEGER
+#include "include/tracer.h"
+#endif
+
 #include <errno.h>
 
 MEMPOOL_DEFINE_OBJECT_FACTORY(PrimaryLogPG, replicatedpg, osd);
@@ -1574,8 +1578,9 @@ void PrimaryLogPG::do_request(
 
 #ifdef WITH_JAEGER
 //    JTracer::setUpTracer("OSD_TRACING"); 
+     JTracer jtracer;
      JTracer::jspan doRequestSpan =
-	JTracer::tracedFunction("do_request_string");
+	jtracer.tracedFunction("do_request_string");
      doRequestSpan->Finish();
 #endif
 // 

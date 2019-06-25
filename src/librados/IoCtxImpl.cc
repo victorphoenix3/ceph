@@ -28,6 +28,10 @@
 #undef dout_prefix
 #define dout_prefix *_dout << "librados: "
 
+#ifdef WITH_JAEGER
+#include "include/tracer.h"
+#endif
+
 namespace librados {
 namespace {
 

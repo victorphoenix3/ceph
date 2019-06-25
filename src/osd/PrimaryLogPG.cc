@@ -1566,25 +1566,27 @@ void PrimaryLogPG::do_request(
   OpRequestRef& op,
   ThreadPool::TPHandle &handle)
 {
-    //jaeger_ceph::setUpTracer();
-    //auto span = opentracing::Tracer::Global()->StartSpan("traced_ms_fast_dispatch");
-
-/*
-  void tracedSubroutine(const std::unique_ptr<opentracing::Span>& parentSpan)
-  {
-      auto span = opentracing::Tracer::Global()->StartSpan(
-          "tracedSubroutine-ms_fast_dispatch", { opentracing::ChildOf(&parentSpan->context()) });
-  }
-*/
-   // tracedFunction();
-    // Not stricly necessary to close tracer, but might flush any buffered
-    // spans. See more details in opentracing::Tracer::Close() documentation.
- // opentracing::Tracer::Global()->Close();
-
   if (op->osd_trace) {
     op->pg_trace.init("pg op", &trace_endpoint, &op->osd_trace);
     op->pg_trace.event("do request");
   }
+
+
+#ifdef WITH_JAEGER
+//    JTracer::setUpTracer("OSD_TRACING"); 
+     JTracer::jspan doRequestSpan =
+	JTracer::tracedFunction("do_request_string");
+     doRequestSpan->Finish();
+#endif
+// 
+// #ifdef WITH_JAEGER
+//   JTracer::jspan carrierSpan =
+//       JTracer::tracedSubroutine(doRequestSpan, "PG_OP_INIT_DO_REQUEST");
+// //  doRequestSpan->Finish();
+//   carrierSpan->Finish();
+//   opentracing::Tracer::Global()->Close();
+// #endif
+
   // make sure we have a new enough map
   auto p = waiting_for_map.find(op->get_source());
   if (p != waiting_for_map.end()) {
@@ -1779,6 +1781,15 @@ void PrimaryLogPG::do_op(OpRequestRef& op)
     op->reset_desc();   // for TrackedOp
     m->clear_payload();
   }
+
+
+// #ifdef WITH_JAEGER
+//   JTracer::jspan carrierSpan =
+//       JTracer::tracedSubroutine(parentSpan, "do_op BEGINS");
+//   parentSpan->Finish();
+//   carrierSpan->Finish();
+//   opentracing::Tracer::Global()->Close();
+// #endif
 
   dout(20) << __func__ << ": op " << *m << dendl;
 
@@ -5620,6 +5631,10 @@ int PrimaryLogPG::do_osd_ops(OpContext *ctx, vector<OSDOp>& ops)
     // The fields in ceph_osd_op are little-endian (according to the definition in rados.h),
     // but the code in this function seems to treat them as native-endian.  What should the
     // tracepoints do?
+
+  /*
+   * WITH_JAEGER: to log snapc(checking why invalid) 
+   */
     tracepoint(osd, do_osd_op_pre, soid.oid.name.c_str(), soid.snap.val, op.op, ceph_osd_op_name(op.op), op.flags);
 
     dout(10) << "do_osd_op  " << osd_op << dendl;
@@ -8341,6 +8356,9 @@ int PrimaryLogPG::prepare_transaction(OpContext *ctx)
     return -EINVAL;
   }
 
+  /*
+   * WITH_JAEGER: to log snapc(checking why invalid) 
+   */
   // prepare the actual mutation
   int result = do_osd_ops(ctx, *ctx->ops);
   if (result < 0) {

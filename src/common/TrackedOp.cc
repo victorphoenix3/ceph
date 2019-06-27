@@ -462,7 +462,7 @@ void TrackedOp::dump(utime_t now, Formatter *f) const
   f->dump_float("duration", get_duration());
   {
     f->open_object_section("type_data");
-    _dump(f);
+     _dump(f);
     f->close_section();
   }
 }

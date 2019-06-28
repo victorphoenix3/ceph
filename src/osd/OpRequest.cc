@@ -50,6 +50,19 @@ OpRequest::OpRequest(Message *req, OpTracker *tracker) :
   req_src_inst = req->get_source_inst();
 }
 
+void get_event_duration(std::vector<Event> events) {
+  TrackedOp::Event temp;
+
+  for (auto it = events.begin(); it != events.end(); ++it) {
+    if (it->str == "initiated") {
+      events->duration = ceph_time_now() - stamp;
+    } else {
+      events->duration = it->stamp - temp->stamp;
+    }
+    temp = it;
+  }
+}
+
 void OpRequest::_dump(Formatter *f) const
 {
   Message *m = request;
@@ -65,22 +78,10 @@ void OpRequest::_dump(Formatter *f) const
     f->close_section(); // client_info
   }
 
-  void get_event_duration(std::vector<Event> events) {
-    TrackedOp::Event temp;
-
-    for (auto it = events.begin(); it != events.end(); ++it) {
-      if (it->str == "initiated") {
-	events->duration = ceph_time_now() - stamp;
-      } else {
-	events->duration = it->stamp - temp->stamp;
-      }
-      temp = it;
-    }
-  }
-
   {
     f->open_array_section("events");
     std::lock_guard l(lock);
+    get_event_duration(events);
     for (auto& i : events) {
       f->dump_object("event", i);
     }

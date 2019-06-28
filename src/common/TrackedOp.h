@@ -258,11 +258,12 @@ public:
     std::vector<Event> events;  ///< std::list of events and their times
 
     void get_event_duration(std::vector<Event> events) {
-      for (auto& it = events.begin(); it != events.end(); ++it) {
-	auto it_prev = --it;
+      for (auto it = events.begin(); it != events.end(); ++it) {
 	if (it == events.begin()) {
 	  it->duration = ceph_clock_now() - it->stamp;
 	} else {
+	  auto it_prev = it;
+	  it_prev--;
 	  it.duration = it->stamp - it_prev->stamp;
 	}
       }

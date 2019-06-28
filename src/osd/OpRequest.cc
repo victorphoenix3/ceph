@@ -68,9 +68,10 @@ void OpRequest::_dump(Formatter *f) const
   {
     f->open_array_section("events");
     std::lock_guard l(lock);
-    for (auto& i : events) {
+    //for (auto& i : events) {
+    for (auto i = events.begin(); i != events.end(); ++i) {
+      auto i_prev = --i;
       f->dump_object("event", i);
-      i_prev = --i;
       if (i == events.begin()) {
 	f->dump_float("duration", ceph_clock_now() - i->stamp);
       } else {
@@ -79,6 +80,7 @@ void OpRequest::_dump(Formatter *f) const
     }
   }
   f->close_section();
+}
 }
 
 void OpRequest::_dump_op_descriptor_unlocked(ostream& stream) const

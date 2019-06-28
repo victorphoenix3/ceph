@@ -65,8 +65,8 @@ void OpRequest::_dump(Formatter *f) const
     f->close_section(); // client_info
   }
 
-  void get_event_duration(events) {
-    Event temp;
+  void get_event_duration(std::vector<Event> events) {
+    TrackedOp::Event temp;
 
     for (auto it = events.begin(); it != events.end(); ++it) {
       if (it->str == "initiated") {

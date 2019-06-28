@@ -257,7 +257,7 @@ protected:
 public:
     std::vector<Event> events;  ///< std::list of events and their times
 
-    void get_event_duration(std::vector<Event> events) {
+    void get_event_duration const (std::vector<Event> events) {
       for (auto it = events.begin(); it != events.end(); ++it) {
 	if (it == events.begin()) {
 	  it->duration = it->stamp - get_initiated();

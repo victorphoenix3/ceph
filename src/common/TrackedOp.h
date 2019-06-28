@@ -199,7 +199,7 @@ public:
       };
 
       auto compare = [] (utime_t first, utime_t second) -> bool {
-      return t1 < t2;
+      return first < second;
       };
 
       std::vector<MarkEventStore> events = {

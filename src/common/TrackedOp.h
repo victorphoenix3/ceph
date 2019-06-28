@@ -198,7 +198,6 @@ public:
 
 	MarkEventStore(utime_t t, std::string_view s) : stamp(t), str(s) {}
 
-	bool compare_stamp(utime_t t1, utime_t t2) { return t1 < t2; }
       };
 
       std::vector<MarkEventStore> events =
@@ -207,9 +206,10 @@ public:
 	{"all_read", params->get_recv_complete_stamp()},
 	{"dispatched", params->get_dispatch_stamp()} };
 
-      std::sort(events.begin(), events.end(), events.compare_stamp);
+      bool compare_stamp(utime_t t1, utime_t t2) { return t1 < t2; }
+      std::sort(events.begin(), events.end(), compare_stamp);
 
-	  for (auto i = events.begin(); i != events.end(); i++) {
+      for (auto i = events.begin(); i != events.end(); i++) {
 	retval->mark_event(i->str, i->stamp);
       }
     }

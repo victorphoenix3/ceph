@@ -70,18 +70,15 @@ void OpRequest::_dump(Formatter *f) const
     std::lock_guard l(lock);
     for (auto& i : events) {
       f->dump_object("event", i);
-
-      for (auto it = events.begin(); it != events.end(); ++it) {
-	auto it_prev = --it;
-	if (it == events.begin()) {
-	  f->dump_float("duration", ceph_clock_now() - it->stamp);
-	} else {
-	  f->dump_float("duration", it->stamp - it_prev->stamp);
-	}
+      i_prev = --i;
+      if (i == events.begin()) {
+	f->dump_float("duration", ceph_clock_now() - i->stamp);
+      } else {
+	f->dump_float("duration", i->stamp - i_prev->stamp);
       }
     }
-    f->close_section();
   }
+  f->close_section();
 }
 
 void OpRequest::_dump_op_descriptor_unlocked(ostream& stream) const

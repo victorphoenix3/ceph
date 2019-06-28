@@ -263,9 +263,9 @@ public:
       if (it->str == "initiated") {
 	it->duration = ceph_clock_now() - it->stamp;
       } else {
-	it->duration = it->stamp - temp->stamp;
+	it->duration = it->stamp - temp_stamp;
       }
-      TrackedOp::Event temp = it;
+      utime_t temp_stamp = it->stamp;
     }
   }
 

@@ -68,7 +68,7 @@ void OpRequest::_dump(Formatter *f) const
   {
     f->open_array_section("events");
     std::lock_guard l(lock);
-    get_event_duration(events);
+    TrackedOp::get_event_duration(events);
     //    for (auto i = events.begin(); i != events.end(); ++i) {
     for (auto& i : events) {
       f->dump_object("event", i);

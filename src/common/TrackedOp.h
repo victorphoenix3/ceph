@@ -208,7 +208,7 @@ public:
 	  {"all_read", params->get_recv_complete_stamp()},
 	  {"dispatched", params->get_dispatch_stamp()}};
 
-      std::sort(events.begin(), events.end(), compare);
+      std::sort(events.begin()->stamp, events.end()->stamp, compare);
 
       for (auto i = events.begin(); i != events.end(); i++) {
 	retval->mark_event(i->str, i->stamp);

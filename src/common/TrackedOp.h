@@ -258,15 +258,14 @@ public:
   std::vector<Event> events;    ///< std::list of events and their times
 
   void get_event_duration(std::vector<Event> events) {
-    Event temp;
 
     for (auto it = events.begin(); it != events.end(); ++it) {
       if (it->str == "initiated") {
-	it->duration = ceph_time_now() - it->stamp;
+	it->duration = ceph_clock_now() - it->stamp;
       } else {
 	it->duration = it->stamp - temp->stamp;
       }
-      temp = it;
+      TrackedOp::Event temp = it;
     }
   }
 

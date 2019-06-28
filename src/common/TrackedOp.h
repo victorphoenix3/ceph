@@ -192,11 +192,11 @@ public:
     retval->tracking_start();
 
     if (is_tracking()) {
-      struct MarkEventsStore {
+      struct MarkEventStore {
 	utime_t stamp;
 	std::string str;
 
-	MarkEventsStore(utime_t t, std::string_view s) : stamp(t), str(s) {}
+	MarkEventStore(utime_t t, std::string_view s) : stamp(t), str(s) {}
 
 	bool compare_stamp(utime_t t1, utime_t t2) { return t1 < t2; }
       };
@@ -207,7 +207,7 @@ public:
 	{"all_read", params->get_recv_complete_stamp()},
 	{"dispatched", params->get_dispatch_stamp()} }
 
-      std::sort(events.begin(), events.end(), events.compare)
+      std::sort(events.begin(), events.end(), events.compare);
 
 	  for (auto i = events.begin(); i != events.end(); i++) {
 	retval->mark_event(i->str, i->stamp);

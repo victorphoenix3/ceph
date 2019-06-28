@@ -65,19 +65,17 @@ void OpRequest::_dump(Formatter *f) const
     f->close_section(); // client_info
   }
 
-  double get_event_duration(events){
+  void get_event_duration(events) {
+    Event temp;
 
-  Event temp;
-
-  for(auto it = events.begin(); it != events.end(); ++it){
-  if(it->str == "initiated"){
-  events->duration = ceph_time_now()-stamp;
-  }
-  else {
-  events->duration = it->stamp - temp->stamp;
-  }
-  temp = it;
-  }
+    for (auto it = events.begin(); it != events.end(); ++it) {
+      if (it->str == "initiated") {
+	events->duration = ceph_time_now() - stamp;
+      } else {
+	events->duration = it->stamp - temp->stamp;
+      }
+      temp = it;
+    }
   }
 
   {

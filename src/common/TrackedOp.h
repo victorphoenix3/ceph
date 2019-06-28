@@ -234,6 +234,7 @@ protected:
 
   struct Event {
     utime_t stamp;
+    float duration;
     std::string str;
 
     Event(utime_t t, std::string_view s) : stamp(t), str(s) {}
@@ -248,7 +249,6 @@ protected:
 
     void dump(ceph::Formatter *f) const {
       f->dump_stream("time") << stamp;
-      f->dump_float("duration") << ceph_clock_now()-stamp;
       f->dump_string("event", str);
     }
   };

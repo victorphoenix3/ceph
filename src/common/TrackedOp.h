@@ -257,7 +257,7 @@ protected:
 public:
     std::vector<Event> events;  ///< std::list of events and their times
 
-    void get_event_duration const (std::vector<Event> events); 
+    void get_event_duration const (std::vector<Event>); 
 
 protected:
   mutable ceph::mutex lock = ceph::make_mutex("TrackedOp::lock"); ///< to protect the events list

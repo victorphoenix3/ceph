@@ -257,17 +257,7 @@ protected:
 public:
     std::vector<Event> events;  ///< std::list of events and their times
 
-    void get_event_duration const (std::vector<Event> events) {
-      for (auto it = events.begin(); it != events.end(); ++it) {
-	if (it == events.begin()) {
-	  it->duration = it->stamp - get_initiated();
-	} else {
-	  auto it_prev = it;
-	  it_prev--;
-	  it->duration = it->stamp - it_prev->stamp;
-	}
-      }
-    }
+    void get_event_duration const (std::vector<Event> events); 
 
 protected:
   mutable ceph::mutex lock = ceph::make_mutex("TrackedOp::lock"); ///< to protect the events list

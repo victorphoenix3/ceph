@@ -205,7 +205,7 @@ public:
       { {"header_read", params->get_recv_stamp()},
 	{"throttled", params->get_throttle_stamp()},
 	{"all_read", params->get_recv_complete_stamp()},
-	{"dispatched", params->get_dispatch_stamp()} }
+	{"dispatched", params->get_dispatch_stamp()} };
 
       std::sort(events.begin(), events.end(), events.compare);
 

@@ -234,8 +234,8 @@ protected:
 
   struct Event {
     utime_t stamp;
-    float duration;
     std::string str;
+    float duration;
 
     Event(utime_t t, std::string_view s, float d) : stamp(t), str(s), duration(d) {}
 

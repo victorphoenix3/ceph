@@ -255,22 +255,20 @@ protected:
   };
 
 public:
-  std::vector<Event> events;    ///< std::list of events and their times
+    std::vector<Event> events;  ///< std::list of events and their times
 
-  void get_event_duration(std::vector<Event> events) {
-
-    for (auto it = events.begin(); it != events.end(); ++it) {
-//      if (it->str == "initiated") {
-	if (1){      
-	it->duration = ceph_clock_now() - it->stamp;
-      } else {
-	it->duration = it->stamp - temp_stamp;
+    void get_event_duration(std::vector<Event> events) {
+      for (auto it = events.begin(); it != events.end(); ++it) {
+	auto it_prev = --it;
+	if (it == events.begin()) {
+	  it->duration = ceph_clock_now() - it->stamp;
+	} else {
+	  it->duration = it->stamp - it_prev->stamp;
+	}
       }
-    utime_t temp_stamp = it->stamp;
     }
-  }
 
-  protected:
+protected:
   mutable ceph::mutex lock = ceph::make_mutex("TrackedOp::lock"); ///< to protect the events list
   uint64_t seq = 0;        ///< a unique value std::set by the OpTracker
 

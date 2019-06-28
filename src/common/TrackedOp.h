@@ -237,7 +237,7 @@ protected:
     std::string str;
 //    float duration;
 
-    Event(utime_t t, std::string_view s/*, float d)*/ : stamp(t), str(s)/*, duration(d)*/ {}
+    Event(utime_t t, std::string_view s)/*, float d)*/ : stamp(t), str(s)/*, duration(d)*/ {}
 
     int compare(const char *s) const {
       return str.compare(s);

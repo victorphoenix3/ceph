@@ -237,7 +237,7 @@ protected:
     float duration;
     std::string str;
 
-    Event(utime_t t, std::string_view s, float duration) : stamp(t), str(s), duration(d) {}
+    Event(utime_t t, std::string_view s, float d) : stamp(t), str(s), duration(d) {}
 
     int compare(const char *s) const {
       return str.compare(s);
@@ -257,14 +257,14 @@ protected:
 public:
   std::vector<Event> events;    ///< std::list of events and their times
 
-  void get_event_duration(events) {
+  void get_event_duration(std::vector<Event> events) {
     Event temp;
 
     for (auto it = events.begin(); it != events.end(); ++it) {
       if (it->str == "initiated") {
-	events->duration = ceph_time_now() - it->stamp;
+	it->duration = ceph_time_now() - it->stamp;
       } else {
-	events->duration = it->stamp - temp->stamp;
+	it->duration = it->stamp - temp->stamp;
       }
       temp = it;
     }

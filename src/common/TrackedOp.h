@@ -237,7 +237,7 @@ protected:
     float duration;
     std::string str;
 
-    Event(utime_t t, std::string_view s) : stamp(t), str(s) {}
+    Event(utime_t t, std::string_view s, float duration) : stamp(t), str(s), duration(d) {}
 
     int compare(const char *s) const {
       return str.compare(s);
@@ -250,10 +250,27 @@ protected:
     void dump(ceph::Formatter *f) const {
       f->dump_stream("time") << stamp;
       f->dump_string("event", str);
+      f->dump_float("duration", duration);
     }
   };
 
+public:
   std::vector<Event> events;    ///< std::list of events and their times
+
+  void get_event_duration(events) {
+    Event temp;
+
+    for (auto it = events.begin(); it != events.end(); ++it) {
+      if (it->str == "initiated") {
+	events->duration = ceph_time_now() - it->stamp;
+      } else {
+	events->duration = it->stamp - temp->stamp;
+      }
+      temp = it;
+    }
+  }
+
+  protected:
   mutable ceph::mutex lock = ceph::make_mutex("TrackedOp::lock"); ///< to protect the events list
   uint64_t seq = 0;        ///< a unique value std::set by the OpTracker
 

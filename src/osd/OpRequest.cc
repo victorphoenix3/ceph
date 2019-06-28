@@ -74,7 +74,7 @@ void OpRequest::_dump(Formatter *f) const
       f->dump_string("event", i->str);
       f->dump_stream("time") << i->stamp;
       if (i == events.begin()) {
-	f->dump_float("duration", i->stamp - initiated_at());
+	f->dump_float("duration", i->stamp - get_initiated());
       } else {
 	auto i_prev = i;
 	i_prev--;

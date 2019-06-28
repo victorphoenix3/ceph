@@ -68,7 +68,7 @@ void OpRequest::_dump(Formatter *f) const
   {
     f->open_array_section("events");
     std::lock_guard l(lock);
-    //for (auto& i : events) {
+    // for (auto& i : events) {
     for (auto i = events.begin(); i != events.end(); ++i) {
       auto i_prev = --i;
       f->dump_object("event", i);
@@ -78,9 +78,8 @@ void OpRequest::_dump(Formatter *f) const
 	f->dump_float("duration", i->stamp - i_prev->stamp);
       }
     }
+    f->close_section();
   }
-  f->close_section();
-}
 }
 
 void OpRequest::_dump_op_descriptor_unlocked(ostream& stream) const

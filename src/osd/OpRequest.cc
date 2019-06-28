@@ -69,15 +69,16 @@ void OpRequest::_dump(Formatter *f) const
     f->open_array_section("events");
     std::lock_guard l(lock);
     for (auto& i : events) {
+      f->dump_object("event", i);
+
       for (auto it = events.begin(); it != events.end(); ++it) {
 	auto it_prev = --it;
 	if (it == events.begin()) {
-	  it->duration = ceph_clock_now() - it->stamp;
+	  f->dump_float("duration", ceph_clock_now() - it->stamp);
 	} else {
-	  it->duration = it->stamp - it_prev->stamp;
+	  f->dump_float("duration", it->stamp - it_prev->stamp);
 	}
       }
-      f->dump_object("event", i);
     }
     f->close_section();
   }

@@ -235,9 +235,9 @@ protected:
   struct Event {
     utime_t stamp;
     std::string str;
-    float duration;
+//    float duration;
 
-    Event(utime_t t, std::string_view s, float d) : stamp(t), str(s), duration(d) {}
+    Event(utime_t t, std::string_view s/*, float d)*/ : stamp(t), str(s)/*, duration(d)*/ {}
 
     int compare(const char *s) const {
       return str.compare(s);
@@ -250,14 +250,12 @@ protected:
     void dump(ceph::Formatter *f) const {
       f->dump_stream("time") << stamp;
       f->dump_string("event", str);
-      f->dump_float("duration", duration);
+//      f->dump_float("duration", duration);
     }
   };
 
-public:
   std::vector<Event> events;    ///< std::list of events and their times
 
-protected:
   mutable ceph::mutex lock = ceph::make_mutex("TrackedOp::lock"); ///< to protect the events list
   uint64_t seq = 0;        ///< a unique value std::set by the OpTracker
 

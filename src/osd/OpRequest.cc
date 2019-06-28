@@ -71,7 +71,9 @@ void OpRequest::_dump(Formatter *f) const
     // for (auto& i : events) {
     for (auto i = events.begin(); i != events.end(); ++i) {
       auto i_prev = --i;
-      f->dump_object("event", i);
+      //f->dump_object("event", i);
+      f->dump_stream("time") << i->stamp;
+      f->dump_string("event", i->str);
       if (i == events.begin()) {
 	f->dump_float("duration", ceph_clock_now() - i->stamp);
       } else {

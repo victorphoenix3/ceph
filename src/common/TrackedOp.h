@@ -260,7 +260,7 @@ public:
     void get_event_duration(std::vector<Event> events) {
       for (auto it = events.begin(); it != events.end(); ++it) {
 	if (it == events.begin()) {
-	  it->duration = it->stamp - it->TrackedOp::get_initiated();
+	  it->duration = it->stamp - get_initiated();
 	} else {
 	  auto it_prev = it;
 	  it_prev--;

@@ -260,12 +260,13 @@ public:
   void get_event_duration(std::vector<Event> events) {
 
     for (auto it = events.begin(); it != events.end(); ++it) {
-      if (it->str == "initiated") {
+//      if (it->str == "initiated") {
+	if (1){      
 	it->duration = ceph_clock_now() - it->stamp;
       } else {
 	it->duration = it->stamp - temp_stamp;
       }
-      utime_t temp_stamp = it->stamp;
+    utime_t temp_stamp = it->stamp;
     }
   }
 

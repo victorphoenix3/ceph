@@ -77,8 +77,8 @@ void OpRequest::_dump(Formatter *f) const
       auto i_next = i;
       i_next++;
 
-      if (i == events.back()) {
-	f->dump_float("duration", i->stamp - get_initiated());
+      if (i->compare("done") == 0) {
+	f->dump("duration", i->stamp - get_initiated());
       } else {
 	f->dump_float("duration", i_next->stamp - i->stamp);
       }

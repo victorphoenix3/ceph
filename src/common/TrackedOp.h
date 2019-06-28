@@ -198,9 +198,9 @@ public:
 	MarkEventStore(std::string s, utime_t t) : str(s), stamp(t) {}
       };
 
-      //    auto compare = [] (utime_t first, utime_t second) -> bool {
-      //	return t1 < t2;
-      //    };
+      auto compare = [] (utime_t first, utime_t second) -> bool {
+      return t1 < t2;
+      };
 
       std::vector<MarkEventStore> events = {
 	  {"header_read", params->get_recv_stamp()},
@@ -208,7 +208,7 @@ public:
 	  {"all_read", params->get_recv_complete_stamp()},
 	  {"dispatched", params->get_dispatch_stamp()}};
 
-      //      std::sort(events.begin(), events.end(), compare);
+      std::sort(events.begin(), events.end(), compare);
 
       for (auto i = events.begin(); i != events.end(); i++) {
 	retval->mark_event(i->str, i->stamp);

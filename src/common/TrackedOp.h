@@ -199,7 +199,7 @@ public:
       };
 
       auto compare = [] (auto first, auto second) -> bool {
-      return first->stamp < second->stamp;
+      return first.stamp < second.stamp;
       };
 
       std::vector<MarkEventStore> events = {

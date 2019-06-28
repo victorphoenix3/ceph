@@ -73,7 +73,6 @@ void OpRequest::_dump(Formatter *f) const
     for (auto i = events.begin(); i != events.end(); ++i) {
       f->dump_object("event", i);
       }
-    }
     f->close_section();
   }
 }

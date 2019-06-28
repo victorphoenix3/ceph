@@ -235,9 +235,9 @@ protected:
   struct Event {
     utime_t stamp;
     std::string str;
-    float duration;
+    double duration;
 
-    Event(utime_t t, std::string_view s, float d) : stamp(t), str(s), duration(d) {}
+    Event(utime_t t, std::string_view s, double d) : stamp(t), str(s), duration(d) {}
 
     int compare(const char *s) const {
       return str.compare(s);
@@ -260,11 +260,11 @@ public:
     void get_event_duration(std::vector<Event> events) {
       for (auto it = events.begin(); it != events.end(); ++it) {
 	if (it == events.begin()) {
-	  it->duration = ceph_clock_now() - it->stamp;
+	  it->duration = it->stamp - it->get_initiated();
 	} else {
 	  auto it_prev = it;
 	  it_prev--;
-	  it.duration = it->stamp - it_prev->stamp;
+	  it->duration = it->stamp - it_prev->stamp;
 	}
       }
     }

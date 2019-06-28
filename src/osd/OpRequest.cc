@@ -64,6 +64,22 @@ void OpRequest::_dump(Formatter *f) const
     f->dump_unsigned("tid", m->get_tid());
     f->close_section(); // client_info
   }
+
+  double get_event_duration(events){
+
+  Event temp;
+
+  for(auto it = events.begin(); it != events.end(); ++it){
+  if(it->str == "initiated"){
+  events->duration = ceph_time_now()-stamp;
+  }
+  else {
+  events->duration = it->stamp - temp->stamp;
+  }
+  temp = it;
+  }
+  }
+
   {
     f->open_array_section("events");
     std::lock_guard l(lock);

@@ -190,18 +190,34 @@ public:
   {
     typename T::Ref retval(new T(params, this));
     retval->tracking_start();
-
     if (is_tracking()) {
-      retval->mark_event("header_read", params->get_recv_stamp());
-      retval->mark_event("throttled", params->get_throttle_stamp());
-      retval->mark_event("all_read", params->get_recv_complete_stamp());
-      retval->mark_event("dispatched", params->get_dispatch_stamp());
+      struct MarkEventStore {
+	std::string str;
+	utime_t stamp;
+
+	MarkEventStore(std::string s, utime_t t) : str(s), stamp(t) {}
+      };
+
+      auto compare = [] (auto first, auto second) -> bool {
+      return first.stamp < second.stamp;
+      };
+
+      std::vector<MarkEventStore> events = {
+	  {"header_read", params->get_recv_stamp()},
+	  {"throttled", params->get_throttle_stamp()},
+	  {"all_read", params->get_recv_complete_stamp()},
+	  {"dispatched", params->get_dispatch_stamp()}};
+
+      std::sort(events.begin(), events.end(), compare);
+
+      for (auto i = events.begin(); i != events.end(); i++) {
+	retval->mark_event(i->str, i->stamp);
+      }
     }
 
     return retval;
   }
 };
-
 
 class TrackedOp : public boost::intrusive::list_base_hook<> {
 private:
@@ -248,11 +264,13 @@ protected:
 
     void dump(ceph::Formatter *f) const {
       f->dump_stream("time") << stamp;
+      f->dump_float("duration") << ceph_clock_now()-stamp;
       f->dump_string("event", str);
     }
   };
 
   std::vector<Event> events;    ///< std::list of events and their times
+
   mutable ceph::mutex lock = ceph::make_mutex("TrackedOp::lock"); ///< to protect the events list
   uint64_t seq = 0;        ///< a unique value std::set by the OpTracker
 

@@ -30,12 +30,15 @@ using std::stringstream;
 
 using ceph::Formatter;
 
-OpRequest::OpRequest(Message *req, OpTracker *tracker) :
-  TrackedOp(tracker, req->get_recv_stamp()),
-  rmw_flags(0), request(req),
-  hit_flag_points(0), latest_flag_point(0),
-  hitset_inserted(false)
-{
+OpRequest::OpRequest(Message* req, OpTracker* tracker)
+    : TrackedOp(tracker, req->get_recv_stamp() > req->get_throttle_stamp()
+			     ? req->get_throttle_stamp()
+			     : req->get_recv_stamp()),
+      rmw_flags(0),
+      request(req),
+      hit_flag_points(0),
+      latest_flag_point(0),
+      hitset_inserted(false) {
   if (req->get_priority() < tracker->cct->_conf->osd_client_op_priority) {
     // don't warn as quickly for low priority ops
     warn_interval_multiplier = tracker->cct->_conf->osd_recovery_op_warn_multiple;
@@ -64,11 +67,25 @@ void OpRequest::_dump(Formatter *f) const
     f->dump_unsigned("tid", m->get_tid());
     f->close_section(); // client_info
   }
+
   {
     f->open_array_section("events");
     std::lock_guard l(lock);
-    for (auto& i : events) {
-      f->dump_object("event", i);
+
+    for (auto i = events.begin(); i != events.end(); ++i) {
+      f->open_object_section("event");
+      f->dump_string("event", i->str);
+      f->dump_stream("time") << i->stamp;
+
+      auto i_next = i;
+      i_next++;
+
+      if (i->compare("done") == 0) {
+	f->dump_float("duration", i->stamp - get_initiated());
+      } else {
+	f->dump_float("duration", i_next->stamp - i->stamp);
+      }
+      f->close_section();
     }
     f->close_section();
   }

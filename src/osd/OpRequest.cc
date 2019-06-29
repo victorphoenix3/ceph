@@ -30,12 +30,15 @@ using std::stringstream;
 
 using ceph::Formatter;
 
-OpRequest::OpRequest(Message *req, OpTracker *tracker) :
-  TrackedOp(tracker, req->get_recv_stamp()),
-  rmw_flags(0), request(req),
-  hit_flag_points(0), latest_flag_point(0),
-  hitset_inserted(false)
-{
+OpRequest::OpRequest(Message* req, OpTracker* tracker)
+    : TrackedOp(tracker, req->get_recv_stamp() > req->get_throttle_stamp()
+			     ? req->get_throttle_stamp()
+			     : req->get_recv_stamp),
+      rmw_flags(0),
+      request(req),
+      hit_flag_points(0),
+      latest_flag_point(0),
+      hitset_inserted(false) {
   if (req->get_priority() < tracker->cct->_conf->osd_client_op_priority) {
     // don't warn as quickly for low priority ops
     warn_interval_multiplier = tracker->cct->_conf->osd_recovery_op_warn_multiple;

@@ -73,7 +73,7 @@ void OpRequest::_dump(Formatter *f) const
     std::lock_guard l(lock);
 
     for (auto i = events.begin(); i != events.end(); ++i) {
-      f->open_array_section("event");
+      f->open_object_section("event");
       f->dump_string("event", i->str);
       f->dump_stream("time") << i->stamp;
 

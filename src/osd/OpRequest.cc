@@ -33,7 +33,7 @@ using ceph::Formatter;
 OpRequest::OpRequest(Message* req, OpTracker* tracker)
     : TrackedOp(tracker, req->get_recv_stamp() > req->get_throttle_stamp()
 			     ? req->get_throttle_stamp()
-			     : req->get_recv_stamp),
+			     : req->get_recv_stamp()),
       rmw_flags(0),
       request(req),
       hit_flag_points(0),

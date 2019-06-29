@@ -203,7 +203,6 @@ public:
       };
 
       std::vector<MarkEventStore> events = {
-	  {"initiated", get_initiated()},
 	  {"header_read", params->get_recv_stamp()},
 	  {"throttled", params->get_throttle_stamp()},
 	  {"all_read", params->get_recv_complete_stamp()},

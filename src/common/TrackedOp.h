@@ -262,6 +262,10 @@ protected:
       return str.c_str();
     }
 
+    void dump(ceph::Formatter *f) const {
+      f->dump_stream("time") << stamp;
+      f->dump_string("event", str);
+    }
   };
 
   std::vector<Event> events;    ///< std::list of events and their times

@@ -251,9 +251,8 @@ protected:
   struct Event {
     utime_t stamp;
     std::string str;
-//    float duration;
 
-    Event(utime_t t, std::string_view s)/*, float d)*/ : stamp(t), str(s)/*, duration(d)*/ {}
+    Event(utime_t t, std::string_view s) : stamp(t), str(s) {}
 
     int compare(const char *s) const {
       return str.compare(s);
@@ -263,10 +262,6 @@ protected:
       return str.c_str();
     }
 
-    void dump(ceph::Formatter *f) const {
-      f->dump_stream("time") << stamp;
-      f->dump_string("event", str);
-    }
   };
 
   std::vector<Event> events;    ///< std::list of events and their times

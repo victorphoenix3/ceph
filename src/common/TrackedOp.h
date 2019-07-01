@@ -249,7 +249,6 @@ protected:
 
     void dump(ceph::Formatter *f) const {
       f->dump_stream("time") << stamp;
-      f->dump_float("duration") << ceph_clock_now()-stamp;
       f->dump_string("event", str);
     }
   };

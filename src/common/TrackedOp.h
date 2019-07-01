@@ -191,28 +191,13 @@ public:
     typename T::Ref retval(new T(params, this));
     retval->tracking_start();
     if (is_tracking()) {
-      struct MarkEventStore {
-	std::string str;
-	utime_t stamp;
 
-	MarkEventStore(std::string s, utime_t t) : str(s), stamp(t) {}
-      };
+      //it was observed that throttled stamp was recorded earlier than header_read
+      retval->mark_event("throttled", params->get_throttle_stamp());
+      retval->mark_event("header_read", params->get_recv_stamp());
+      retval->mark_event("all_read", params->get_recv_complete_stamp());
+      retval->mark_event("dispatched", params->get_dispatch_stamp());
 
-      auto compare = [] (auto first, auto second) -> bool {
-      return first.stamp < second.stamp;
-      };
-
-      std::vector<MarkEventStore> events = {
-	  {"header_read", params->get_recv_stamp()},
-	  {"throttled", params->get_throttle_stamp()},
-	  {"all_read", params->get_recv_complete_stamp()},
-	  {"dispatched", params->get_dispatch_stamp()}};
-
-      std::sort(events.begin(), events.end(), compare);
-
-      for (auto i = events.begin(); i != events.end(); i++) {
-	retval->mark_event(i->str, i->stamp);
-      }
     }
 
     return retval;

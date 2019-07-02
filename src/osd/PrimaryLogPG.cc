@@ -73,7 +73,7 @@ static ostream& _prefix(std::ostream *_dout, T *pg) {
 #include <utility>
 
 #ifdef WITH_JAEGER
-#include "include/tracer.h"
+#include "common/JaegerTracer.h"
 #endif
 
 #include <errno.h>
@@ -1574,22 +1574,10 @@ void PrimaryLogPG::do_request(
     op->pg_trace.event("do request");
   }
 
-
-#ifdef WITH_JAEGER
-//    JTracer::setUpTracer("OSD_TRACING"); 
-     JTracer jtracer;
-     JTracer::jspan doRequestSpan =
-	jtracer.tracedFunction("do_request_string");
-     doRequestSpan->Finish();
-#endif
-// 
-// #ifdef WITH_JAEGER
-//   JTracer::jspan carrierSpan =
-//       JTracer::tracedSubroutine(doRequestSpan, "PG_OP_INIT_DO_REQUEST");
-// //  doRequestSpan->Finish();
-//   carrierSpan->Finish();
-//   opentracing::Tracer::Global()->Close();
-// #endif
+//#ifdef WITH_JAEGER
+//  jspan do_request_span = jt.tracedFunction("do_request_string");
+//  do_request_span->Finish();
+//#endif
 
   // make sure we have a new enough map
   auto p = waiting_for_map.find(op->get_source());
@@ -8313,10 +8301,6 @@ int PrimaryLogPG::prepare_transaction(OpContext *ctx)
     return -EINVAL;
   }
 
-  /*
-   * WITH_JAEGER: to log snapc(checking why invalid) 
-   */
-  // prepare the actual mutation
   int result = do_osd_ops(ctx, *ctx->ops);
   if (result < 0) {
     if (ctx->op->may_write() &&

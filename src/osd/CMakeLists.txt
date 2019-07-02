@@ -42,18 +42,18 @@ set(osd_srcs
   ${CMAKE_SOURCE_DIR}/src/mgr/OSDPerfMetricTypes.cc
   ${osd_cyg_functions_src}
   ${osdc_osd_srcs})
+
 if(HAS_VTA)
   set_source_files_properties(osdcap.cc
     PROPERTIES COMPILE_FLAGS -fno-var-tracking-assignments)
 endif()
 add_library(osd STATIC ${osd_srcs}
   $<TARGET_OBJECTS:global_common_objs>)
+
 target_link_libraries(osd
   PUBLIC dmclock::dmclock
-  PRIVATE os heap_profiler cpu_profiler ${CMAKE_DL_LIBS}
-  ${JAEGER_LIBRARIES}
-  ${OPENTRACE_LIBRARIES}
-  ${YAMLCPP_LIBRARIES})
+  PRIVATE os heap_profiler cpu_profiler ${CMAKE_DL_LIBS})
+
 if(WITH_LTTNG)
   add_dependencies(osd osd-tp pg-tp)
 endif()

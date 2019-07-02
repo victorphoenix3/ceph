@@ -332,6 +332,7 @@ set(libcommon_files
   osdc/Objecter.cc
   librbd/Features.cc
   ${mds_files})
+
 set_source_files_properties(ceph_ver.c
   APPEND PROPERTY OBJECT_DEPENDS ${CMAKE_BINARY_DIR}/src/include/ceph_ver.h)
 add_library(common-objs OBJECT ${libcommon_files})
@@ -392,10 +393,6 @@ endif()
 if(WITH_DPDK)
   list(APPEND ceph_common_deps common_async_dpdk)
 endif()
-
-if (WITH_JAEGER)
-  list(APPEND ${JAEGER_LIBRARIES} ${OPENTRACE_LIBRARIES} ${YAML_LIBRARIES}) 
-endif(WITH_JAEGER)
 
 add_library(common STATIC ${ceph_common_objs})
 target_link_libraries(common ${ceph_common_deps})
@@ -512,8 +509,8 @@ add_executable(ceph-osd ${ceph_osd_srcs})
 add_dependencies(ceph-osd erasure_code_plugins)
 target_link_libraries(ceph-osd osd os global-static common
   ${BLKID_LIBRARIES})
-if(WITH_FUSE)
-  target_link_libraries(ceph-osd ${FUSE_LIBRARIES})
+if(with_fuse)
+  target_link_libraries(ceph-osd ${fuse_libraries})
 endif()
 set_target_properties(ceph-osd PROPERTIES
   POSITION_INDEPENDENT_CODE ${EXE_LINKER_USE_PIE})

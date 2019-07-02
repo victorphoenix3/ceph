@@ -1,42 +1,35 @@
-#ifndef TRACER_H_
-#define TRACER_H_
-
-#include <iostream>
-
-#include <yaml-cpp/yaml.h>
-
 #include <jaegertracing/Tracer.h>
+#include <yaml-cpp/yaml.h>
+#include <iostream>
+#include "JaegerTracer.h"
 
-class JTracer {
-public:
-
-static inline void setUpTracer(const char* serviceToTrace) {
-  static auto configYAML = YAML::LoadFile("../jaegertracing/config.yml");
-  static auto config = jaegertracing::Config::parse(configYAML);
-  static auto tracer = jaegertracing::Tracer::make(
+/*
+ //make config file param protected
+ JTracer::configPath = "../jaegertracing/config.yml") :
+*/
+ void JTracer::setUpTracer(const char* serviceToTrace) {
+  auto configYAML = YAML::LoadFile("../jaegertracing/config.yml");
+  auto config = jaegertracing::Config::parse(configYAML);
+  auto _tracer = jaegertracing::Tracer::make(
       serviceToTrace, config, jaegertracing::logging::consoleLogger());
   opentracing::Tracer::InitGlobal(
-      std::static_pointer_cast<opentracing::Tracer>(tracer));
+      std::static_pointer_cast<opentracing::Tracer>(_tracer));
 }
 
-typedef std::unique_ptr<opentracing::Span> jspan;
-
-jspan tracedSubroutine(
-    jspan& parentSpan,
-    const char* subRoutineContext) {
+ void JTracer::tracedSubroutine(jspan& parentSpan,
+			       const char* subRoutineContext) {
   auto span = opentracing::Tracer::Global()->StartSpan(
       subRoutineContext, {opentracing::ChildOf(&parentSpan->context())});
   span->Finish();
-  return span;
 }
 
-jspan tracedFunction(const char* funcContext) {
+ jspan JTracer::tracedFunction(const char* funcContext) {
   auto span = opentracing::Tracer::Global()->StartSpan(funcContext);
   span->Finish();
   return span;
 }
 
-std::string inject(jspan& span, const char* name) {
+ std::string JTracer::inject(jspan& span, const char* name) {
   std::stringstream ss;
   if (!span) {
     auto span = opentracing::Tracer::Global()->StartSpan(name);
@@ -46,8 +39,7 @@ std::string inject(jspan& span, const char* name) {
   return ss.str();
 }
 
-void extract(jspan& span, const char* name,
-	     std::string t_meta) {
+ void JTracer::extract(jspan& span, const char* name, std::string t_meta) {
   std::stringstream ss(t_meta);
   //    if(!tracer){
   //    }
@@ -59,9 +51,6 @@ void extract(jspan& span, const char* name,
   auto _span = opentracing::Tracer::Global()->StartSpan(
       "propagationSpan", {ChildOf(span_context_maybe->get())});
 
-  auto span1 = std::move(_span);
+  _span->Finish();
 }
 
-};
-
-#endif

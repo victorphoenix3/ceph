@@ -24,9 +24,9 @@
 #include "include/util.h"
 #include "OSD.h"
 
-#ifdef WITH_JAEGER
-#include "include/tracer.h"
-#endif
+// #ifdef WITH_JAEGER
+// #include "JaegerTracer.h"
+// #endif
 
 #define dout_context cct
 #define dout_subsys ceph_subsys_osd
@@ -39,10 +39,10 @@ static ostream& _prefix(std::ostream *_dout, ReplicatedBackend *pgb) {
 
 namespace {
 
-#ifdef WITH_JAEGER
-    JTracer jtracer;
-    jtracer.setUpTracer("ReplicationBackendTraces");
-#endif 
+// #ifdef WITH_JAEGER
+//     JTracer jtracer;
+//     jtracer.setUpTracer("ReplicationBackendTraces");
+// #endif 
 
 class PG_SendMessageOnConn: public Context {
   PGBackend::Listener *pg;
@@ -531,10 +531,10 @@ void ReplicatedBackend::op_commit(
     op->op->mark_event("op_commit");
 //    op->op->pg_trace.event("op commit");
 
-#ifdef WITH_JAEGER
-    JTracer::jspan pg_trace =
-	jtracer.tracedFunction("op_commit_begins");
-#endif
+// #ifdef WITH_JAEGER
+//     jspan pg_trace =
+// 	jtracer.tracedFunction("op_commit_begins");
+// #endif
   }
 
   op->waiting_for_commit.erase(get_parent()->whoami_shard());

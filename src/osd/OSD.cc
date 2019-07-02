@@ -158,7 +158,7 @@
 #include "json_spirit/json_spirit_writer.h"
 
 #ifdef WITH_JAEGER
-#include "include/tracer.h"
+#include "common/JaegerTracer.h"
 #endif
 
 #ifdef WITH_LTTNG
@@ -6708,15 +6708,11 @@ void OSD::ms_fast_dispatch(Message *m)
   }
 
 #ifdef WITH_JAEGER
-  //TODO: extract relevant tags and logs from message, need to understand what
-  //will be relevant from call stack and failing osd
-  JTracer jtracer;
-  jtracer.setUpTracer("OSD_TRACING");
-  JTracer::jspan msFastDispatchSpan =
-      jtracer.tracedFunction((m->get_type_name()).data());
-
-  // parentSpan->Finish()
+  JTracer jt;
+  jt.setUpTracer("OSD_TRACING");
+  jspan parent_span = jt.tracedFunction("ms_fast_dispatch_begins");
 #endif
+
   // peering event?
   switch (m->get_type()) {
   case CEPH_MSG_PING:
@@ -6766,8 +6762,15 @@ void OSD::ms_fast_dispatch(Message *m)
 #ifdef WITH_LTTNG
     osd_reqid_t reqid = op->get_reqid();
 #endif
-    tracepoint(osd, ms_fast_dispatch, reqid.name._type, reqid.name._num,
-	       reqid.tid, reqid.inc);
+
+#ifdef WITH_JAEGER
+    jt.tracedSubroutine(parent_span, (m->get_type_name()).data());
+    parent_span->Log({{"osd", "log_recording_works"},{"osd", "log excerpt"}});
+    parent_span->SetTag(" simple_tag ", 123);
+#endif
+
+	tracepoint(osd, ms_fast_dispatch, reqid.name._type, reqid.name._num,
+		   reqid.tid, reqid.inc);
   }
 
   if (m->trace)
@@ -6804,10 +6807,8 @@ void OSD::ms_fast_dispatch(Message *m)
   OID_EVENT_TRACE_WITH_MSG(m, "MS_FAST_DISPATCH_END", false);
 
 #ifdef WITH_JAEGER
-  JTracer::jspan carrierSpan =
-      jtracer.tracedSubroutine(msFastDispatchSpan, "MS_FAST_DISPATCH_ENDS");
-  msFastDispatchSpan->Finish();
-  carrierSpan->Finish();
+  jt.tracedSubroutine(parent_span, "MS_FAST_DISPATCH_ENDS");
+  parent_span->Finish();
 #endif
 }
 
@@ -9253,20 +9254,6 @@ void OSD::enqueue_op(spg_t pg, OpRequestRef&& op, epoch_t epoch)
     OpQueueItem(
       unique_ptr<OpQueueItem::OpQueueable>(new PGOpItem(pg, std::move(op))),
       cost, priority, stamp, owner, epoch));
-
-#ifdef WITH_JAEGER
-//JTracer::setUpTracer("OSD_TRACING"); // check if setting up tracer
-//  JTracer::jspan enqueueOpSpan =
-//      JTracer::tracedFunction("enqueue_op_placeholder");
-#endif
-// 
-// #ifdef WITH_JAEGER
-//   JTracer::jspan carrierSpan =
-//       JTracer::tracedSubroutine(enqueueOpSpan, "ENQUEUED");
-//   enqueueOpSpan->Finish();
-//   carrierSpan->Finish();
-//   opentracing::Tracer::Global()->Close();
-// #endif
 }
 
 void OSD::enqueue_peering_evt(spg_t pgid, PGPeeringEventRef evt)
@@ -9306,23 +9293,6 @@ void OSD::dequeue_op(
 
   FUNCTRACE(cct);
   OID_EVENT_TRACE_WITH_MSG(m, "DEQUEUE_OP_BEGIN", false);
-
-// #ifdef WITH_JAEGER
-// //    JTracer::setUpTracer("OSD_TRACING"); // check if setting up tracer
-// //    is really globally defined or not
-//     JTracer::jspan dequeueOpSpan =
-// 	JTracer::tracedFunction((m->get_type_name()).data());
-// 
-//     // parentSpan->Finish()
-// #endif
-
-// #ifdef WITH_JAEGER
-//   JTracer::jspan carrierSpan =
-//       JTracer::tracedSubroutine(dequeueOpSpan, "DEQUEUE_OP_BEGIN");
-//   dequeueOpSpan->Finish();
-//   carrierSpan->Finish();
-//   opentracing::Tracer::Global()->Close();
-// #endif
 
   utime_t now = ceph_clock_now();
   op->set_dequeued_time(now);

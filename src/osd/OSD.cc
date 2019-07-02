@@ -6708,15 +6708,15 @@ void OSD::ms_fast_dispatch(Message *m)
   }
 
 #ifdef WITH_JAEGER
-  //TODO: extract relevant tags and logs from message, need to understand what
-  //will be relevant from call stack and failing osd
+  // TODO: extract relevant tags and logs from message, need to understand what
+  // will be relevant from call stack and failing osd
   JTracer jtracer;
   jtracer.setUpTracer("OSD_TRACING");
-  JTracer::jspan msFastDispatchSpan =
+  JTracer::jspan parent_span =
       jtracer.tracedFunction("ms_fast_dispatch_begins");
-
   // parentSpan->Finish()
 #endif
+
   // peering event?
   switch (m->get_type()) {
   case CEPH_MSG_PING:
@@ -6768,12 +6768,13 @@ void OSD::ms_fast_dispatch(Message *m)
 #endif
 
 #ifdef WITH_JAEGER
-      jtracer.tracedSubroutine(msFastDispatchSpan, (m->get_type_name()).data());
-      tracer->Log({"event", "simple_log"});
+    jtracer.tracedSubroutine(parent_span, (m->get_type_name()).data());
+    tracer->Log({"osd", "log_recording_works"});
+    tracer - "SetTag(" simple_tag ", 123);
 #endif
 
-    tracepoint(osd, ms_fast_dispatch, reqid.name._type, reqid.name._num,
-	       reqid.tid, reqid.inc);
+	tracepoint(osd, ms_fast_dispatch, reqid.name._type, reqid.name._num,
+		   reqid.tid, reqid.inc);
   }
 
   if (m->trace)
@@ -6810,10 +6811,8 @@ void OSD::ms_fast_dispatch(Message *m)
   OID_EVENT_TRACE_WITH_MSG(m, "MS_FAST_DISPATCH_END", false);
 
 #ifdef WITH_JAEGER
-  JTracer::jspan carrierSpan =
-      jtracer.tracedSubroutine(msFastDispatchSpan, "MS_FAST_DISPATCH_ENDS");
-  msFastDispatchSpan->Finish();
-  carrierSpan->Finish();
+  jtracer.tracedSubroutine(parent_span, "MS_FAST_DISPATCH_ENDS");
+  parent_span->Finish();
 #endif
 }
 

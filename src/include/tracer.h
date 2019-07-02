@@ -20,7 +20,6 @@ static inline void setUpTracer(const char* serviceToTrace) {
 }
 
 typedef std::unique_ptr<opentracing::Span> jspan;
-typedef opentracing::Tracer::Global() global_tracer;
 
 void tracedSubroutine(
     jspan& parentSpan,
@@ -59,7 +58,7 @@ void extract(jspan& span, const char* name,
   auto _span = opentracing::Tracer::Global()->StartSpan(
       "propagationSpan", {ChildOf(span_context_maybe->get())});
 
-  auto span1 = std::move(_span);
+  _span->Finish();
 }
 
 };

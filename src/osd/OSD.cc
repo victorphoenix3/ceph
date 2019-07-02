@@ -6713,7 +6713,7 @@ void OSD::ms_fast_dispatch(Message *m)
   JTracer jtracer;
   jtracer.setUpTracer("OSD_TRACING");
   JTracer::jspan msFastDispatchSpan =
-      jtracer.tracedFunction((m->get_type_name()).data());
+      jtracer.tracedFunction("ms_fast_dispatch_begins");
 
   // parentSpan->Finish()
 #endif
@@ -6766,6 +6766,12 @@ void OSD::ms_fast_dispatch(Message *m)
 #ifdef WITH_LTTNG
     osd_reqid_t reqid = op->get_reqid();
 #endif
+
+#ifdef WITH_JAEGER
+      jtracer.tracedSubroutine(msFastDispatchSpan, (m->get_type_name()).data());
+      tracer->Log({"event", "simple_log"});
+#endif
+
     tracepoint(osd, ms_fast_dispatch, reqid.name._type, reqid.name._num,
 	       reqid.tid, reqid.inc);
   }

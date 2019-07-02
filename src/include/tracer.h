@@ -20,14 +20,14 @@ static inline void setUpTracer(const char* serviceToTrace) {
 }
 
 typedef std::unique_ptr<opentracing::Span> jspan;
+typedef opentracing::Tracer::Global() global_tracer;
 
-jspan tracedSubroutine(
+void tracedSubroutine(
     jspan& parentSpan,
     const char* subRoutineContext) {
   auto span = opentracing::Tracer::Global()->StartSpan(
       subRoutineContext, {opentracing::ChildOf(&parentSpan->context())});
   span->Finish();
-  return span;
 }
 
 jspan tracedFunction(const char* funcContext) {

@@ -48,16 +48,20 @@ if(HAS_VTA)
 endif()
 add_library(osd STATIC ${osd_srcs}
   $<TARGET_OBJECTS:global_common_objs>)
+
+if(NOT WITH_JAEGER)
 target_link_libraries(osd
   PUBLIC dmclock::dmclock
   PRIVATE os heap_profiler cpu_profiler ${CMAKE_DL_LIBS})
+endif()
 
 if(WITH_JAEGER)
+  target_link_libraries(osd
+  PUBLIC dmclock::dmclock
+  PRIVATE os heap_profiler cpu_profiler ${CMAKE_DL_LIBS}
+  PUBLIC ${COMPLETE_JAEGER_LIBRARIES})
+
   message(STATUS "Using JaegerTracing")
-target_link_libraries(osd
-  ${JAEGER_LIBRARIES}
-  ${OPENTRACE_LIBRARIES}
-  ${YAMLCPP_LIBRARIES})
   #currently defined in source CMakeLists.txt
   #add_definitions("-DWITH_JAEGER")
   list(APPEND osd_srcs ${CMAKE_SOURCE_DIR}/src/include/JaegerTracer.cc)

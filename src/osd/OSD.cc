@@ -6770,7 +6770,7 @@ void OSD::ms_fast_dispatch(Message *m)
 #ifdef WITH_JAEGER
     jtracer.tracedSubroutine(parent_span, (m->get_type_name()).data());
     tracer->Log({"osd", "log_recording_works"});
-    tracer - "SetTag(" simple_tag ", 123);
+    tracer->SetTag(" simple_tag ", 123);
 #endif
 
 	tracepoint(osd, ms_fast_dispatch, reqid.name._type, reqid.name._num,

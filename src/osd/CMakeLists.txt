@@ -68,6 +68,7 @@ if(WITH_JAEGER)
   PRIVATE os heap_profiler cpu_profiler ${CMAKE_DL_LIBS}
   PUBLIC ${COMPLETE_JAEGER_LIBRARIES}
   PUBLIC ${CMAKE_SOURCE_DIR}/src/include/JaegerTracer.cc)
+endif()
 
 if(WITH_LTTNG)
   add_dependencies(osd osd-tp pg-tp)

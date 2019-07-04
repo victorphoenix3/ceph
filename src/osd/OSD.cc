@@ -6707,11 +6707,11 @@ void OSD::ms_fast_dispatch(Message *m)
     return;
   }
 
-//#ifdef WITH_JAEGER
-//  JTracer jt;
-//  jt.setUpTracer("OSD_TRACING");
-//  jspan parent_span = jt.tracedFunction("ms_fast_dispatch_begins");
-//#endif
+#ifdef WITH_JAEGER
+  JTracer jt;
+  jt.setUpTracer("OSD_TRACING");
+  jspan parent_span = jt.tracedFunction("ms_fast_dispatch_begins");
+#endif
 
   // peering event?
   switch (m->get_type()) {
@@ -6763,11 +6763,11 @@ void OSD::ms_fast_dispatch(Message *m)
     osd_reqid_t reqid = op->get_reqid();
 #endif
 
-//#ifdef WITH_JAEGER
-//    jt.tracedSubroutine(parent_span, (m->get_type_name()).data());
-//    parent_span->Log({{"osd", "log_recording_works"},{"osd", "log excerpt"}});
-//    parent_span->SetTag(" simple_tag ", 123);
-//#endif
+#ifdef WITH_JAEGER
+    jt.tracedSubroutine(parent_span, (m->get_type_name()).data());
+    parent_span->Log({{"osd", "log_recording_works"},{"osd", "log excerpt"}});
+    parent_span->SetTag(" simple_tag ", 123);
+#endif
 
 	tracepoint(osd, ms_fast_dispatch, reqid.name._type, reqid.name._num,
 		   reqid.tid, reqid.inc);
@@ -6806,10 +6806,10 @@ void OSD::ms_fast_dispatch(Message *m)
   }
   OID_EVENT_TRACE_WITH_MSG(m, "MS_FAST_DISPATCH_END", false);
 
-//#ifdef WITH_JAEGER
-//  jt.tracedSubroutine(parent_span, "MS_FAST_DISPATCH_ENDS");
-//  parent_span->Finish();
-//#endif
+#ifdef WITH_JAEGER
+  jt.tracedSubroutine(parent_span, "MS_FAST_DISPATCH_ENDS");
+  parent_span->Finish();
+#endif
 }
 
 int OSD::ms_handle_authentication(Connection *con)

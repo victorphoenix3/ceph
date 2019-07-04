@@ -1576,17 +1576,17 @@ void PrimaryLogPG::do_request(
 
 
 #ifdef WITH_JAEGER
+     JTracer *jt;
 //    JTracer::setUpTracer("OSD_TRACING"); 
-     JTracer jtracer;
-     JTracer::jspan doRequestSpan =
-	jtracer.tracedFunction("do_request_string");
-     doRequestSpan->Finish();
+     jspan do_request_span =
+	jt->tracedFunction("do_request_string");
+     do_request_span->Finish();
 #endif
 // 
 // #ifdef WITH_JAEGER
 //   JTracer::jspan carrierSpan =
-//       JTracer::tracedSubroutine(doRequestSpan, "PG_OP_INIT_DO_REQUEST");
-// //  doRequestSpan->Finish();
+//       JTracer::tracedSubroutine(do_request_span, "PG_OP_INIT_DO_REQUEST");
+// //  do_request_span->Finish();
 //   carrierSpan->Finish();
 //   opentracing::Tracer::Global()->Close();
 // #endif

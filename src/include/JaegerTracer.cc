@@ -5,8 +5,7 @@
 
 /*
  //make config file param protected
- JTracer::JTracer(_configPath = "../jaegertracing/config.yml") :
-  configPath(configPath)
+ JTracer::configPath = "../jaegertracing/config.yml") :
 */
 void JTracer::setUpTracer(const char* serviceToTrace) {
   static auto configYAML = YAML::LoadFile("../jaegertracing/config.yml");

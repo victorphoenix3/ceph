@@ -6708,7 +6708,6 @@ void OSD::ms_fast_dispatch(Message *m)
   }
 
 #ifdef WITH_JAEGER
-  JTracer jt;
   jt.setUpTracer("OSD_TRACING");
   jspan parent_span = jt.tracedFunction("ms_fast_dispatch_begins");
 #endif
@@ -9256,7 +9255,6 @@ void OSD::enqueue_op(spg_t pg, OpRequestRef&& op, epoch_t epoch)
       cost, priority, stamp, owner, epoch));
 
 #ifdef WITH_JAEGER
-//JTracer::setUpTracer("OSD_TRACING"); // check if setting up tracer
 //  JTracer::jspan enqueueOpSpan =
 //      JTracer::tracedFunction("enqueue_op_placeholder");
 #endif

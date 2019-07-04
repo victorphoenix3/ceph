@@ -1574,13 +1574,11 @@ void PrimaryLogPG::do_request(
     op->pg_trace.event("do request");
   }
 
-//#ifdef WITH_JAEGER
-//  JTracer jp;
-//  jp.setUpTracer("OSD_TRACING");
-//  jspan do_request_span = jp.tracedFunction("do_request_string");
-//  do_request_span->Finish();
-//#endif
-  // #endif
+#ifdef WITH_JAEGER
+  //jt.setUpTracer("OSD_TRACING");
+  jspan do_request_span = jt.tracedFunction("do_request_string");
+  do_request_span->Finish();
+#endif
 
   // make sure we have a new enough map
   auto p = waiting_for_map.find(op->get_source());

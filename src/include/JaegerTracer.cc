@@ -54,4 +54,3 @@ void JTracer::extract(jspan& span, const char* name, std::string t_meta) {
   _span->Finish();
 }
 
-JTracer *jt = new JTracer;

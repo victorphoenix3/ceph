@@ -11,16 +11,16 @@ class JTracer {
 
   public:
 //  const char* configPath;
-//  JTracer() {}
-//  ~JTracer() {}
+  JTracer() {}
+  ~JTracer() {}
 
-  static void setUpTracer(const char*);
+   void setUpTracer(const char*);
 
-  static void tracedSubroutine(jspan&, const char*);
-  static jspan tracedFunction(const char*);
+   void tracedSubroutine(jspan&, const char*);
+   jspan tracedFunction(const char*);
 
-  static std::string inject(jspan& span, const char* name);
-  static void extract(jspan& span, const char* name, std::string t_meta);
+   std::string inject(jspan& span, const char* name);
+   void extract(jspan& span, const char* name, std::string t_meta);
 };
 
 #endif

@@ -42,6 +42,13 @@ set(osd_srcs
   ${CMAKE_SOURCE_DIR}/src/mgr/OSDPerfMetricTypes.cc
   ${osd_cyg_functions_src}
   ${osdc_osd_srcs})
+
+if(WITH_JAEGER)
+  message(STATUS "Using JaegerTracing")
+  #add_definitions("-DWITH_JAEGER")
+  list(APPEND osd_srcs ${CMAKE_SOURCE_DIR}/src/include/JaegerTracer.cc)
+endif()
+
 if(HAS_VTA)
   set_source_files_properties(osdcap.cc
     PROPERTIES COMPILE_FLAGS -fno-var-tracking-assignments)
@@ -59,13 +66,8 @@ if(WITH_JAEGER)
   target_link_libraries(osd
   PUBLIC dmclock::dmclock
   PRIVATE os heap_profiler cpu_profiler ${CMAKE_DL_LIBS}
-  PUBLIC ${COMPLETE_JAEGER_LIBRARIES})
-
-  message(STATUS "Using JaegerTracing")
-  #currently defined in source CMakeLists.txt
-  #add_definitions("-DWITH_JAEGER")
-  list(APPEND osd_srcs ${CMAKE_SOURCE_DIR}/src/include/JaegerTracer.cc)
-endif()
+  PUBLIC ${COMPLETE_JAEGER_LIBRARIES}
+  PUBLIC ${CMAKE_SOURCE_DIR}/src/include/JaegerTracer.cc)
 
 if(WITH_LTTNG)
   add_dependencies(osd osd-tp pg-tp)

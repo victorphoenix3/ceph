@@ -61,8 +61,8 @@ if(WITH_JAEGER)
   PUBLIC dmclock::dmclock
   PRIVATE os heap_profiler cpu_profiler ${CMAKE_DL_LIBS}
   PUBLIC ${COMPLETE_JAEGER_LIBRARIES}
+  PUBLIC ${CMAKE_SOURCE_DIR}/src/include/JaegerTracer.h
   PUBLIC ${CMAKE_SOURCE_DIR}/src/include/JaegerTracer.cc)
-#PUBLIC ${CMAKE_SOURCE_DIR}/src/include/JaegerTracer.h)
 endif()
 
 if(WITH_LTTNG)

@@ -57,12 +57,10 @@ target_link_libraries(osd
 endif()
 
 if(WITH_JAEGER)
-  message("Jaeger ${COMPLETE_JAEGER_LIBRARIES} listed")
   target_link_libraries(osd
   PUBLIC dmclock::dmclock
   PRIVATE os heap_profiler cpu_profiler ${CMAKE_DL_LIBS}
   PUBLIC ${COMPLETE_JAEGER_LIBRARIES}
-  PUBLIC ${CMAKE_SOURCE_DIR}/src/include/JaegerTracer.h
   PUBLIC ${CMAKE_SOURCE_DIR}/src/include/JaegerTracer.cc)
 endif()
 

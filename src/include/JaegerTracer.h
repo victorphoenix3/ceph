@@ -14,13 +14,13 @@ class JTracer {
   JTracer() {}
   ~JTracer() {}
 
-  void setUpTracer(const char*);
+  static void setUpTracer(const char*);
 
-  void tracedSubroutine(jspan&, const char*);
-  jspan tracedFunction(const char*);
+  static void tracedSubroutine(jspan&, const char*);
+  static jspan tracedFunction(const char*);
 
-  std::string inject(jspan& span, const char* name);
-  void extract(jspan& span, const char* name, std::string t_meta);
+  static std::string inject(jspan& span, const char* name);
+  static void extract(jspan& span, const char* name, std::string t_meta);
 };
 
 #endif

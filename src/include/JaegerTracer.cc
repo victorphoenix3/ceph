@@ -8,13 +8,13 @@
  JTracer::configPath = "../jaegertracing/config.yml") :
 */
   auto JTracer::setUpTracer(const char* serviceToTrace) {
-  static auto configYAML = YAML::LoadFile("../jaegertracing/config.yml");
-  static auto config = jaegertracing::Config::parse(configYAML);
-  static auto tracer = jaegertracing::Tracer::make(
+  auto configYAML = YAML::LoadFile("../jaegertracing/config.yml");
+  auto config = jaegertracing::Config::parse(configYAML);
+  auto _tracer = jaegertracing::Tracer::make(
       serviceToTrace, config, jaegertracing::logging::consoleLogger());
   opentracing::Tracer::InitGlobal(
-      std::static_pointer_cast<opentracing::Tracer>(tracer));
-  return tracer;
+      std::static_pointer_cast<opentracing::Tracer>(_tracer));
+  return _tracer;
 }
 
 void JTracer::tracedSubroutine(jspan& parentSpan,

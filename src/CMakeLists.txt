@@ -393,10 +393,6 @@ if(WITH_DPDK)
   list(APPEND ceph_common_deps common_async_dpdk)
 endif()
 
-if (WITH_JAEGER)
-  list(APPEND ${JAEGER_LIBRARIES} ${OPENTRACE_LIBRARIES} ${YAML_LIBRARIES}) 
-endif(WITH_JAEGER)
-
 add_library(common STATIC ${ceph_common_objs})
 target_link_libraries(common ${ceph_common_deps})
 
@@ -514,6 +510,9 @@ target_link_libraries(ceph-osd osd os global-static common
   ${BLKID_LIBRARIES})
 if(WITH_FUSE)
   target_link_libraries(ceph-osd ${FUSE_LIBRARIES})
+endif()
+if (WITH_JAEGER)
+  target_link_libraries(ceph-osd ${JAEGER_COMPLETE_LIBRARIES})
 endif()
 set_target_properties(ceph-osd PROPERTIES
   POSITION_INDEPENDENT_CODE ${EXE_LINKER_USE_PIE})

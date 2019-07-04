@@ -54,4 +54,4 @@
   _span->Finish();
 }
 
-extern JTracer jt;
+JTracer jt;

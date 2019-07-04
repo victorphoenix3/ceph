@@ -6,11 +6,12 @@
 typedef std::unique_ptr<opentracing::Span> jspan;
 
 class JTracer {
+  private:
+  ~JTracer() {}
 
   public:
   const char* configPath;
-  JTracer(const char* configPath);
-  ~JTracer();
+  JTracer() {}
 
   void setUpTracer(const char*);
 

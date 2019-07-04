@@ -41,7 +41,6 @@ set(osd_srcs
   ${CMAKE_SOURCE_DIR}/src/objclass/class_api.cc
   ${CMAKE_SOURCE_DIR}/src/mgr/OSDPerfMetricTypes.cc
   ${osd_cyg_functions_src}
-  ${CMAKE_SOURCE_DIR}/src/include/JaegerTracer.cc
   ${osdc_osd_srcs})
 
 if(HAS_VTA)
@@ -58,12 +57,12 @@ target_link_libraries(osd
 endif()
 
 if(WITH_JAEGER)
+  message(STATUS " Using JaegerTracer class.")
+  list(APPEND common_srcs ${CMAKE_SOURCE_DIR}/src/include/JaegerTracer.cc)
   target_link_libraries(osd
   PUBLIC dmclock::dmclock
   PRIVATE os heap_profiler cpu_profiler ${CMAKE_DL_LIBS}
-  PUBLIC ${COMPLETE_JAEGER_LIBRARIES}
-  PUBLIC ${CMAKE_SOURCE_DIR}/src/include/JaegerTracer.h
-  PUBLIC ${CMAKE_SOURCE_DIR}/src/include/JaegerTracer.cc)
+  PUBLIC ${COMPLETE_JAEGER_LIBRARIES})
 endif()
 
 if(WITH_LTTNG)

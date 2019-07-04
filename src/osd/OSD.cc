@@ -6766,7 +6766,7 @@ void OSD::ms_fast_dispatch(Message *m)
 
 #ifdef WITH_JAEGER
     jt->tracedSubroutine(parent_span, (m->get_type_name()).data());
-    parent_span->Log({"osd", "log_recording_works"});
+    parent_span->Log({{"osd", "log_recording_works"},{"osd", "log excerpt"}});
     parent_span->SetTag(" simple_tag ", 123);
 #endif
 

@@ -7,14 +7,13 @@
  //make config file param protected
  JTracer::configPath = "../jaegertracing/config.yml") :
 */
-  auto JTracer::setUpTracer(const char* serviceToTrace) {
+  void JTracer::setUpTracer(const char* serviceToTrace) {
   auto configYAML = YAML::LoadFile("../jaegertracing/config.yml");
   auto config = jaegertracing::Config::parse(configYAML);
   auto _tracer = jaegertracing::Tracer::make(
       serviceToTrace, config, jaegertracing::logging::consoleLogger());
   opentracing::Tracer::InitGlobal(
       std::static_pointer_cast<opentracing::Tracer>(_tracer));
-  return _tracer;
 }
 
 void JTracer::tracedSubroutine(jspan& parentSpan,

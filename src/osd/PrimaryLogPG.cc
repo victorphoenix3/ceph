@@ -1575,8 +1575,9 @@ void PrimaryLogPG::do_request(
   }
 
 #ifdef WITH_JAEGER
-  jt.setUpTracer("OSD_TRACING");
-  jspan do_request_span = jt.tracedFunction("do_request_string");
+  JTracer jp;
+  jp.setUpTracer("OSD_TRACING");
+  jspan do_request_span = jp.tracedFunction("do_request_string");
   do_request_span->Finish();
 #endif
   // #endif

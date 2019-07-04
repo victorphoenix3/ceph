@@ -6708,7 +6708,6 @@ void OSD::ms_fast_dispatch(Message *m)
   }
 
 #ifdef WITH_JAEGER
-  JTracer jt;
   jt.setUpTracer("OSD_TRACING");
   jspan parent_span = jt.tracedFunction("ms_fast_dispatch_begins");
 #endif

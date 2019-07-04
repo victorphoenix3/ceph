@@ -25,7 +25,7 @@
 #include "OSD.h"
 
 #ifdef WITH_JAEGER
-#include "include/tracer.h"
+#include "include/JaegerTracer.h"
 #endif
 
 #define dout_context cct

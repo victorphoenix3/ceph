@@ -1,10 +1,14 @@
-#include <iostream>
-#include <yaml-cpp/yaml.h>
 #include <jaegertracing/Tracer.h>
-#include "tracer.h"
+#include <yaml-cpp/yaml.h>
+#include <iostream>
+#include "JaegerTracer.h"
 
-
-  void JTracer::setUpTracer(const char* serviceToTrace) {
+/*
+ //make config file param protected
+ JTracer::JTracer(_configPath = "../jaegertracing/config.yml") :
+  configPath(configPath)
+*/
+void JTracer::setUpTracer(const char* serviceToTrace) {
   static auto configYAML = YAML::LoadFile("../jaegertracing/config.yml");
   static auto config = jaegertracing::Config::parse(configYAML);
   static auto tracer = jaegertracing::Tracer::make(
@@ -13,9 +17,8 @@
       std::static_pointer_cast<opentracing::Tracer>(tracer));
 }
 
-void JTracer::tracedSubroutine(
-    jspan& parentSpan,
-    const char* subRoutineContext) {
+void JTracer::tracedSubroutine(jspan& parentSpan,
+			       const char* subRoutineContext) {
   auto span = opentracing::Tracer::Global()->StartSpan(
       subRoutineContext, {opentracing::ChildOf(&parentSpan->context())});
   span->Finish();
@@ -27,7 +30,7 @@ jspan JTracer::tracedFunction(const char* funcContext) {
   return span;
 }
 
-std::string inject(jspan& span, const char* name) {
+std::string JTracer::inject(jspan& span, const char* name) {
   std::stringstream ss;
   if (!span) {
     auto span = opentracing::Tracer::Global()->StartSpan(name);
@@ -37,8 +40,7 @@ std::string inject(jspan& span, const char* name) {
   return ss.str();
 }
 
-void extract(jspan& span, const char* name,
-	     std::string t_meta) {
+void JTracer::extract(jspan& span, const char* name, std::string t_meta) {
   std::stringstream ss(t_meta);
   //    if(!tracer){
   //    }
@@ -53,4 +55,3 @@ void extract(jspan& span, const char* name,
   _span->Finish();
 }
 
-};

@@ -10,9 +10,9 @@ class JTracer {
 //  ~JTracer() {}
 
   public:
-  const char* configPath;
-  JTracer() {}
-  ~JTracer() {}
+//  const char* configPath;
+//  JTracer() {}
+//  ~JTracer() {}
 
   static void setUpTracer(const char*);
 

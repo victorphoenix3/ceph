@@ -6708,8 +6708,6 @@ void OSD::ms_fast_dispatch(Message *m)
   }
 
 #ifdef WITH_JAEGER
-  JTracer jt;
-//  jt = &jtracer;
   jt.setUpTracer("OSD_TRACING");
   jspan parent_span = jt.tracedFunction("ms_fast_dispatch_begins");
 #endif
@@ -9256,20 +9254,6 @@ void OSD::enqueue_op(spg_t pg, OpRequestRef&& op, epoch_t epoch)
       unique_ptr<OpQueueItem::OpQueueable>(new PGOpItem(pg, std::move(op))),
       cost, priority, stamp, owner, epoch));
 
-#ifdef WITH_JAEGER
-//  JTracer::jspan enqueueOpSpan =
-//      JTracer::tracedFunction("enqueue_op_placeholder");
-#endif
-// 
-// #ifdef WITH_JAEGER
-//   JTracer::jspan carrierSpan =
-//       JTracer::tracedSubroutine(enqueueOpSpan, "ENQUEUED");
-//   enqueueOpSpan->Finish();
-//   carrierSpan->Finish();
-//   opentracing::Tracer::Global()->Close();
-// #endif
-}
-
 void OSD::enqueue_peering_evt(spg_t pgid, PGPeeringEventRef evt)
 {
   dout(15) << __func__ << " " << pgid << " " << evt->get_desc() << dendl;
@@ -9308,23 +9292,6 @@ void OSD::dequeue_op(
   FUNCTRACE(cct);
   OID_EVENT_TRACE_WITH_MSG(m, "DEQUEUE_OP_BEGIN", false);
 
-// #ifdef WITH_JAEGER
-// //    JTracer::setUpTracer("OSD_TRACING"); // check if setting up tracer
-// //    is really globally defined or not
-//     JTracer::jspan dequeueOpSpan =
-// 	JTracer::tracedFunction((m->get_type_name()).data());
-// 
-//     // parentSpan->Finish()
-// #endif
-
-// #ifdef WITH_JAEGER
-//   JTracer::jspan carrierSpan =
-//       JTracer::tracedSubroutine(dequeueOpSpan, "DEQUEUE_OP_BEGIN");
-//   dequeueOpSpan->Finish();
-//   carrierSpan->Finish();
-//   opentracing::Tracer::Global()->Close();
-// #endif
-
   utime_t now = ceph_clock_now();
   op->set_dequeued_time(now);
 
@@ -9352,17 +9319,6 @@ void OSD::dequeue_op(
   // finish
   dout(10) << "dequeue_op " << op << " finish" << dendl;
   OID_EVENT_TRACE_WITH_MSG(m, "DEQUEUE_OP_END", false);
-
-// #ifdef WITH_JAEGER
-//   carrierSpan =
-//       JTracer::tracedSubroutine(dequeueOpSpan, "DEQUEUE_OP_ENDS");
-//   dequeueOpSpan->Finish();
-//   carrierSpan->Finish();
-//   opentracing::Tracer::Global()->Close();
-// #endif
-
-}
-
 
 void OSD::dequeue_peering_evt(
   OSDShard *sdata,

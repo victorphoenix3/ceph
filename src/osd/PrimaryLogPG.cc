@@ -1575,8 +1575,7 @@ void PrimaryLogPG::do_request(
   }
 
 //#ifdef WITH_JAEGER
-//  JTracer jp;
-//  jspan do_request_span = jp.tracedFunction("do_request_string");
+//  jspan do_request_span = jt.tracedFunction("do_request_string");
 //  do_request_span->Finish();
 //#endif
 
@@ -8302,10 +8301,6 @@ int PrimaryLogPG::prepare_transaction(OpContext *ctx)
     return -EINVAL;
   }
 
-  /*
-   * WITH_JAEGER: to log snapc(checking why invalid) 
-   */
-  // prepare the actual mutation
   int result = do_osd_ops(ctx, *ctx->ops);
   if (result < 0) {
     if (ctx->op->may_write() &&

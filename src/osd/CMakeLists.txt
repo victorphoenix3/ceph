@@ -57,8 +57,7 @@ target_link_libraries(osd
 endif()
 
 if(WITH_JAEGER)
-  message(STATUS " Using JaegerTracer class.")
-  list(APPEND common_srcs ${CMAKE_SOURCE_DIR}/src/include/JaegerTracer.cc)
+  #list(APPEND common_srcs ${CMAKE_SOURCE_DIR}/src/include/JaegerTracer.cc)
   target_link_libraries(osd
   PUBLIC dmclock::dmclock
   PRIVATE os heap_profiler cpu_profiler ${CMAKE_DL_LIBS}

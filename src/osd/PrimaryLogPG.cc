@@ -73,7 +73,7 @@ static ostream& _prefix(std::ostream *_dout, T *pg) {
 #include <utility>
 
 #ifdef WITH_JAEGER
-#include "JaegerTracer.h"
+#include "common/JaegerTracer.h"
 #endif
 
 #include <errno.h>

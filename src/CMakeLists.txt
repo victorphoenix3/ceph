@@ -333,10 +333,10 @@ set(libcommon_files
   librbd/Features.cc
   ${mds_files})
 
-if(WITH_JAEGER) 
-  message(STATUS "Using JaegerTracer class.")
-  list(APPEND libcommon_files ${CMAKE_SOURCE_DIR}/src/include/JaegerTracer.cc)
-endif()
+#if(WITH_JAEGER) 
+#  message(STATUS "Using JaegerTracer class.")
+#  list(APPEND libcommon_files ${CMAKE_SOURCE_DIR}/src/include/JaegerTracer.cc)
+#endif()
 
 set_source_files_properties(ceph_ver.c
   APPEND PROPERTY OBJECT_DEPENDS ${CMAKE_BINARY_DIR}/src/include/ceph_ver.h)

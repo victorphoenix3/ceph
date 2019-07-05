@@ -393,9 +393,9 @@ if(WITH_DPDK)
   list(APPEND ceph_common_deps common_async_dpdk)
 endif()
 
-#if(WITH_JAEGER)
-#  list(APPEND ceph_common_deps ${JAEGER_COMPLETE_LIBRARIES})
-#endif()
+if(WITH_JAEGER)
+  list(APPEND ceph_common_deps ${JAEGER_COMPLETE_LIBRARIES})
+endif()
 
 add_library(common STATIC ${ceph_common_objs})
 target_link_libraries(common ${ceph_common_deps})

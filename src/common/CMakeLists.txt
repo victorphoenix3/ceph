@@ -128,7 +128,6 @@ if(WITH_LTTNG AND WITH_EVENTTRACE)
 endif()
 #if(WITH_JAEGER)
 #  message(STATUS " Using JaegerTracer class.")
-#  #add_definitions("-DWITH_EVENTTRACE")
 #  list(APPEND common_srcs ${CMAKE_SOURCE_DIR}/src/include/JaegerTracer.cc)
 #endif()
 

@@ -6708,6 +6708,7 @@ void OSD::ms_fast_dispatch(Message *m)
   }
 
 #ifdef WITH_JAEGER
+  JTracer jt;
   jt.setUpTracer("OSD_TRACING");
   jspan parent_span = jt.tracedFunction("ms_fast_dispatch_begins");
 #endif
@@ -9319,6 +9320,8 @@ void OSD::dequeue_op(
   // finish
   dout(10) << "dequeue_op " << op << " finish" << dendl;
   OID_EVENT_TRACE_WITH_MSG(m, "DEQUEUE_OP_END", false);
+
+}
 
 void OSD::dequeue_peering_evt(
   OSDShard *sdata,

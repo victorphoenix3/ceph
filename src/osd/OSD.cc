@@ -158,7 +158,7 @@
 #include "json_spirit/json_spirit_writer.h"
 
 #ifdef WITH_JAEGER
-#include "include/JaegerTracer.h"
+#include "JaegerTracer.h"
 #endif
 
 #ifdef WITH_LTTNG

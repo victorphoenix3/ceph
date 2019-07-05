@@ -29,7 +29,7 @@
 #define dout_prefix *_dout << "librados: "
 
 #ifdef WITH_JAEGER
-#include "include/JaegerTracer.h"
+#include "JaegerTracer.h"
 #endif
 
 namespace librados {

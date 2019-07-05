@@ -126,10 +126,6 @@ if(WITH_LTTNG AND WITH_EVENTTRACE)
   add_definitions("-DWITH_EVENTTRACE")
   list(APPEND common_srcs EventTrace.cc)
 endif()
-#if(WITH_JAEGER) 
-#  message(STATUS " Using JaegerTracer class.")
-#  list(APPEND common_srcs ${CMAKE_SOURCE_DIR}/src/include/JaegerTracer.cc)
-#endif()
 
 add_library(common-common-objs OBJECT
   ${common_srcs})
@@ -181,7 +177,7 @@ if(HAVE_ARMV8_CRC)
 endif()
 
 target_link_libraries(crc32
-  arch ${JAEGER_COMPLETE_LIBRARIES}) 
+  arch) 
 
 add_library(common_utf8 STATIC utf8.c)
 

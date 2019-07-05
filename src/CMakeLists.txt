@@ -515,9 +515,9 @@ target_link_libraries(ceph-osd osd os global-static common
 if(WITH_FUSE)
   target_link_libraries(ceph-osd ${FUSE_LIBRARIES})
 endif()
-#if (WITH_JAEGER)
-#  target_link_libraries(ceph-osd ${JAEGER_COMPLETE_LIBRARIES})
-#endif()
+if (WITH_JAEGER)
+  target_link_libraries(ceph-osd ${JAEGER_COMPLETE_LIBRARIES})
+endif()
 set_target_properties(ceph-osd PROPERTIES
   POSITION_INDEPENDENT_CODE ${EXE_LINKER_USE_PIE})
 install(TARGETS ceph-osd DESTINATION bin)

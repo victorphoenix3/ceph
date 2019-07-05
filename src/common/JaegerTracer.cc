@@ -54,5 +54,3 @@
   _span->Finish();
 }
 
-JTracer jtracer;
-JTracer *jt = &jtracer;

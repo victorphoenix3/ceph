@@ -22,6 +22,4 @@ class JTracer {
    void extract(jspan& span, const char* name, std::string t_meta);
 };
 
-extern JTracer *jt;
-
 #endif

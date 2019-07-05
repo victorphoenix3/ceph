@@ -127,6 +127,11 @@ if(WITH_LTTNG AND WITH_EVENTTRACE)
   list(APPEND common_srcs EventTrace.cc)
 endif()
 
+if(WITH_JAEGER)
+  message(STATUS " Using JaegerTracer class.")
+  list(APPEND common_srcs JaegerTracer.cc)
+endif()
+
 add_library(common-common-objs OBJECT
   ${common_srcs})
 # for options.cc
@@ -177,7 +182,8 @@ if(HAVE_ARMV8_CRC)
 endif()
 
 target_link_libraries(crc32
-  arch) 
+  arch
+  ${COMPLETE_JAEGER_LIBRARIES}) 
 
 add_library(common_utf8 STATIC utf8.c)
 

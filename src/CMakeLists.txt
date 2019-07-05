@@ -333,11 +333,6 @@ set(libcommon_files
   librbd/Features.cc
   ${mds_files})
 
-#if(WITH_JAEGER) 
-#  message(STATUS "Using JaegerTracer class.")
-#  list(APPEND libcommon_files ${CMAKE_SOURCE_DIR}/src/include/JaegerTracer.cc)
-#endif()
-
 set_source_files_properties(ceph_ver.c
   APPEND PROPERTY OBJECT_DEPENDS ${CMAKE_BINARY_DIR}/src/include/ceph_ver.h)
 add_library(common-objs OBJECT ${libcommon_files})
@@ -398,10 +393,6 @@ endif()
 if(WITH_DPDK)
   list(APPEND ceph_common_deps common_async_dpdk)
 endif()
-
-#if(WITH_JAEGER)
-#  list(APPEND ceph_common_deps ${JAEGER_COMPLETE_LIBRARIES})
-#endif()
 
 add_library(common STATIC ${ceph_common_objs})
 target_link_libraries(common ${ceph_common_deps})
@@ -520,9 +511,6 @@ target_link_libraries(ceph-osd osd os global-static common
   ${BLKID_LIBRARIES})
 if(with_fuse)
   target_link_libraries(ceph-osd ${fuse_libraries})
-endif()
-if (WITH_JAEGER)
-  target_link_libraries(ceph-osd ${JAEGER_COMPLETE_LIBRARIES})
 endif()
 set_target_properties(ceph-osd PROPERTIES
   POSITION_INDEPENDENT_CODE ${EXE_LINKER_USE_PIE})

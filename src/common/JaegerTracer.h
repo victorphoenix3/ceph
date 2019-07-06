@@ -10,7 +10,7 @@ class JTracer {
 
   public:
   JTracer() {}
-//  ~JTracer() {}
+  ~JTracer() {}
 
    void setUpTracer(const char*);
 

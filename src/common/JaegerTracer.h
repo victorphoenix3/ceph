@@ -12,7 +12,7 @@ class JTracer {
   JTracer() {}
 //  ~JTracer() {}
 
-   void setUpTracer();
+   void setUpTracer(const char*);
 
    void tracedSubroutine(jspan&, const char*);
    jspan tracedFunction(const char*);

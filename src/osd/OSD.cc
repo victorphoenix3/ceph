@@ -6809,6 +6809,7 @@ void OSD::ms_fast_dispatch(Message *m)
 #ifdef WITH_JAEGER
   jt.tracedSubroutine(parent_span, "MS_FAST_DISPATCH_ENDS");
   parent_span->Finish();
+  opentracing::Tracer::Global()->Close();
 #endif
 }
 

@@ -1,3 +1,12 @@
+set(HUNTER_CONFIGURATION_TYPES "Release;Debug" CACHE STRING
+    "Configuration types used when building Hunter dependencies")
+
+include(CMakeDependentOption)
+include(HunterGate)
+HunterGate(
+    URL "https://github.com/ruslo/hunter/archive/v0.23.5.tar.gz"
+    SHA1 "2c5c6fc1cf609d0856695d60f147594daf4e6b3e"
+)
 include(GetGitRevisionDescription)
 include(CheckCXXCompilerFlag)
 

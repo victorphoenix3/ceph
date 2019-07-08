@@ -128,7 +128,7 @@ if(WITH_LTTNG AND WITH_EVENTTRACE)
 endif()
 
 if(WITH_JAEGER)
-  message(STATUS " Using JaegerTracer class.")
+  message(STATUS " Using JaegerTracer ...")
   list(APPEND common_srcs JaegerTracer.cc)
 endif()
 

@@ -6708,9 +6708,7 @@ void OSD::ms_fast_dispatch(Message *m)
   }
 
 #ifdef WITH_JAEGER
-  JTracer *jt = new JTracer;
-  jt->setUpTracer("OSD_TRACING");
-  jspan parent_span = jt->tracedFunction("ms_fast_dispatch_begins");
+  jspan parent_span = tracedFunction("ms_fast_dispatch_begins");
 #endif
 
   // peering event?
@@ -6764,7 +6762,7 @@ void OSD::ms_fast_dispatch(Message *m)
 #endif
 
 #ifdef WITH_JAEGER
-    jt->tracedSubroutine(parent_span, (m->get_type_name()).data());
+    tracedSubroutine(parent_span, (m->get_type_name()).data());
     parent_span->Log({{"osd", "log_recording_works"},{"osd", "log excerpt"}});
     parent_span->SetTag(" simple_tag ", 123);
 #endif
@@ -6807,10 +6805,9 @@ void OSD::ms_fast_dispatch(Message *m)
   OID_EVENT_TRACE_WITH_MSG(m, "MS_FAST_DISPATCH_END", false);
 
 #ifdef WITH_JAEGER
-  jt->tracedSubroutine(parent_span, "MS_FAST_DISPATCH_ENDS");
+  tracedSubroutine(parent_span, "MS_FAST_DISPATCH_ENDS");
   parent_span->Finish();
   opentracing::Tracer::Global()->Close();
-  delete jt;
 #endif
 }
 

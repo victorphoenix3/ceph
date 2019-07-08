@@ -111,7 +111,7 @@ void global_print_banner(void);
 #ifdef WITH_JAEGER
 #include "common/JaegerTracer.h"
 
-void global_setUpTracer(const char*);
+void global_setUpTracer();
 #endif
 
 #endif

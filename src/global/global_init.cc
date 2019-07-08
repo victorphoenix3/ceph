@@ -39,6 +39,23 @@
 #define dout_context g_ceph_context
 #define dout_subsys ceph_subsys_
 
+#ifdef WITH_JAEGER
+#include "common/JaegerTracer.h"
+
+/*
+ //make config file param protected
+ JTracer::configPath = "../jaegertracing/config.yml") :
+*/
+ void global_setUpTracer(const char* serviceToTrace) {
+  auto configYAML = YAML::LoadFile("../jaegertracing/config.yml");
+  auto config = jaegertracing::Config::parse(configYAML);
+  auto _tracer = jaegertracing::Tracer::make(
+      serviceToTrace, config, jaegertracing::logging::consoleLogger());
+  opentracing::Tracer::InitGlobal(
+      std::static_pointer_cast<opentracing::Tracer>(_tracer));
+}
+#endif
+
 static void global_init_set_globals(CephContext *cct)
 {
   g_ceph_context = cct;

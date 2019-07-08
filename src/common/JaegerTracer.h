@@ -5,14 +5,7 @@
 
 typedef std::unique_ptr<opentracing::Span> jspan;
 
-class JTracer {
-  private:
-
-  public:
-  JTracer() {}
-  ~JTracer() {}
-
-   void setUpTracer(const char*);
+namespace JTracer {
 
    void tracedSubroutine(jspan&, const char*);
    jspan tracedFunction(const char*);

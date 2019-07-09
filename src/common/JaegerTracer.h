@@ -5,13 +5,13 @@
 
 typedef std::unique_ptr<opentracing::Span> jspan;
 
-//namespace {
+namespace jtracer {
 
-   void tracedSubroutine(jspan&, const char*);
-   jspan tracedFunction(const char*);
+void tracedSubroutine(jspan&, const char*);
+jspan tracedFunction(const char*);
 
 //   std::string inject(jspan& span, const char* name);
 //   void extract(jspan& span, const char* name, std::string t_meta);
-//}
+}
 
 #endif

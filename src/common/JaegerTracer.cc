@@ -4,14 +4,14 @@
 #include "JaegerTracer.h"
 
 
- void tracedSubroutine(jspan& parentSpan,
+ void jtracer::tracedSubroutine(jspan& parentSpan,
 			       const char* subRoutineContext) {
   auto span = opentracing::Tracer::Global()->StartSpan(
       subRoutineContext, {opentracing::ChildOf(&parentSpan->context())});
   span->Finish();
 }
 
- jspan tracedFunction(const char* funcContext) {
+ jspan jtracer::tracedFunction(const char* funcContext) {
   auto span = opentracing::Tracer::Global()->StartSpan(funcContext);
   span->Finish();
   return span;

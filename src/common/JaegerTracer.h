@@ -7,6 +7,7 @@ typedef std::unique_ptr<opentracing::Span> jspan;
 
 namespace jtracer {
 
+void setUpTracer();
 void tracedSubroutine(jspan&, const char*);
 jspan tracedFunction(const char*);
 

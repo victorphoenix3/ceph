@@ -1,17 +1,25 @@
+#include "JaegerTracer.h"
 #include <jaegertracing/Tracer.h>
 #include <yaml-cpp/yaml.h>
 #include <iostream>
-#include "JaegerTracer.h"
 
+void jtracer::setUpTracer() {
+  auto configYAML = YAML::LoadFile("../jaegertracing/config.yml");
+  auto config = jaegertracing::Config::parse(configYAML);
+  auto _tracer = jaegertracing::Tracer::make(
+      "ceph-tracing", config, jaegertracing::logging::consoleLogger());
+  opentracing::Tracer::InitGlobal(
+      std::static_pointer_cast<opentracing::Tracer>(_tracer));
+}
 
- void jtracer::tracedSubroutine(jspan& parentSpan,
+void jtracer::tracedSubroutine(jspan& parentSpan,
 			       const char* subRoutineContext) {
   auto span = opentracing::Tracer::Global()->StartSpan(
       subRoutineContext, {opentracing::ChildOf(&parentSpan->context())});
   span->Finish();
 }
 
- jspan jtracer::tracedFunction(const char* funcContext) {
+jspan jtracer::tracedFunction(const char* funcContext) {
   auto span = opentracing::Tracer::Global()->StartSpan(funcContext);
   span->Finish();
   return span;

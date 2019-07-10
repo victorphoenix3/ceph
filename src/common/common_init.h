@@ -85,6 +85,5 @@ void complain_about_parse_errors(CephContext *cct,
  * the Ceph libraries would be destroyed by a fork().
  */
 void common_init_finish(CephContext *cct);
-void setUpTracer(const char*);
 
 #endif

@@ -50,14 +50,13 @@
  //make config file param protected
  JTracer::configPath = "../jaegertracing/config.yml") :
 */
-std::shared_ptr<opentracing::/*v2::*/Tracer> global_setUpTracer() {
+void global_setUpTracer() {
   auto configYAML = YAML::LoadFile("../jaegertracing/config.yml");
   auto config = jaegertracing::Config::parse(configYAML);
   auto tracer = jaegertracing::Tracer::make(
       "ceph-tracing", config, jaegertracing::logging::consoleLogger());
   opentracing::Tracer::InitGlobal(
       std::static_pointer_cast<opentracing::Tracer>(tracer));
-  return tracer;
 }
 
 #endif
@@ -391,7 +390,7 @@ global_init(const std::map<std::string,std::string> *defaults,
   }
 
   return boost::intrusive_ptr<CephContext>{g_ceph_context, false};
-  auto tracer = global_setUpTracer();
+  global_setUpTracer();
 }
 
 void intrusive_ptr_add_ref(CephContext* cct)

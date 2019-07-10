@@ -111,7 +111,7 @@ void global_print_banner(void);
 #ifdef WITH_JAEGER
 #include "common/JaegerTracer.h"
 
-std::shared_ptr<opentracing::/*v2::*/Tracer> global_setUpTracer();
+void global_setUpTracer();
 #endif
 
 #endif

@@ -60,7 +60,6 @@
   return tracer;
 }
 
-auto tracer = global_setUpTracer();
 #endif
 
 static void global_init_set_globals(CephContext *cct)
@@ -392,6 +391,7 @@ global_init(const std::map<std::string,std::string> *defaults,
   }
 
   return boost::intrusive_ptr<CephContext>{g_ceph_context, false};
+  auto tracer = global_setUpTracer();
 }
 
 void intrusive_ptr_add_ref(CephContext* cct)

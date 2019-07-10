@@ -3,7 +3,7 @@
 #include <yaml-cpp/yaml.h>
 #include <iostream>
 
-void jtracer::setUpTracer() {
+void setUpTracer() {
   auto configYAML = YAML::LoadFile("../jaegertracing/config.yml");
   auto config = jaegertracing::Config::parse(configYAML);
   auto _tracer = jaegertracing::Tracer::make(

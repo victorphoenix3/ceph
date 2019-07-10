@@ -50,7 +50,7 @@
  //make config file param protected
  JTracer::configPath = "../jaegertracing/config.yml") :
 */
- auto global_setUpTracer() {
+std::shared_ptr<opentracing::/*v2::*/Tracer> global_setUpTracer() {
   auto configYAML = YAML::LoadFile("../jaegertracing/config.yml");
   auto config = jaegertracing::Config::parse(configYAML);
   auto tracer = jaegertracing::Tracer::make(

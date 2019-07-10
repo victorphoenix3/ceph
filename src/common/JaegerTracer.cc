@@ -3,15 +3,6 @@
 #include <yaml-cpp/yaml.h>
 #include <iostream>
 
-void setUpTracer() {
-  auto configYAML = YAML::LoadFile("../jaegertracing/config.yml");
-  auto config = jaegertracing::Config::parse(configYAML);
-  auto _tracer = jaegertracing::Tracer::make(
-      "ceph-tracing", config, jaegertracing::logging::consoleLogger());
-  opentracing::Tracer::InitGlobal(
-      std::static_pointer_cast<opentracing::Tracer>(_tracer));
-}
-
 void jtracer::tracedSubroutine(jspan& parentSpan,
 			       const char* subRoutineContext) {
   auto span = opentracing::Tracer::Global()->StartSpan(

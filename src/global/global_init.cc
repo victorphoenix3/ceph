@@ -40,7 +40,11 @@
 #define dout_subsys ceph_subsys_
 
 #ifdef WITH_JAEGER
-#include "common/JaegerTracer.h"
+#include <iostream>
+#include <yaml-cpp/yaml.h>
+#include <jaegertracing/Span.h>
+#include <opentracing/span.h>
+#include <jaegertracing/Tracer.h>
 
 /*
  //make config file param protected
@@ -49,10 +53,10 @@
  void global_setUpTracer() {
   auto configYAML = YAML::LoadFile("../jaegertracing/config.yml");
   auto config = jaegertracing::Config::parse(configYAML);
-  auto _tracer = jaegertracing::Tracer::make(
+  auto tracer = jaegertracing::Tracer::make(
       "ceph-tracing", config, jaegertracing::logging::consoleLogger());
   opentracing::Tracer::InitGlobal(
-      std::static_pointer_cast<opentracing::Tracer>(_tracer));
+      std::static_pointer_cast<opentracing::Tracer>(tracer));
 }
 #endif
 

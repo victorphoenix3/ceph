@@ -50,14 +50,17 @@
  //make config file param protected
  JTracer::configPath = "../jaegertracing/config.yml") :
 */
- void global_setUpTracer() {
+ auto global_setUpTracer() {
   auto configYAML = YAML::LoadFile("../jaegertracing/config.yml");
   auto config = jaegertracing::Config::parse(configYAML);
   auto tracer = jaegertracing::Tracer::make(
       "ceph-tracing", config, jaegertracing::logging::consoleLogger());
   opentracing::Tracer::InitGlobal(
       std::static_pointer_cast<opentracing::Tracer>(tracer));
+  return tracer;
 }
+
+auto tracer = global_setUpTracer();
 #endif
 
 static void global_init_set_globals(CephContext *cct)

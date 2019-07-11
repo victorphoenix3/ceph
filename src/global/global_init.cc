@@ -39,27 +39,6 @@
 #define dout_context g_ceph_context
 #define dout_subsys ceph_subsys_
 
-#ifdef WITH_JAEGER
-#include <iostream>
-#include <yaml-cpp/yaml.h>
-#include <jaegertracing/Span.h>
-#include <opentracing/span.h>
-#include <jaegertracing/Tracer.h>
-
-/*
- //make config file param protected
- JTracer::configPath = "../jaegertracing/config.yml") :
-*/
-void /*std::shared_ptr<opentracing::v2::Tracer>*/ global_setUpTracer() {
-  auto configYAML = YAML::LoadFile("../jaegertracing/config.yml");
-  auto config = jaegertracing::Config::parse(configYAML);
-  auto tracer = jaegertracing::Tracer::make(
-      "ceph-tracing", config, jaegertracing::logging::consoleLogger());
-  opentracing::Tracer::InitGlobal(
-      std::static_pointer_cast<opentracing::Tracer>(tracer));
-}
-#endif
-
 static void global_init_set_globals(CephContext *cct)
 {
   g_ceph_context = cct;
@@ -388,7 +367,26 @@ global_init(const std::map<std::string,std::string> *defaults,
     exit(1);
   }
 
-  /*std::shared_ptr<opentracing::v2::Tracer> tracer =*/ global_setUpTracer();
+#ifdef WITH_JAEGER
+#include <iostream>
+#include <yaml-cpp/yaml.h>
+#include <jaegertracing/Span.h>
+#include <opentracing/span.h>
+#include <jaegertracing/Tracer.h>
+/*
+ //make config file param protected
+ JTracer::configPath = "../jaegertracing/config.yml") :
+*/
+void /*std::shared_ptr<opentracing::v2::Tracer>*/ global_setUpTracer() {
+  auto configYAML = YAML::LoadFile("../jaegertracing/config.yml");
+  auto config = jaegertracing::Config::parse(configYAML);
+  auto tracer = jaegertracing::Tracer::make(
+      "ceph-tracing", config, jaegertracing::logging::consoleLogger());
+  opentracing::Tracer::InitGlobal(
+      std::static_pointer_cast<opentracing::Tracer>(tracer));
+}
+/*std::shared_ptr<opentracing::v2::Tracer> tracer =*/ global_setUpTracer();
+#endif
   return boost::intrusive_ptr<CephContext>{g_ceph_context, false};
 }
 

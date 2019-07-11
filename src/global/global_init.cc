@@ -38,7 +38,7 @@
 #include <jaegertracing/Span.h>
 #include <opentracing/span.h>
 #include <jaegertracing/Tracer.h>
-#endif()
+#endif
 #ifdef HAVE_SYS_PRCTL_H
 #include <sys/prctl.h>
 #endif

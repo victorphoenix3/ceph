@@ -379,7 +379,7 @@ global_init(const std::map<std::string,std::string> *defaults,
  //make config file param protected
  JTracer::configPath = "../jaegertracing/config.yml") :
 */
-void /*std::shared_ptr<opentracing::v2::Tracer>*/ global_setUpTracer() {
+void global_setUpTracer() {
   auto configYAML = YAML::LoadFile("../jaegertracing/config.yml");
   auto config = jaegertracing::Config::parse(configYAML);
   auto tracer = jaegertracing::Tracer::make(

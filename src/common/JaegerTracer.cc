@@ -3,14 +3,14 @@
 #include <yaml-cpp/yaml.h>
 #include <iostream>
 
-void jtracer::tracedSubroutine(jspan& parentSpan,
+void JTracer::tracedSubroutine(jspan& parentSpan,
 			       const char* subRoutineContext) {
   auto span = opentracing::Tracer::Global()->StartSpan(
       subRoutineContext, {opentracing::ChildOf(&parentSpan->context())});
   span->Finish();
 }
 
-jspan jtracer::tracedFunction(const char* funcContext) {
+jspan JTracer::tracedFunction(const char* funcContext) {
   auto span = opentracing::Tracer::Global()->StartSpan(funcContext);
   span->Finish();
   return span;

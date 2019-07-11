@@ -109,8 +109,6 @@ void global_print_banner(void);
  * Jaeger one time initialization
  */
 #ifdef WITH_JAEGER
-#include "common/JaegerTracer.h"
-
 void global_setUpTracer();
 #endif
 

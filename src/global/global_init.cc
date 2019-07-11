@@ -32,6 +32,13 @@
 #include <grp.h>
 #include <errno.h>
 
+#ifdef WITH_JAEGER
+#include <iostream>
+#include <yaml-cpp/yaml.h>
+#include <jaegertracing/Span.h>
+#include <opentracing/span.h>
+#include <jaegertracing/Tracer.h>
+#endif()
 #ifdef HAVE_SYS_PRCTL_H
 #include <sys/prctl.h>
 #endif
@@ -368,11 +375,6 @@ global_init(const std::map<std::string,std::string> *defaults,
   }
 
 #ifdef WITH_JAEGER
-#include <iostream>
-#include <yaml-cpp/yaml.h>
-#include <jaegertracing/Span.h>
-#include <opentracing/span.h>
-#include <jaegertracing/Tracer.h>
 /*
  //make config file param protected
  JTracer::configPath = "../jaegertracing/config.yml") :

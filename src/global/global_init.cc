@@ -46,6 +46,17 @@
 #define dout_context g_ceph_context
 #define dout_subsys ceph_subsys_
 
+#ifdef WITH_JAEGER
+void global_setUpTracer() {
+  auto configYAML = YAML::LoadFile("../jaegertracing/config.yml");
+  auto config = jaegertracing::Config::parse(configYAML);
+  auto tracer = jaegertracing::Tracer::make(
+      "ceph-tracing", config, jaegertracing::logging::consoleLogger());
+  opentracing::Tracer::InitGlobal(
+      std::static_pointer_cast<opentracing::Tracer>(tracer));
+}
+#endif
+
 static void global_init_set_globals(CephContext *cct)
 {
   g_ceph_context = cct;
@@ -375,15 +386,6 @@ global_init(const std::map<std::string,std::string> *defaults,
   }
 
 #ifdef WITH_JAEGER
-void global_setUpTracer() {
-  auto configYAML = YAML::LoadFile("../jaegertracing/config.yml");
-  auto config = jaegertracing::Config::parse(configYAML);
-  auto tracer = jaegertracing::Tracer::make(
-      "ceph-tracing", config, jaegertracing::logging::consoleLogger());
-  opentracing::Tracer::InitGlobal(
-      std::static_pointer_cast<opentracing::Tracer>(tracer));
-}
-
 global_setUpTracer();
 #endif
   return boost::intrusive_ptr<CephContext>{g_ceph_context, false};

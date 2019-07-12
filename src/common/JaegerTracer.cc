@@ -2,7 +2,32 @@
 #include <jaegertracing/Tracer.h>
 #include <yaml-cpp/yaml.h>
 #include <iostream>
+#include <jaegertracing/Span.h>
+#include <opentracing/span.h>
 
+void global_setUpTracer() {
+  constexpr auto kConfigYAML = R"cfg(
+        disabled: false
+        sampler:
+            type: const
+            param: 1
+        reporter:
+            logSpans: true
+        )cfg";
+  std::cout << kConfigYAML;
+  const auto config = jaegertracing::Config::parse(YAML::Load(kConfigYAML));
+  auto tracer = jaegertracing::Tracer::make("postgresql", config);
+  opentracing::Tracer::InitGlobal(tracer);
+  
+  //auto configYAML = YAML::LoadFile("../jaegertracing/config.yml");
+  //auto config = jaegertracing::Config::parse(configYAML);
+  std::cout << "Here1";
+
+  //auto tracer = jaegertracing::Tracer::make(
+  //    "ceph-tracing", config, jaegertracing::logging::consoleLogger());
+  //opentracing::Tracer::InitGlobal(
+  //    std::static_pointer_cast<opentracing::Tracer>(tracer));
+}
 void JTracer::tracedSubroutine(jspan& parentSpan,
 			       const char* subRoutineContext) {
   auto span = opentracing::Tracer::Global()->StartSpan(

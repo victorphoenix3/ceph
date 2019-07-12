@@ -5,6 +5,8 @@
 
 typedef std::unique_ptr<opentracing::Span> jspan;
 
+void global_setUpJaeger();
+
 namespace JTracer {
 void tracedSubroutine(jspan&, const char*);
 jspan tracedFunction(const char*);

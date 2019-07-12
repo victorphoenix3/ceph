@@ -5,7 +5,7 @@
 #include <jaegertracing/Span.h>
 #include <opentracing/span.h>
 
-void global_setUpTracer() {
+void global_setUpJaeger() {
 
   constexpr auto kConfigYAML = R"cfg(
         disabled: false

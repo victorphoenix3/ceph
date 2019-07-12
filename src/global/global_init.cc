@@ -398,9 +398,6 @@ global_init(const std::map<std::string,std::string> *defaults,
     exit(1);
   }
 
-#ifdef WITH_JAEGER
-global_setUpTracer();
-#endif
   return boost::intrusive_ptr<CephContext>{g_ceph_context, false};
 }
 

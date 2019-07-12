@@ -56,7 +56,7 @@ void global_setUpTracer() {
         reporter:
             logSpans: true
         )cfg";
-
+  std::cout << kConfigYAML;
   const auto config = jaegertracing::Config::parse(YAML::Load(kConfigYAML));
   auto tracer = jaegertracing::Tracer::make("postgresql", config);
   opentracing::Tracer::InitGlobal(tracer);

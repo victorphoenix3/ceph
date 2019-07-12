@@ -48,12 +48,27 @@
 
 #ifdef WITH_JAEGER
 void global_setUpTracer() {
-  auto configYAML = YAML::LoadFile("../jaegertracing/config.yml");
-  auto config = jaegertracing::Config::parse(configYAML);
-  auto tracer = jaegertracing::Tracer::make(
-      "ceph-tracing", config, jaegertracing::logging::consoleLogger());
-  opentracing::Tracer::InitGlobal(
-      std::static_pointer_cast<opentracing::Tracer>(tracer));
+  constexpr auto kConfigYAML = R"cfg(
+        disabled: false
+        sampler:
+            type: const
+            param: 1
+        reporter:
+            logSpans: true
+        )cfg";
+
+  const auto config = jaegertracing::Config::parse(YAML::Load(kConfigYAML));
+  auto tracer = jaegertracing::Tracer::make("postgresql", config);
+  opentracing::Tracer::InitGlobal(tracer);
+  
+  //auto configYAML = YAML::LoadFile("../jaegertracing/config.yml");
+  //auto config = jaegertracing::Config::parse(configYAML);
+  std::cout << "Here1";
+
+  //auto tracer = jaegertracing::Tracer::make(
+  //    "ceph-tracing", config, jaegertracing::logging::consoleLogger());
+  //opentracing::Tracer::InitGlobal(
+  //    std::static_pointer_cast<opentracing::Tracer>(tracer));
 }
 #endif
 

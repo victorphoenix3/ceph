@@ -6708,29 +6708,6 @@ void OSD::ms_fast_dispatch(Message *m)
   }
 
 #ifdef WITH_JAEGER
-  void global_setUpTracer() {
-    constexpr auto kConfigYAML = R"cfg(
-        disabled: false
-        sampler:
-            type: const
-            param: 1
-        reporter:
-            logSpans: true
-        )cfg";
-
-    const auto config = jaegertracing::Config::parse(YAML::Load(kConfigYAML));
-    auto tracer = jaegertracing::Tracer::make("osd-tracing", config);
-    opentracing::Tracer::InitGlobal(tracer);
-
-    // auto configYAML = YAML::LoadFile("../jaegertracing/config.yml");
-    // auto config = jaegertracing::Config::parse(configYAML);
-    std::cout << "Here1";
-
-    // auto tracer = jaegertracing::Tracer::make(
-    //    "ceph-tracing", config, jaegertracing::logging::consoleLogger());
-    // opentracing::Tracer::InitGlobal(
-    //    std::static_pointer_cast<opentracing::Tracer>(tracer));
-  }
   global_setUpTracer();
   jspan parent_span = JTracer::tracedFunction("ms_fast_dispatch_begins");
 #endif

@@ -6,6 +6,7 @@
 #include <opentracing/span.h>
 
 void global_setUpTracer() {
+
   constexpr auto kConfigYAML = R"cfg(
         disabled: false
         sampler:
@@ -14,9 +15,9 @@ void global_setUpTracer() {
         reporter:
             logSpans: true
         )cfg";
-  std::cout << kConfigYAML;
+
   const auto config = jaegertracing::Config::parse(YAML::Load(kConfigYAML));
-  auto tracer = jaegertracing::Tracer::make("postgresql", config);
+  auto tracer = jaegertracing::Tracer::make("osd-tracing", config);
   opentracing::Tracer::InitGlobal(tracer);
   
   //auto configYAML = YAML::LoadFile("../jaegertracing/config.yml");

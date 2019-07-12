@@ -105,11 +105,4 @@ int global_init_preload_erasure_code(const CephContext *cct);
  */
 void global_print_banner(void);
 
-/*
- * Jaeger one time initialization
- */
-#ifdef WITH_JAEGER
-void global_setUpTracer();
-#endif
-
 #endif

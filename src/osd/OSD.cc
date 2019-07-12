@@ -6708,7 +6708,7 @@ void OSD::ms_fast_dispatch(Message *m)
   }
 
 #ifdef WITH_JAEGER
-  global_setUpTracer();
+  global_setUpJaeger();
   jspan parent_span = JTracer::tracedFunction("ms_fast_dispatch_begins");
 #endif
 

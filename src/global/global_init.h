@@ -22,7 +22,7 @@
 #include "include/ceph_assert.h"
 #include "common/code_environment.h"
 #include "common/common_init.h"
-
+#include "common/JaegerTracer.h"
 class CephContext;
 
 /*

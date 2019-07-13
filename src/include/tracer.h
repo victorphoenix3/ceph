@@ -7,8 +7,7 @@
 
 #include <jaegertracing/Tracer.h>
 
-class JTracer {
-public:
+namespace JTracer {
 
 static inline void setUpTracer(const char* serviceToTrace) {
   static auto configYAML = YAML::LoadFile("../jaegertracing/config.yml");
@@ -62,6 +61,6 @@ void extract(jspan& span, const char* name,
   auto span1 = std::move(_span);
 }
 
-};
+}
 
 #endif

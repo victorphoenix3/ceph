@@ -6,7 +6,7 @@
 #include <opentracing/span.h>
 
 void global_setUpJaeger() {
-
+  std::cout << "entry-jaeger";
   constexpr auto kConfigYAML = R"cfg(
         disabled: false
         sampler:
@@ -17,6 +17,7 @@ void global_setUpJaeger() {
         )cfg";
 
   const auto config = jaegertracing::Config::parse(YAML::Load(kConfigYAML));
+  std::cout << "jaeger-config";
   auto tracer = jaegertracing::Tracer::make("osd-tracing", config);
   opentracing::Tracer::InitGlobal(tracer);
   

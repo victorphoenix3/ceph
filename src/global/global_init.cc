@@ -368,8 +368,9 @@ global_init(const std::map<std::string,std::string> *defaults,
     exit(1);
   }
 
-  return boost::intrusive_ptr<CephContext>{g_ceph_context, false};
   global_setUpJaeger();
+
+  return boost::intrusive_ptr<CephContext>{g_ceph_context, false};
 }
 
 void intrusive_ptr_add_ref(CephContext* cct)

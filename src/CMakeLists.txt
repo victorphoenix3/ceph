@@ -365,6 +365,7 @@ set(ceph_common_deps
   Boost::date_time
   Boost::iostreams
   ${BLKID_LIBRARIES}
+  ${JAEGER_LIBRARIES}
   ${Backtrace_LIBRARIES}
   ${CRYPTO_LIBS}
   ${GSSAPI_LIBRARIES}

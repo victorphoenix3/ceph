@@ -31,7 +31,6 @@
 #include <pwd.h>
 #include <grp.h>
 #include <errno.h>
-#include "common/JaegerTracer.h"
 
 #ifdef HAVE_SYS_PRCTL_H
 #include <sys/prctl.h>
@@ -367,8 +366,6 @@ global_init(const std::map<std::string,std::string> *defaults,
     cerr << " failed to init_on_startup : " << cpp_strerror(errno) << std::endl;
     exit(1);
   }
-
-  global_setUpJaeger();
 
   return boost::intrusive_ptr<CephContext>{g_ceph_context, false};
 }

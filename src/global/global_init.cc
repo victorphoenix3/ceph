@@ -31,7 +31,7 @@
 #include <pwd.h>
 #include <grp.h>
 #include <errno.h>
-#include "common/JaegerTracer.h"
+//#include "common/JaegerTracer.h"
 
 #ifdef HAVE_SYS_PRCTL_H
 #include <sys/prctl.h>

@@ -31,6 +31,7 @@
 #include <pwd.h>
 #include <grp.h>
 #include <errno.h>
+#include "common/JaegerTracer.cc"
 
 #ifdef HAVE_SYS_PRCTL_H
 #include <sys/prctl.h>
@@ -39,37 +40,6 @@
 #define dout_context g_ceph_context
 #define dout_subsys ceph_subsys_
 //
-//#ifdef WITH_JAEGER
-//#include <iostream>
-//#include <yaml-cpp/yaml.h>
-//#include <jaegertracing/Span.h>
-//#include <opentracing/span.h>
-//#include <jaegertracing/Tracer.h>
-//void global_setUpTracer() {
-//  constexpr auto kConfigYAML = R"cfg(
-//        disabled: false
-//        sampler:
-//            type: const
-//            param: 1
-//        reporter:
-//            logSpans: true
-//        )cfg";
-//  std::cout << kConfigYAML;
-//  const auto config = jaegertracing::Config::parse(YAML::Load(kConfigYAML));
-//  auto tracer = jaegertracing::Tracer::make("postgresql", config);
-//  opentracing::Tracer::InitGlobal(tracer);
-//  
-//  //auto configYAML = YAML::LoadFile("../jaegertracing/config.yml");
-//  //auto config = jaegertracing::Config::parse(configYAML);
-//  std::cout << "Here1";
-//
-//  //auto tracer = jaegertracing::Tracer::make(
-//  //    "ceph-tracing", config, jaegertracing::logging::consoleLogger());
-//  //opentracing::Tracer::InitGlobal(
-//  //    std::static_pointer_cast<opentracing::Tracer>(tracer));
-//}
-//#endif
-
 static void global_init_set_globals(CephContext *cct)
 {
   g_ceph_context = cct;
@@ -399,6 +369,7 @@ global_init(const std::map<std::string,std::string> *defaults,
   }
 
   return boost::intrusive_ptr<CephContext>{g_ceph_context, false};
+  global_setUpJaeger();
 }
 
 void intrusive_ptr_add_ref(CephContext* cct)

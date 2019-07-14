@@ -175,7 +175,10 @@ if(HAVE_ARMV8_CRC)
     COMPILE_FLAGS "${CMAKE_C_FLAGS} ${ARMV8_CRC_COMPILE_FLAGS}")
 endif()
 target_link_libraries(crc32
-  arch)
+  arch
+  ${JAEGER_LIBRARIES}
+  ${OPENTRACE_LIBRARIES}
+  ${YAML_LIBRARIES})
 
 add_library(common_utf8 STATIC utf8.c)
 

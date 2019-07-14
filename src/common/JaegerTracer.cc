@@ -15,7 +15,8 @@ void global_setUpJaeger() {
             logSpans: true
         )cfg";
 
-  const auto config = jaegertracing::Config::parse(YAML::Load(kConfigYAML));
+//  const auto config = jaegertracing::Config::parse(YAML::Load(kConfigYAML));
+    const auto config = jaegertracing::Config();
   auto tracer = jaegertracing::Tracer::make("osd-tracing", config);
   opentracing::Tracer::InitGlobal(tracer);
   

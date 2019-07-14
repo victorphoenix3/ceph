@@ -6710,9 +6710,9 @@ void OSD::ms_fast_dispatch(Message *m)
 #ifdef WITH_JAEGER
   //TODO: extract relevant tags and logs from message, need to understand what
   //will be relevant from call stack and failing osd
-  JTracer::setUpTracer("OSD_TRACING");
+  inline JTracer::setUpTracer("OSD_TRACING");
   JTracer::jspan msFastDispatchSpan =
-      JTracer::tracedFunction((m->get_type_name()).data());
+     inline JTracer::tracedFunction((m->get_type_name()).data());
 
   // parentSpan->Finish()
 #endif
@@ -6804,7 +6804,7 @@ void OSD::ms_fast_dispatch(Message *m)
 
 #ifdef WITH_JAEGER
   JTracer::jspan carrierSpan =
-      JTracer::tracedSubroutine(msFastDispatchSpan, "MS_FAST_DISPATCH_ENDS");
+     inline JTracer::tracedSubroutine(msFastDispatchSpan, "MS_FAST_DISPATCH_ENDS");
   msFastDispatchSpan->Finish();
   carrierSpan->Finish();
 #endif

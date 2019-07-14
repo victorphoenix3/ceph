@@ -11,10 +11,6 @@
  * Foundation.  See file COPYING.
  */
 
-#ifdef WITH_JAEGER
-#include "include/tracer.h"
-#endif
-
 #ifndef TRACKEDREQUEST_H_
 #define TRACKEDREQUEST_H_
 

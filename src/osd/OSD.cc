@@ -6890,11 +6890,12 @@ void OSD::ms_fast_dispatch(Message *m)
 #ifdef WITH_JAEGER
   JTracer *jt = new JTracer;
   jt->setUpTracer("OSD_TRACING");
-  JTracer::jspan msFastDispatchSpan =
-      jt->tracedFunction((m->get_type_name()).data());
-
-  // parentSpan->Finish()
+  JTracer::jspan parent_span =
+      //jt->tracedFunction((m->get_type_name()).data());
+      jt->tracedFunction("ms_fast_dispatch_begins");
+      jt->tracedSubroutine(parent_span, m->get_type_name().data());
 #endif
+
   // peering event?
   switch (m->get_type()) {
   case CEPH_MSG_PING:
@@ -6982,10 +6983,9 @@ void OSD::ms_fast_dispatch(Message *m)
   OID_EVENT_TRACE_WITH_MSG(m, "MS_FAST_DISPATCH_END", false);
 
 #ifdef WITH_JAEGER
-  JTracer::jspan carrierSpan =
-      jt->tracedSubroutine(msFastDispatchSpan, "MS_FAST_DISPATCH_ENDS");
-  msFastDispatchSpan->Finish();
-  carrierSpan->Finish();
+      jt->tracedSubroutine(parent_span, "MS_FAST_DISPATCH_ENDS");
+  parent_span->Finish();
+  delete jt;
 #endif
 }
 
@@ -9564,6 +9564,12 @@ void OSD::dequeue_op(
   PGRef pg, OpRequestRef op,
   ThreadPool::TPHandle &handle)
 {
+#ifdef WITH_JAEGER
+  JTracer *jt = new JTracer;
+  jt->setUpTracer("OSD_TRACING");
+  JTracer::jspan parent_span = jt->tracedFunction("dequeue_op_begins");
+#endif
+
   const Message *m = op->get_req();
 
   FUNCTRACE(cct);
@@ -9597,6 +9603,12 @@ void OSD::dequeue_op(
   // finish
   dout(10) << "dequeue_op " << op << " finish" << dendl;
   OID_EVENT_TRACE_WITH_MSG(m, "DEQUEUE_OP_END", false);
+
+#ifdef WITH_JAEGER
+      jt->tracedSubroutine(parent_span, "dequeue_op_ends");
+  parent_span->Finish();
+  delete jt;
+#endif
 
 }
 

@@ -162,7 +162,7 @@
 #include "json_spirit/json_spirit_writer.h"
 
 #ifdef WITH_JAEGER
-#include "include/tracer.h"
+#include "common/tracer.h"
 #endif
 
 #ifdef WITH_LTTNG

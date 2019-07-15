@@ -162,7 +162,7 @@
 #include "json_spirit/json_spirit_writer.h"
 
 #ifdef WITH_JAEGER
-#include "common/tracer.h"
+#include "include/tracer.h"
 #endif
 
 #ifdef WITH_LTTNG
@@ -6888,10 +6888,10 @@ void OSD::ms_fast_dispatch(Message *m)
   }
 
 #ifdef WITH_JAEGER
-  JTracer jtracer;
-  jtracer.setUpTracer("OSD_TRACING");
+  JTracer *jt = new JTracer;
+  jt->setUpTracer("OSD_TRACING");
   JTracer::jspan msFastDispatchSpan =
-      jtracer.tracedFunction((m->get_type_name()).data());
+      jt->tracedFunction((m->get_type_name()).data());
 
   // parentSpan->Finish()
 #endif
@@ -6983,7 +6983,7 @@ void OSD::ms_fast_dispatch(Message *m)
 
 #ifdef WITH_JAEGER
   JTracer::jspan carrierSpan =
-      jtracer.tracedSubroutine(msFastDispatchSpan, "MS_FAST_DISPATCH_ENDS");
+      jt->tracedSubroutine(msFastDispatchSpan, "MS_FAST_DISPATCH_ENDS");
   msFastDispatchSpan->Finish();
   carrierSpan->Finish();
 #endif

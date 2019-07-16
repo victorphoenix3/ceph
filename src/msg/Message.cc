@@ -927,7 +927,7 @@ void Message::encode_trace(bufferlist &bl, uint64_t features, JTracer::jspan par
   encode(*p, bl);
 }
 
-void Message::decode_trace(bufferlist::const_iterator &p, bool create, std::string t_meta)
+void Message::decode_trace(bufferlist::const_iterator &p, bool create, std::string t_meta="empty")
 {
   blkin_trace_info info = {};
   decode(info, p);

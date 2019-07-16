@@ -919,8 +919,8 @@ void Message::encode_trace(bufferlist &bl, uint64_t features) const
 #ifdef WITH_JAEGER
   JTracer *jt = new JTracer;
   jt->setUpTracer("OSD_TRACING");
-  string t_meta = jt->inject(JTracer::jspan, get_type_name());
-  ::encode(t_meta, bl);
+  string t_meta = jt->inject(const char* "inject_placeholder", JTracer::jspan);
+  encode(t_meta, bl);
   delete jt;
 #endif
 
@@ -931,6 +931,10 @@ void Message::decode_trace(bufferlist::const_iterator &p, bool create)
 {
   blkin_trace_info info = {};
   decode(info, p);
+#ifdef WITH_JAEGER
+  string t_meta = "";
+  decode(t_meta, p);
+  
 
 #ifdef WITH_BLKIN
   if (!connection)

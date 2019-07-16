@@ -919,7 +919,7 @@ void Message::encode_trace(bufferlist &bl, uint64_t features) const
 #ifdef WITH_JAEGER
   JTracer *jt = new JTracer;
   jt->setUpTracer("OSD_TRACING");
-  string t_meta = jt->inject("encode-span", get_type_name());
+  string t_meta = jt->inject(JTracer::jspan, get_type_name());
   ::encode(t_meta, bl);
   delete jt;
 #endif

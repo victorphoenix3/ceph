@@ -507,7 +507,7 @@ extern Message *decode_message(CephContext *cct, int crcflags,
 			       ceph_msg_header &header,
 			       ceph_msg_footer& footer, ceph::buffer::list& front,
 			       ceph::buffer::list& middle, ceph::buffer::list& data,
-			       Connection* conn);
+			       Connection* conn, std::string t_meta);
 inline std::ostream& operator<<(std::ostream& out, const Message& m) {
   m.print(out);
   if (m.get_header().version)
@@ -517,7 +517,7 @@ inline std::ostream& operator<<(std::ostream& out, const Message& m) {
 
 extern void encode_message(Message *m, uint64_t features, ceph::buffer::list& bl);
 extern Message *decode_message(CephContext *cct, int crcflags,
-                               ceph::buffer::list::const_iterator& bl);
+                               ceph::buffer::list::const_iterator& bl, JTracer::jspan);
 
 /// this is a "safe" version of Message. it does not allow calling get/put
 /// methods on its derived classes. This is intended to prevent some accidental

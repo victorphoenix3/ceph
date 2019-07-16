@@ -907,7 +907,7 @@ Message *decode_message(CephContext *cct, int crcflags,
   return m.detach();
 }
 
-void Message::encode_trace(bufferlist &bl, uint64_t features) const
+void Message::encode_trace(bufferlist &bl, uint64_t features, JTracer::jspan parent_span = NULL) const
 {
   using ceph::encode;
   auto p = trace.get_info();
@@ -919,7 +919,7 @@ void Message::encode_trace(bufferlist &bl, uint64_t features) const
 #ifdef WITH_JAEGER
   JTracer *jt = new JTracer;
   jt->setUpTracer("OSD_TRACING");
-  string t_meta = jt->inject(JTracer::jspan, const char* "inject_placeholder");
+  std::string t_meta = jt->inject(parent_span, const char* "inject_placeholder");
   encode(t_meta, bl);
   delete jt;
 #endif

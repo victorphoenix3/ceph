@@ -6711,7 +6711,6 @@ void OSD::ms_fast_dispatch(Message *m)
   JTracer *jt = new JTracer;
   jt->setUpTracer("OSD_TRACING");
   JTracer::jspan parent_span =
-      //jt->tracedFunction((m->get_type_name()).data());
       jt->tracedFunction("ms_fast_dispatch_begins");
       jt->tracedSubroutine(parent_span, m->get_type_name().data());
 #endif
@@ -6803,7 +6802,7 @@ void OSD::ms_fast_dispatch(Message *m)
   OID_EVENT_TRACE_WITH_MSG(m, "MS_FAST_DISPATCH_END", false);
 
 #ifdef WITH_JAEGER
-      jt->tracedSubroutine(parent_span, "MS_FAST_DISPATCH_ENDS");
+      jt->tracedSubroutine(parent_span, "ms_fast_dispatch_ends");
   parent_span->Finish();
   delete jt;
 #endif
@@ -9327,11 +9326,10 @@ void OSD::dequeue_op(
   OID_EVENT_TRACE_WITH_MSG(m, "DEQUEUE_OP_END", false);
 
 #ifdef WITH_JAEGER
-      jt->tracedSubroutine(parent_span, "dequeue_op_ends");
+  jt->tracedSubroutine(parent_span, "dequeue_op_ends");
   parent_span->Finish();
   delete jt;
 #endif
-
 }
 
 

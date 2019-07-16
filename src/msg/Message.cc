@@ -201,6 +201,10 @@
 #include "messages/MOSDPGUpdateLogMissing.h"
 #include "messages/MOSDPGUpdateLogMissingReply.h"
 
+#ifdef WITH_JAEGER
+#include "common/tracer.h"
+#endif
+
 #define DEBUGLVL  10    // debug level of output
 
 #define dout_subsys ceph_subsys_ms
@@ -911,6 +915,15 @@ void Message::encode_trace(bufferlist &bl, uint64_t features) const
   if (!p) {
     p = &empty;
   }
+
+#ifdef WITH_JAEGER
+  JTracer *jt = new JTracer;
+  jt->setUpTracer("OSD_TRACING");
+  string t_meta = jt->inject("encode-span", get_type_name());
+  ::encode(t_meta, bl);
+  delete jt;
+#endif
+
   encode(*p, bl);
 }
 

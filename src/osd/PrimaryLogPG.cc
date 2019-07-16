@@ -75,6 +75,10 @@ static ostream& _prefix(std::ostream *_dout, T *pg) {
 
 #include <errno.h>
 
+#ifdef WITH_JAEGER
+#include "common/tracer.h"
+#endif<Paste>
+
 MEMPOOL_DEFINE_OBJECT_FACTORY(PrimaryLogPG, replicatedpg, osd);
 
 PGLSFilter::PGLSFilter() : cct(nullptr)
@@ -1571,6 +1575,13 @@ void PrimaryLogPG::do_request(
     op->pg_trace.event("do request");
   }
 
+#ifdef WITH_JAEGER
+  JTracer *jt = new JTracer;
+  jt->setUpTracer("pg op");
+  JTracer::jspan parent_span =
+      jt->tracedFunction("do_request_begins");
+  delete jt;
+#endif
 
   // make sure we have a new enough map
   auto p = waiting_for_map.find(op->get_source());
@@ -1664,6 +1675,8 @@ void PrimaryLogPG::do_request(
       dout(20) << " peered, not active, waiting for active on " << op << dendl;
       waiting_for_active.push_back(op);
       op->mark_delayed("waiting for active");
+      parent_span->Log(
+	  {"waiting for active", "peered, not active, waiting for active on"});
       return;
     }
     switch (msg_type) {

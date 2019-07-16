@@ -934,7 +934,7 @@ void Message::decode_trace(bufferlist::const_iterator &p, bool create)
 #ifdef WITH_JAEGER
   string t_meta = "";
   decode(t_meta, p);
-  
+#endif  
 
 #ifdef WITH_BLKIN
   if (!connection)

@@ -34,6 +34,10 @@
 #include "msg/MessageRef.h"
 #include "msg_types.h"
 
+#ifdef WITH_JAEGER
+#include "common/tracer.h"
+#endif
+
 // monitor internal
 #define MSG_MON_SCRUB              64
 #define MSG_MON_ELECTION           65

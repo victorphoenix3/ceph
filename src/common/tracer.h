@@ -7,6 +7,8 @@
 
 #include <jaegertracing/Tracer.h>
 
+typedef std::unique_ptr<opentracing::Span> jspan;
+
 class JTracer {
 public:
 
@@ -19,7 +21,6 @@ static inline void setUpTracer(const char* serviceToTrace) {
       std::static_pointer_cast<opentracing::Tracer>(tracer));
 }
 
-typedef std::unique_ptr<opentracing::Span> jspan;
 
 void tracedSubroutine(
     jspan& parentSpan,

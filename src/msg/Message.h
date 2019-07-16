@@ -263,7 +263,7 @@ protected:
 public:
   // zipkin tracing
   ZTracer::Trace trace;
-  void encode_trace(ceph::buffer::list &bl, uint64_t features, JTracer::jspan) const;
+  void encode_trace(ceph::buffer::list &bl, uint64_t features, jspan&) const;
   void decode_trace(ceph::buffer::list::const_iterator &p, bool create = false, std::string t_meta);
 
   class CompletionHook : public Context {

@@ -919,7 +919,7 @@ void Message::encode_trace(bufferlist &bl, uint64_t features) const
 #ifdef WITH_JAEGER
   JTracer *jt = new JTracer;
   jt->setUpTracer("OSD_TRACING");
-  string t_meta = jt->inject(const char* "inject_placeholder", JTracer::jspan);
+  string t_meta = jt->inject(JTracer::jspan, const char* "inject_placeholder");
   encode(t_meta, bl);
   delete jt;
 #endif
@@ -927,12 +927,12 @@ void Message::encode_trace(bufferlist &bl, uint64_t features) const
   encode(*p, bl);
 }
 
-void Message::decode_trace(bufferlist::const_iterator &p, bool create)
+void Message::decode_trace(bufferlist::const_iterator &p, bool create, std::string t_meta)
 {
   blkin_trace_info info = {};
   decode(info, p);
 #ifdef WITH_JAEGER
-  string t_meta = "";
+  string t_meta = t_meta;
   decode(t_meta, p);
 #endif  
 

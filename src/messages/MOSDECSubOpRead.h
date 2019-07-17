@@ -17,6 +17,9 @@
 
 #include "MOSDFastDispatchOp.h"
 #include "osd/ECMsgTypes.h"
+#ifdef WITH_JAEGER
+#include "common/tracer.h"
+#endif
 
 class MOSDECSubOpRead : public MOSDFastDispatchOp {
 private:
@@ -64,7 +67,7 @@ public:
     encode(map_epoch, payload);
     encode(op, payload, features);
     encode(min_epoch, payload);
-    encode_trace(payload, features);
+    encode_trace(payload, features, jspan& span = NULL);
   }
 
   std::string_view get_type_name() const override { return "MOSDECSubOpRead"; }

@@ -64,7 +64,11 @@ public:
     encode(map_epoch, payload);
     encode(op, payload);
     encode(min_epoch, payload);
+#ifdef WITH_JAEGER
+    encode_trace(payload, features, jspan&);
+#else
     encode_trace(payload, features);
+#endif
   }
 
   std::string_view get_type_name() const override { return "MOSDECSubOpReadReply"; }

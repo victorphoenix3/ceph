@@ -252,8 +252,8 @@ public:
   void decode_trace(ceph::buffer::list::const_iterator &p, bool create = false);
 
 #ifdef WITH_JAEGER
-  string encode_trace_jaeger(bufferlist & bl, uint64_t features);
-  void decode_trace_jaeger(bufferlist::const_iterator& p, bool create = false);
+  void encode_trace_jaeger(ceph::buffer::list &bl, uint64_t features) const;
+  void decode_trace_jaeger(ceph::buffer::list::const_iterator &p, bool create = false);
 #endif
 
   class CompletionHook : public Context {

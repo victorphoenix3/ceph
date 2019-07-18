@@ -375,7 +375,7 @@ struct ceph_osd_request_head {
       encode(osdmap_epoch, payload);
       encode(flags, payload);
       encode(reqid, payload);
-      encode_trace(payload, features);
+      encode_trace(payload, features, jspan& parent_span=null);
 
       // -- above decoded up front; below decoded post-dispatch thread --
 

@@ -65,7 +65,7 @@ public:
     encode(op, payload);
     encode(min_epoch, payload);
 #ifdef WITH_JAEGER
-    encode_trace(payload, features, jspan&);
+    encode_trace(payload, features);
 #else
     encode_trace(payload, features);
 #endif

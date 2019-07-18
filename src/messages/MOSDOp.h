@@ -21,7 +21,9 @@
 #include "MOSDFastDispatchOp.h"
 #include "include/ceph_features.h"
 #include "common/hobject.h"
-
+#ifdef WITH_JAEGER
+#include "common/tracer.h"
+#endif
 /*
  * OSD op
  *
@@ -375,8 +377,10 @@ struct ceph_osd_request_head {
       encode(osdmap_epoch, payload);
       encode(flags, payload);
       encode(reqid, payload);
-      encode_trace(payload, features, jspan);
-
+      encode_trace(payload, features);
+#ifdef WITH_JAEGER
+      encode_trace_jaeger(payload, features, jspan);
+#endif
       // -- above decoded up front; below decoded post-dispatch thread --
 
       encode(client_inc, payload);
@@ -413,6 +417,9 @@ struct ceph_osd_request_head {
       decode(flags, p);
       decode(reqid, p);
       decode_trace(p);
+#ifdef WITH_JAEGER
+      decode_trace_jaeger(p);
+#endif
     } else if (header.version == 7) {
       decode(pgid.pgid, p);      // raw pgid
       hobj.set_hash(pgid.pgid.ps());

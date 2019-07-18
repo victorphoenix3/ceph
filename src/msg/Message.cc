@@ -919,7 +919,7 @@ void Message::encode_trace(bufferlist &bl, uint64_t features) const {
 }
 
 #ifdef WITH_JAEGER
-void Message::encode_trace_jaeger(bufferlist &bl, uint64_t features) const
+void Message::encode_trace_jaeger(bufferlist &bl, uint64_t features, jspan& parent_span) const
 {
   using ceph::encode;
   auto p = trace.get_info();

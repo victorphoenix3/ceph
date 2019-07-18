@@ -907,7 +907,19 @@ Message *decode_message(CephContext *cct, int crcflags,
   return m.detach();
 }
 
-void Message::encode_trace(bufferlist &bl, uint64_t features, jspan& parent_span) const
+//void Message::encode_trace(bufferlist &bl, uint64_t features, jspan& parent_span) const
+void Message::encode_trace(bufferlist &bl, uint64_t features) const {
+  using ceph::encode;
+  auto p = trace.get_info();
+  static const blkin_trace_info empty = {0, 0, 0};
+  if (!p) {
+    p = &empty;
+  }
+  encode(*p, bl);
+}
+
+#ifdef WITH_JAEGER
+void Message::encode_trace_jaeger(bufferlist &bl, uint64_t features) const
 {
   using ceph::encode;
   auto p = trace.get_info();
@@ -916,17 +928,16 @@ void Message::encode_trace(bufferlist &bl, uint64_t features, jspan& parent_span
     p = &empty;
   }
 
-#ifdef WITH_JAEGER
   JTracer *jt = new JTracer;
   jt->setUpTracer("OSD_TRACING");
   jspan& jt->tracedFunction("trace_injected");
   std::string t_meta = jt->inject(parent_span, const char* "inject_placeholder");
   encode(t_meta, bl);
   delete jt;
-#endif
 
   encode(*p, bl);
 }
+#endif
 
 void Message::decode_trace(bufferlist::const_iterator &p, bool create, std::string t_meta)
 {

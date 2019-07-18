@@ -6710,7 +6710,7 @@ void OSD::ms_fast_dispatch(Message *m)
 #ifdef WITH_JAEGER
   JTracer *jt = new JTracer;
   jt->setUpTracer("OSD_TRACING");
-  JTracer::jspan parent_span =
+  jspan parent_span =
       jt->tracedFunction("ms_fast_dispatch_begins");
       parent_span->Log({"log","ms fast dispatch"},{"test",124});
       jt->tracedSubroutine(parent_span, m->get_type_name().data());
@@ -9289,7 +9289,7 @@ void OSD::dequeue_op(
 #ifdef WITH_JAEGER
   JTracer *jt = new JTracer;
   jt->setUpTracer("OSD_TRACING");
-  JTracer::jspan parent_span = jt->tracedFunction("dequeue_op_begins");
+  jspan parent_span = jt->tracedFunction("dequeue_op_begins");
 #endif
 
   const Message *m = op->get_req();

@@ -253,7 +253,7 @@ public:
 
 #ifdef WITH_JAEGER
   string encode_trace_jaeger(bufferlist & bl, uint64_t features);
-  void decode_trace_jaeger(bufferlist::const_iterator& p, bool create);
+  void decode_trace_jaeger(bufferlist::const_iterator& p, bool create = false);
 #endif
 
   class CompletionHook : public Context {

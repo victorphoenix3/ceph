@@ -190,6 +190,10 @@
 #include "messages/MTimeCheck.h"
 #include "messages/MTimeCheck2.h"
 
+#ifdef WITH_JAEGER
+#include "common/tracer.h"
+#endif
+
 #include "common/config.h"
 
 #include "messages/MOSDPGPush.h"
@@ -931,6 +935,39 @@ void Message::decode_trace(bufferlist::const_iterator &p, bool create)
   blkin_trace_info info = {};
   decode(info, p);
 
+#ifdef WITH_JAEGER
+  string Message::encode_trace_jaeger(
+      bufferlist & bl, uint64_t features /*, jspan& parent_span*/) const {
+    using ceph::encode;
+
+    auto p = trace.get_info();
+    static const blkin_trace_info empty = {0, 0, 0};
+    if (!p) {
+      p = &empty;
+    }
+    JTracer *jt = new JTracer;
+    jt->setUpTracer("InjectTracing");
+    JTracer::jspan parent_span =
+	// jt->tracedFunction((m->get_type_name()).data());
+	jt->tracedFunction("inject-testing");
+
+    string t_meta = jt->inject(parent_span,"injecting");
+    encode(t_meta, bl);
+    encode(*p, bl);
+
+    return t_meta;
+  }
+
+  void Message::decode_trace_jaeger(bufferlist::const_iterator & p, bool create,
+				    string t_meta) {
+    string t_meta = t_meta;
+    blkin_trace_info info = {};
+    decode(t_meta, p);
+    decode(info, p);
+
+    JTracer *jt = new JTracer;
+    jt->setUpTracer("ExtractTracing");
+
 #ifdef WITH_BLKIN
   if (!connection)
     return;
@@ -944,6 +981,12 @@ void Message::decode_trace(bufferlist::const_iterator &p, bool create)
                         msgr->cct->_conf->osd_blkin_trace_all)) {
     // create a trace even if we didn't get one on the wire
     trace.init(get_type_name(), endpoint);
+
+    _span = opentracing::Tracer::Global()->StartSpan(
+	name, {ChildOf(span_context_maybe->get())});
+    span = std::move(_span);
+    jt->extract(span,"get_type_name()", t_meta);
+    if(assert(span))
     trace.event("created trace");
   }
   trace.keyval("tid", get_tid());
@@ -952,6 +995,7 @@ void Message::decode_trace(bufferlist::const_iterator &p, bool create)
 #endif
 }
 
+#endif
 
 // This routine is not used for ordinary messages, but only when encapsulating a message
 // for forwarding and routing.  It's also used in a backward compatibility test, which only

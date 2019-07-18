@@ -978,7 +978,7 @@ void Message::decode_trace(bufferlist::const_iterator &p, bool create)
   }
 
   void Message::decode_trace_jaeger(bufferlist::const_iterator & p, bool create,
-				    string t_meta) {
+				    string t_meta="hello") {
     string t_meta = t_meta;
     blkin_trace_info info = {};
     decode(t_meta, p);

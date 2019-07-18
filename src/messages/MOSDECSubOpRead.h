@@ -45,7 +45,7 @@ public:
     : MOSDFastDispatchOp{MSG_OSD_EC_READ, HEAD_VERSION, COMPAT_VERSION}
     {}
 
-  void decode_payload() override {
+  void decode_payload(string t_meta) override {
     auto p = payload.cbegin();
     decode(pgid, p);
     decode(map_epoch, p);
@@ -53,18 +53,21 @@ public:
     if (header.version >= 3) {
       decode(min_epoch, p);
       decode_trace(p);
+      decode_trace_jaeger(p, t_meta);
     } else {
       min_epoch = map_epoch;
     }
   }
 
-  void encode_payload(uint64_t features) override {
+  /*void*/ string encode_payload(uint64_t features) override {
     using ceph::encode;
     encode(pgid, payload);
     encode(map_epoch, payload);
     encode(op, payload, features);
     encode(min_epoch, payload);
     encode_trace(payload, features);
+    string t_meta = encode_trace_jaeger(payload, features);
+    return t_meta;
   }
 
   std::string_view get_type_name() const override { return "MOSDECSubOpRead"; }

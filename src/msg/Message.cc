@@ -947,11 +947,9 @@ void Message::decode_trace(bufferlist::const_iterator &p, bool create)
     }
     JTracer *jt = new JTracer;
     jt->setUpTracer("InjectTracing");
-    JTracer::jspan parent_span =
-	// jt->tracedFunction((m->get_type_name()).data());
-	jt->tracedFunction("inject-testing");
+    jspan parent_span = jt->tracedFunction("inject-testing");
 
-    string t_meta = jt->inject(parent_span,"injecting");
+    string t_meta = jt->inject(parent_span, "injecting");
     encode(t_meta, bl);
     encode(*p, bl);
 
@@ -969,39 +967,41 @@ void Message::decode_trace(bufferlist::const_iterator &p, bool create)
     jt->setUpTracer("ExtractTracing");
 
 #ifdef WITH_BLKIN
-  if (!connection)
-    return;
+    if (!connection) return;
 
-  const auto msgr = connection->get_messenger();
-  const auto endpoint = msgr->get_trace_endpoint();
-  if (info.trace_id) {
-    trace.init(get_type_name(), endpoint, &info, true);
-    trace.event("decoded trace");
-  } else if (create || (msgr->get_myname().is_osd() &&
-                        msgr->cct->_conf->osd_blkin_trace_all)) {
-    // create a trace even if we didn't get one on the wire
-    trace.init(get_type_name(), endpoint);
+    const auto msgr = connection->get_messenger();
+    const auto endpoint = msgr->get_trace_endpoint();
+    if (info.trace_id) {
+      trace.init(get_type_name(), endpoint, &info, true);
+      trace.event("decoded trace");
+    } else if (create || (msgr->get_myname().is_osd() &&
+			  msgr->cct->_conf->osd_blkin_trace_all)) {
+      // create a trace even if we didn't get one on the wire
+      trace.init(get_type_name(), endpoint);
 
-    _span = opentracing::Tracer::Global()->StartSpan(
-	name, {ChildOf(span_context_maybe->get())});
-    span = std::move(_span);
-    jt->extract(span,"get_type_name()", t_meta);
-    if(assert(span))
-    trace.event("created trace");
+      _span = opentracing::Tracer::Global()->StartSpan(
+	  name, {ChildOf(span_context_maybe->get())});
+      span = std::move(_span);
+      jt->extract(span, "get_type_name()", t_meta);
+      if (!span) {
+	std::cout << "working extract";
+      }
+      trace.event("created trace");
+    }
+    trace.keyval("tid", get_tid());
+    trace.keyval("entity type", get_source().type_str());
+    trace.keyval("entity num", get_source().num());
+#endif
   }
-  trace.keyval("tid", get_tid());
-  trace.keyval("entity type", get_source().type_str());
-  trace.keyval("entity num", get_source().num());
-#endif
-}
 
 #endif
 
-// This routine is not used for ordinary messages, but only when encapsulating a message
-// for forwarding and routing.  It's also used in a backward compatibility test, which only
-// effectively tests backward compability for those functions.  To avoid backward compatibility
-// problems, we currently always encode and decode using the old footer format that doesn't
-// allow for message authentication.  Eventually we should fix that.  PLR
+  // This routine is not used for ordinary messages, but only when encapsulating
+  // a message for forwarding and routing.  It's also used in a backward
+  // compatibility test, which only effectively tests backward compability for
+  // those functions.  To avoid backward compatibility problems, we currently
+  // always encode and decode using the old footer format that doesn't allow for
+  // message authentication.  Eventually we should fix that.  PLR
 
 void encode_message(Message *msg, uint64_t features, bufferlist& payload)
 {
@@ -1022,26 +1022,26 @@ void encode_message(Message *msg, uint64_t features, bufferlist& payload)
   encode(msg->get_data(), payload);
 }
 
-// See above for somewhat bogus use of the old message footer.  We switch to the current footer
-// after decoding the old one so the other form of decode_message() doesn't have to change.
-// We've slipped in a 0 signature at this point, so any signature checking after this will
-// fail.  PLR
+  // See above for somewhat bogus use of the old message footer.  We switch to
+  // the current footer after decoding the old one so the other form of
+  // decode_message() doesn't have to change. We've slipped in a 0 signature at
+  // this point, so any signature checking after this will fail.  PLR
 
-Message *decode_message(CephContext *cct, int crcflags, bufferlist::const_iterator& p)
-{
-  ceph_msg_header h;
-  ceph_msg_footer_old fo;
-  ceph_msg_footer f;
-  bufferlist fr, mi, da;
-  decode(h, p);
-  decode(fo, p);
-  f.front_crc = fo.front_crc;
-  f.middle_crc = fo.middle_crc;
-  f.data_crc = fo.data_crc;
-  f.flags = fo.flags;
-  f.sig = 0;
-  decode(fr, p);
-  decode(mi, p);
-  decode(da, p);
-  return decode_message(cct, crcflags, h, f, fr, mi, da, nullptr);
-}
+  Message *decode_message(CephContext * cct, int crcflags,
+			  bufferlist::const_iterator &p) {
+    ceph_msg_header h;
+    ceph_msg_footer_old fo;
+    ceph_msg_footer f;
+    bufferlist fr, mi, da;
+    decode(h, p);
+    decode(fo, p);
+    f.front_crc = fo.front_crc;
+    f.middle_crc = fo.middle_crc;
+    f.data_crc = fo.data_crc;
+    f.flags = fo.flags;
+    f.sig = 0;
+    decode(fr, p);
+    decode(mi, p);
+    decode(da, p);
+    return decode_message(cct, crcflags, h, f, fr, mi, da, nullptr);
+  }

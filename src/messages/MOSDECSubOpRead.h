@@ -53,7 +53,7 @@ public:
     if (header.version >= 3) {
       decode(min_epoch, p);
       decode_trace(p);
-      decode_trace_jaeger(p, "t_meta");
+      decode_trace_jaeger(p);
     } else {
       min_epoch = map_epoch;
     }

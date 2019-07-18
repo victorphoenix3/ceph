@@ -12,6 +12,8 @@ typedef std::unique_ptr<opentracing::Span> jspan;
 class JTracer {
 public:
 
+typedef std::unique_ptr<opentracing::Span> jspan;
+
 static inline void setUpTracer(const char* serviceToTrace) {
   static auto configYAML = YAML::LoadFile("../jaegertracing/config.yml");
   static auto config = jaegertracing::Config::parse(configYAML);

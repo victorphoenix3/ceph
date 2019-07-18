@@ -907,7 +907,7 @@ Message *decode_message(CephContext *cct, int crcflags,
   return m.detach();
 }
 
-void Message::encode_trace(bufferlist &bl, uint64_t features, jspan& parent_span = NULL) const
+void Message::encode_trace(bufferlist &bl, uint64_t features, jspan& parent_span) const
 {
   using ceph::encode;
   auto p = trace.get_info();

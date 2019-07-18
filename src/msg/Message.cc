@@ -935,6 +935,27 @@ void Message::decode_trace(bufferlist::const_iterator &p, bool create)
   blkin_trace_info info = {};
   decode(info, p);
 
+#ifdef WITH_BLKIN
+  if (!connection)
+    return;
+
+  const auto msgr = connection->get_messenger();
+  const auto endpoint = msgr->get_trace_endpoint();
+  if (info.trace_id) {
+    trace.init(get_type_name(), endpoint, &info, true);
+    trace.event("decoded trace");
+  } else if (create || (msgr->get_myname().is_osd() &&
+                        msgr->cct->_conf->osd_blkin_trace_all)) {
+    // create a trace even if we didn't get one on the wire
+    trace.init(get_type_name(), endpoint);
+    trace.event("created trace");
+  }
+  trace.keyval("tid", get_tid());
+  trace.keyval("entity type", get_source().type_str());
+  trace.keyval("entity num", get_source().num());
+#endif
+}
+
 #ifdef WITH_JAEGER
   string Message::encode_trace_jaeger(
       bufferlist & bl, uint64_t features /*, jspan& parent_span*/) const {
@@ -973,19 +994,19 @@ void Message::decode_trace(bufferlist::const_iterator &p, bool create)
     const auto endpoint = msgr->get_trace_endpoint();
     if (info.trace_id) {
       trace.init(get_type_name(), endpoint, &info, true);
+     // extract(span, get_type_name(), t_meta); 
       trace.event("decoded trace");
     } else if (create || (msgr->get_myname().is_osd() &&
 			  msgr->cct->_conf->osd_blkin_trace_all)) {
       // create a trace even if we didn't get one on the wire
       trace.init(get_type_name(), endpoint);
 
-      _span = opentracing::Tracer::Global()->StartSpan(
-	  name, {ChildOf(span_context_maybe->get())});
-      span = std::move(_span);
-      jt->extract(span, "get_type_name()", t_meta);
       if (!span) {
+     jspan span = tracedFunction("extract-span-manual");
 	std::cout << "working extract";
       }
+
+      jt->extract(span, "get_type_name()", t_meta);
       trace.event("created trace");
     }
     trace.keyval("tid", get_tid());
@@ -993,7 +1014,6 @@ void Message::decode_trace(bufferlist::const_iterator &p, bool create)
     trace.keyval("entity num", get_source().num());
 #endif
   }
-
 #endif
 
   // This routine is not used for ordinary messages, but only when encapsulating

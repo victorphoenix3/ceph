@@ -945,7 +945,7 @@ void Message::decode_trace(bufferlist::const_iterator &p, bool create)
 }
 
 #ifdef WITH_JAEGER
-  string Message::encode_trace_jaeger(
+  /*string*/ void Message::encode_trace_jaeger(
       bufferlist & bl, uint64_t features /*, jspan& parent_span*/) const {
     using ceph::encode;
 
@@ -962,7 +962,7 @@ void Message::decode_trace(bufferlist::const_iterator &p, bool create)
     encode(t_meta, bl);
     encode(*p, bl);
 
-    return t_meta;
+//    return t_meta;
   }
 
   void Message::decode_trace_jaeger(bufferlist::const_iterator & p, bool create) {

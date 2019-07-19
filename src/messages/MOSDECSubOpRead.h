@@ -66,7 +66,7 @@ public:
     encode(op, payload, features);
     encode(min_epoch, payload);
     encode_trace(payload, features);
-    string t_meta = encode_trace_jaeger(payload, features);
+    encode_trace_jaeger(payload, features);
   }
 
   std::string_view get_type_name() const override { return "MOSDECSubOpRead"; }

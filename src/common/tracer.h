@@ -10,11 +10,9 @@
 typedef std::unique_ptr<opentracing::Span> jspan;
 
 class JTracer {
+
 public:
-
-typedef std::unique_ptr<opentracing::Span> jspan;
-
-static inline void setUpTracer(const char* serviceToTrace) {
+static void setUpTracer(const char* serviceToTrace) {
   static auto configYAML = YAML::LoadFile("../jaegertracing/config.yml");
   static auto config = jaegertracing::Config::parse(configYAML);
   static auto tracer = jaegertracing::Tracer::make(
@@ -23,7 +21,7 @@ static inline void setUpTracer(const char* serviceToTrace) {
       std::static_pointer_cast<opentracing::Tracer>(tracer));
 }
 
-void tracedSubroutine(
+static void tracedSubroutine(
     jspan& parentSpan,
     const char* subRoutineContext) {
   auto span = opentracing::Tracer::Global()->StartSpan(
@@ -31,13 +29,13 @@ void tracedSubroutine(
   span->Finish();
 }
 
-jspan tracedFunction(const char* funcContext) {
+static jspan tracedFunction(const char* funcContext) {
   auto span = opentracing::Tracer::Global()->StartSpan(funcContext);
   span->Finish();
   return span;
 }
 
-std::string inject(jspan& span, const char* name) {
+static std::string inject(jspan& span, const char* name) {
   std::stringstream ss;
   if (!span) {
     auto span = opentracing::Tracer::Global()->StartSpan(name);
@@ -47,7 +45,7 @@ std::string inject(jspan& span, const char* name) {
   return ss.str();
 }
 
-void extract(jspan& span, const char* name,
+static void extract(jspan& span, const char* name,
 	     std::string t_meta) {
   std::stringstream ss(t_meta);
   //    if(!tracer){

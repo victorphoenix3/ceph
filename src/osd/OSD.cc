@@ -162,7 +162,7 @@
 #include "json_spirit/json_spirit_writer.h"
 
 #ifdef WITH_JAEGER
-#include "include/tracer.h"
+#include "common/tracer.h"
 #endif
 
 #ifdef WITH_LTTNG
@@ -6895,14 +6895,12 @@ void OSD::ms_fast_dispatch(Message *m)
   }
 
 #ifdef WITH_JAEGER
-  //TODO: extract relevant tags and logs from message, need to understand what
-  //will be relevant from call stack and failing osd
-    JTracer::setUpTracer("OSD_TRACING");
-    JTracer::jspan msFastDispatchSpan =
-	JTracer::tracedFunction((m->get_type_name()).data());
-
-    // parentSpan->Finish()
+  JTracer::setUpTracer("OSD_TRACING");
+  jspan parent_span =
+      JTracer::tracedFunction("ms_fast_dispatch_begins");
+      JTracer::tracedSubroutine(parent_span, m->get_type_name().data());
 #endif
+     
   // peering event?
   switch (m->get_type()) {
   case CEPH_MSG_PING:
@@ -6990,11 +6988,8 @@ void OSD::ms_fast_dispatch(Message *m)
   OID_EVENT_TRACE_WITH_MSG(m, "MS_FAST_DISPATCH_END", false);
 
 #ifdef WITH_JAEGER
-  JTracer::jspan carrierSpan =
-      JTracer::tracedSubroutine(msFastDispatchSpan,
-				    "MS_FAST_DISPATCH_ENDS");
-  msFastDispatchSpan->Finish();
-  carrierSpan->Finish();
+  JTracer::tracedSubroutine(parent_span, "MS_FAST_DISPATCH_ENDS");
+  parent_span->Finish();
 #endif
 }
 
@@ -9587,6 +9582,13 @@ void OSD::dequeue_op(
   PGRef pg, OpRequestRef op,
   ThreadPool::TPHandle &handle)
 {
+<<<<<<< HEAD
+=======
+#ifdef WITH_JAEGER
+  jspan parent_span = JTracer::tracedFunction("dequeue_op_begins");
+#endif
+
+>>>>>>> 41d293697c... - update tracer.h to static methods
   const Message *m = op->get_req();
 
   FUNCTRACE(cct);
@@ -9637,6 +9639,7 @@ void OSD::dequeue_op(
   dout(10) << "dequeue_op " << op << " finish" << dendl;
   OID_EVENT_TRACE_WITH_MSG(m, "DEQUEUE_OP_END", false);
 
+<<<<<<< HEAD
 // #ifdef WITH_JAEGER
 //   carrierSpan =
 //       JTracer::tracedSubroutine(dequeueOpSpan, "DEQUEUE_OP_ENDS");
@@ -9645,6 +9648,16 @@ void OSD::dequeue_op(
 //   opentracing::Tracer::Global()->Close();
 // #endif
 
+=======
+<<<<<<< HEAD
+=======
+#ifdef WITH_JAEGER
+      JTracer::tracedSubroutine(parent_span, "dequeue_op_ends");
+  parent_span->Finish();
+#endif
+
+>>>>>>> 41d293697c... - update tracer.h to static methods
+>>>>>>> 7bb02a26c2...  update tracer.h to static methods
 }
 
 

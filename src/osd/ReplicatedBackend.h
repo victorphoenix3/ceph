@@ -16,6 +16,7 @@
 #define REPBACKEND_H
 
 #include "PGBackend.h"
+#include "msg/Message.h"
 
 struct C_ReplicatedBackend_OnPullComplete;
 class ReplicatedBackend : public PGBackend {

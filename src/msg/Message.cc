@@ -957,8 +957,8 @@ void Message::decode_trace(bufferlist::const_iterator &p, bool create)
 }
 
 #ifdef WITH_JAEGER
-  /*string*/ void Message::encode_trace_jaeger(
-      bufferlist & bl, uint64_t features /*, jspan& parent_span*/) const {
+  string Message::encode_trace_jaeger(
+      bufferlist & bl, uint64_t features, jspan& parent_span) const {
     using ceph::encode;
 
     auto p = trace.get_info();
@@ -966,25 +966,21 @@ void Message::decode_trace(bufferlist::const_iterator &p, bool create)
     if (!p) {
       p = &empty;
     }
-    JTracer *jt = new JTracer;
-    jt->setUpTracer("InjectTracing");
-    jspan parent_span = jt->tracedFunction("inject-testing");
-
-    string t_meta = jt->inject(parent_span, "injecting");
+    string t_meta = JTracer::inject(parent_span, "injecting");
     encode(t_meta, bl);
+    std::cout << t_meta;
     encode(*p, bl);
 
-//    return t_meta;
+    return t_meta;
   }
 
-  void Message::decode_trace_jaeger(bufferlist::const_iterator & p, bool create) {
-    string t_meta = "t_meta";
+#ifdef WITH_JAEGER
+  void Message::decode_trace_jaeger(bufferlist::const_iterator & p, bool create, string t_meta) {
     blkin_trace_info info = {};
     decode(t_meta, p);
     decode(info, p);
 
-    JTracer *jt = new JTracer;
-    jt->setUpTracer("ExtractTracing");
+#endif
 
 #ifdef WITH_BLKIN
     if (!connection) return;
@@ -1005,7 +1001,7 @@ void Message::decode_trace(bufferlist::const_iterator &p, bool create)
 	std::cout << "working extract";
       }
 
-      jt->extract(span, "get_type_name()", t_meta);
+      JTracer::extract(span, "get_type_name()", t_meta);
       trace.event("created trace");
     }
     trace.keyval("tid", get_tid());

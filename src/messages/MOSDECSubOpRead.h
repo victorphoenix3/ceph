@@ -54,7 +54,7 @@ public:
       decode(min_epoch, p);
       decode_trace(p);
 #ifdef WITH_JAEGER
-      decode_trace_jaeger(p);
+//      decode_trace_jaeger(p);
 #endif
     } else {
       min_epoch = map_epoch;
@@ -68,9 +68,9 @@ public:
     encode(op, payload, features);
     encode(min_epoch, payload);
     encode_trace(payload, features);
-#ifdef WITH_JAEGER
-    encode_trace_jaeger(payload, features);
-#endif
+//#ifdef WITH_JAEGER
+//    encode_trace_jaeger(payload, features);
+//#endif
   }
 
   std::string_view get_type_name() const override { return "MOSDECSubOpRead"; }

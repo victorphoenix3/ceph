@@ -923,12 +923,19 @@ void Message::encode_trace(bufferlist &bl, uint64_t features) const
   if (!p) {
     p = &empty;
   }
+#ifdef WITH_JAEGER
+     jspan span = JTracer::tracedFunction("inject-span-manual");
+  string t_meta = JTracer::inject(span, "get_type_name()");
+  encode(t_meta, bl);
+#endif
   encode(*p, bl);
 }
 
 void Message::decode_trace(bufferlist::const_iterator &p, bool create)
 {
+  string t_meta = "";
   blkin_trace_info info = {};
+  decode(t_meta, p);
   decode(info, p);
 
 #ifdef WITH_BLKIN
@@ -939,11 +946,16 @@ void Message::decode_trace(bufferlist::const_iterator &p, bool create)
   const auto endpoint = msgr->get_trace_endpoint();
   if (info.trace_id) {
     trace.init(get_type_name(), endpoint, &info, true);
+    JTracer::extract(span, get_type_name(), t_meta); 
     trace.event("decoded trace");
   } else if (create || (msgr->get_myname().is_osd() &&
                         msgr->cct->_conf->osd_blkin_trace_all)) {
     // create a trace even if we didn't get one on the wire
     trace.init(get_type_name(), endpoint);
+    span = opentracing::Tracer::Global()->StartSpan(name,
+	                   {ChildOf(span_context_maybe->get())});
+
+    span->Finish();
     trace.event("created trace");
   }
   trace.keyval("tid", get_tid());
@@ -952,12 +964,67 @@ void Message::decode_trace(bufferlist::const_iterator &p, bool create)
 #endif
 }
 
+#ifdef WITH_JAEGER
+  string Message::encode_trace_jaeger(
+      bufferlist & bl, uint64_t features, jspan& parent_span) const {
+    using ceph::encode;
 
-// This routine is not used for ordinary messages, but only when encapsulating a message
-// for forwarding and routing.  It's also used in a backward compatibility test, which only
-// effectively tests backward compability for those functions.  To avoid backward compatibility
-// problems, we currently always encode and decode using the old footer format that doesn't
-// allow for message authentication.  Eventually we should fix that.  PLR
+    auto p = trace.get_info();
+    static const blkin_trace_info empty = {0, 0, 0};
+    if (!p) {
+      p = &empty;
+    }
+    string t_meta = JTracer::inject(parent_span, "injecting");
+    encode(t_meta, bl);
+    std::cout << t_meta;
+    encode(*p, bl);
+
+    return t_meta;
+  }
+
+#ifdef WITH_JAEGER
+  void Message::decode_trace_jaeger(bufferlist::const_iterator & p, bool create, string t_meta) {
+    blkin_trace_info info = {};
+    decode(t_meta, p);
+    decode(info, p);
+
+#endif
+
+#ifdef WITH_BLKIN
+    if (!connection) return;
+
+    const auto msgr = connection->get_messenger();
+    const auto endpoint = msgr->get_trace_endpoint();
+    if (info.trace_id) {
+      trace.init(get_type_name(), endpoint, &info, true);
+     // extract(span, get_type_name(), t_meta); 
+      trace.event("decoded trace");
+    } else if (create || (msgr->get_myname().is_osd() &&
+			  msgr->cct->_conf->osd_blkin_trace_all)) {
+      // create a trace even if we didn't get one on the wire
+      trace.init(get_type_name(), endpoint);
+
+      if (!span) {
+     jspan span = JTracer::tracedFunction("extract-span-manual");
+	std::cout << "working extract";
+      }
+
+      JTracer::extract(span, "get_type_name()", t_meta);
+      trace.event("created trace");
+    }
+    trace.keyval("tid", get_tid());
+    trace.keyval("entity type", get_source().type_str());
+    trace.keyval("entity num", get_source().num());
+#endif
+  }
+#endif
+
+  // This routine is not used for ordinary messages, but only when encapsulating
+  // a message for forwarding and routing.  It's also used in a backward
+  // compatibility test, which only effectively tests backward compability for
+  // those functions.  To avoid backward compatibility problems, we currently
+  // always encode and decode using the old footer format that doesn't allow for
+  // message authentication.  Eventually we should fix that.  PLR
 
 void encode_message(Message *msg, uint64_t features, bufferlist& payload)
 {

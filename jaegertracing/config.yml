@@ -2,5 +2,5 @@ disabled: false
 reporter:
     logSpans: true
 sampler:
-  type: const
-  param: 1
+  type: probabilistic
+  param: 0.8

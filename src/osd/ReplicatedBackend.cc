@@ -24,6 +24,11 @@
 #include "include/util.h"
 #include "OSD.h"
 
+#ifdef WITH_JAEGER
+#include "msg/Message.h"
+#include "common/tracer.h"
+#endif
+
 #define dout_context cct
 #define dout_subsys ceph_subsys_osd
 #define DOUT_PREFIX_ARGS this
@@ -1040,7 +1045,9 @@ void ReplicatedBackend::do_repop(OpRequestRef op)
 
   auto p = const_cast<bufferlist&>(m->get_data()).cbegin();
   decode(rm->opt, p);
-
+#ifdef WITH_JAEGER
+//  Message::decode_trace_jaeger(p,false,"t_meta");
+#endif
   if (m->new_temp_oid != hobject_t()) {
     dout(20) << __func__ << " start tracking temp " << m->new_temp_oid << dendl;
     add_temp_obj(m->new_temp_oid);

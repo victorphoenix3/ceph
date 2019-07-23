@@ -35,6 +35,10 @@
 #include "msg/MessageRef.h"
 #include "msg_types.h"
 
+#ifdef WITH_JAEGER
+#include "common/tracer.h"
+#endif
+
 // monitor internal
 #define MSG_MON_SCRUB              64
 #define MSG_MON_ELECTION           65
@@ -252,8 +256,8 @@ public:
   void decode_trace(ceph::buffer::list::const_iterator &p, bool create = false);
 
 #ifdef WITH_JAEGER
-  void encode_trace_jaeger(ceph::buffer::list &bl, uint64_t features) const;
-  void decode_trace_jaeger(ceph::buffer::list::const_iterator &p, bool create = false);
+  string encode_trace_jaeger(ceph::buffer::v14_2_0::list &bl, uint64_t features, jspan&) const;
+  void decode_trace_jaeger(ceph::buffer::list::const_iterator &p, bool create, string t_meta);
 #endif
 
   class CompletionHook : public Context {

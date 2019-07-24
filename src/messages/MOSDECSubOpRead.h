@@ -68,9 +68,10 @@ public:
     encode(op, payload, features);
     encode(min_epoch, payload);
     encode_trace(payload, features);
-//#ifdef WITH_JAEGER
-//    encode_trace_jaeger(payload, features);
-//#endif
+#ifdef WITH_JAEGER
+    jspan parent_span = JTracer::tracedFunction("payload");
+    encode_trace_jaeger(payload, features, parent_span);
+#endif
   }
 
   std::string_view get_type_name() const override { return "MOSDECSubOpRead"; }

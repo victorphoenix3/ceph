@@ -915,12 +915,19 @@ void Message::encode_trace(bufferlist &bl, uint64_t features) const
   if (!p) {
     p = &empty;
   }
+#ifdef WITH_JAEGER
+     jspan span = JTracer::tracedFunction("inject-span-manual");
+  string t_meta = JTracer::inject(span, "get_type_name()");
+  encode(t_meta, bl);
+#endif
   encode(*p, bl);
 }
 
 void Message::decode_trace(bufferlist::const_iterator &p, bool create)
 {
+  string t_meta = "";
   blkin_trace_info info = {};
+  decode(t_meta, p);
   decode(info, p);
 
 #ifdef WITH_BLKIN
@@ -931,11 +938,16 @@ void Message::decode_trace(bufferlist::const_iterator &p, bool create)
   const auto endpoint = msgr->get_trace_endpoint();
   if (info.trace_id) {
     trace.init(get_type_name(), endpoint, &info, true);
+    JTracer::extract(span, get_type_name(), t_meta); 
     trace.event("decoded trace");
   } else if (create || (msgr->get_myname().is_osd() &&
                         msgr->cct->_conf->osd_blkin_trace_all)) {
     // create a trace even if we didn't get one on the wire
     trace.init(get_type_name(), endpoint);
+    span = opentracing::Tracer::Global()->StartSpan(name,
+	                   {ChildOf(span_context_maybe->get())});
+
+    span->Finish();
     trace.event("created trace");
   }
   trace.keyval("tid", get_tid());
@@ -985,7 +997,7 @@ void Message::decode_trace(bufferlist::const_iterator &p, bool create)
       trace.init(get_type_name(), endpoint);
 
       if (!span) {
-     jspan span = tracedFunction("extract-span-manual");
+     jspan span = JTracer::tracedFunction("extract-span-manual");
 	std::cout << "working extract";
       }
 

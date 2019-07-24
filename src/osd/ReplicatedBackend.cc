@@ -1040,10 +1040,7 @@ void ReplicatedBackend::do_repop(OpRequestRef op)
   auto p = const_cast<bufferlist&>(m->get_data()).cbegin();
   decode(rm->opt, p);
 #ifdef WITH_JAEGER
-  jspan parent_span = JTracer::tracedFunction("inject-testing-span");
-  uint64_t features = 0;
-  string t_meta = Message::encode_trace_jaeger(p,features,parent_span);
-  Message::decode_trace_jaeger(p,t_meta);
+//  Message::decode_trace_jaeger(p,false,"t_meta");
 #endif
   if (m->new_temp_oid != hobject_t()) {
     dout(20) << __func__ << " start tracking temp " << m->new_temp_oid << dendl;

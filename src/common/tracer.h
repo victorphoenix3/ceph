@@ -10,59 +10,51 @@
 typedef std::unique_ptr<opentracing::Span> jspan;
 
 class JTracer {
-public:
-
-typedef std::unique_ptr<opentracing::Span> jspan;
-
-static inline void setUpTracer(const char* serviceToTrace) {
-  static auto configYAML = YAML::LoadFile("../jaegertracing/config.yml");
-  static auto config = jaegertracing::Config::parse(configYAML);
-  static auto tracer = jaegertracing::Tracer::make(
-      serviceToTrace, config, jaegertracing::logging::consoleLogger());
-  opentracing::Tracer::InitGlobal(
-      std::static_pointer_cast<opentracing::Tracer>(tracer));
-}
-
-void tracedSubroutine(
-    jspan& parentSpan,
-    const char* subRoutineContext) {
-  auto span = opentracing::Tracer::Global()->StartSpan(
-      subRoutineContext, {opentracing::ChildOf(&parentSpan->context())});
-  span->Finish();
-}
-
-jspan tracedFunction(const char* funcContext) {
-  auto span = opentracing::Tracer::Global()->StartSpan(funcContext);
-  span->Finish();
-  return span;
-}
-
-std::string inject(jspan& span, const char* name) {
-  std::stringstream ss;
-  if (!span) {
-    auto span = opentracing::Tracer::Global()->StartSpan(name);
+  public:
+  static inline void setUpTracer(const char* serviceToTrace) {
+    static auto configYAML = YAML::LoadFile("../jaegertracing/config.yml");
+    static auto config = jaegertracing::Config::parse(configYAML);
+    static auto tracer = jaegertracing::Tracer::make(
+	serviceToTrace, config, jaegertracing::logging::consoleLogger());
+    opentracing::Tracer::InitGlobal(
+	std::static_pointer_cast<opentracing::Tracer>(tracer));
   }
-  auto err = opentracing::Tracer::Global()->Inject(span->context(), ss);
-  assert(err);
-  return ss.str();
-}
 
-void extract(jspan& span, const char* name,
-	     std::string t_meta) {
-  std::stringstream ss(t_meta);
-  //    if(!tracer){
-  //    }
-  // setUpTracer("Extract-service");
-  auto span_context_maybe = opentracing::Tracer::Global()->Extract(ss);
-  assert(span_context_maybe);
+  void tracedSubroutine(jspan& parentSpan, const char* subRoutineContext) {
+    auto span = opentracing::Tracer::Global()->StartSpan(
+	subRoutineContext, {opentracing::ChildOf(&parentSpan->context())});
+    span->Finish();
+  }
 
-  // Propogation span
-  auto _span = opentracing::Tracer::Global()->StartSpan(
-      "propagationSpan", {ChildOf(span_context_maybe->get())});
+  jspan tracedFunction(const char* funcContext) {
+    auto span = opentracing::Tracer::Global()->StartSpan(funcContext);
+    span->Finish();
+    return span;
+  }
 
-  auto span1 = std::move(_span);
-}
+  std::string inject(jspan& span, const char* name) {
+    std::stringstream ss;
+    if (!span) {
+      auto span = opentracing::Tracer::Global()->StartSpan(name);
+    }
+    auto err = opentracing::Tracer::Global()->Inject(span->context(), ss);
+    assert(err);
+    return ss.str();
+  }
 
+  void extract(const char* name, std::string t_meta) {
+    std::stringstream ss(t_meta);
+    //    if(!tracer){
+    // setUpTracer("Extract-service");
+    //    }
+    auto span_context_maybe = opentracing::Tracer::Global()->Extract(ss);
+    assert(span_context_maybe);
+
+    // Propogation span
+    auto propogation_span = opentracing::Tracer::Global()->StartSpan(
+	"propagationSpan", {ChildOf(span_context_maybe->get())});
+    propogation_span->Finish();
+  }
 };
 
 #endif

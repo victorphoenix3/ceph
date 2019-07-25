@@ -947,17 +947,16 @@ void Message::decode_trace(bufferlist::const_iterator &p, bool create)
     return;
 
   const auto msgr = connection->get_messenger();
-  const auto endpoint = msgr->get_trace_endpoint();
+  const iuto endpoint = msgr->get_trace_endpoint();
   if (info.trace_id) {
     trace.init(get_type_name(), endpoint, &info, true);
-    JTracer::extract(span, get_type_name(), t_meta); 
+    std::cout << t_meta;
+    JTracer::extract(get_type_name(), t_meta); 
     trace.event("decoded trace");
   } else if (create || (msgr->get_myname().is_osd() &&
                         msgr->cct->_conf->osd_blkin_trace_all)) {
     // create a trace even if we didn't get one on the wire
     trace.init(get_type_name(), endpoint);
-    span = opentracing::Tracer::Global()->StartSpan(name,
-	                   {ChildOf(span_context_maybe->get())});
 
     span->Finish();
     trace.event("created trace");

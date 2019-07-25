@@ -35,7 +35,7 @@ static jspan tracedFunction(const char* funcContext) {
   return span;
 }
 
-static std::string_view inject(jspan& span, const char* name) {
+static std::string inject(jspan& span, const char* name) {
   std::stringstream ss;
   if (!span) {
     auto span = opentracing::Tracer::Global()->StartSpan(name);
@@ -45,7 +45,7 @@ static std::string_view inject(jspan& span, const char* name) {
   return ss.str();
 }
 
-static void extract(jspan& span, const char* name,
+static jspan extract(const char* name,
 	     std::string t_meta) {
   std::stringstream ss(t_meta);
   //    if(!tracer){
@@ -55,10 +55,11 @@ static void extract(jspan& span, const char* name,
   assert(span_context_maybe);
 
   // Propogation span
-  auto _span = opentracing::Tracer::Global()->StartSpan(
+  auto span = opentracing::Tracer::Global()->StartSpan(
       "propagationSpan", {ChildOf(span_context_maybe->get())});
+  span->Finish();
 
-  auto span1 = std::move(_span);
+  return span;
 }
 
 };

@@ -21,12 +21,13 @@ static void setUpTracer(const char* serviceToTrace) {
       std::static_pointer_cast<opentracing::Tracer>(tracer));
 }
 
-static void tracedSubroutine(
+static jspan tracedSubroutine(
     jspan& parentSpan,
     const char* subRoutineContext) {
   auto span = opentracing::Tracer::Global()->StartSpan(
       subRoutineContext, {opentracing::ChildOf(&parentSpan->context())});
   span->Finish();
+  return span;
 }
 
 static jspan tracedFunction(const char* funcContext) {

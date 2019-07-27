@@ -35,7 +35,7 @@ static jspan tracedFunction(const char* funcContext) {
   return span;
 }
 
-static std::string_view inject(jspan& span, const char* name) {
+static std::string inject(jspan& span, const char* name) {
   std::stringstream ss;
   if (!span) {
     auto span = opentracing::Tracer::Global()->StartSpan(name);

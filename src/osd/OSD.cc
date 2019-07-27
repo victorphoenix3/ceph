@@ -6708,7 +6708,7 @@ void OSD::ms_fast_dispatch(Message *m)
   }
 
 #ifdef WITH_JAEGER
-  JTracer::setUpTracer("OSD_TRACING");
+  JTracer::setUpTracer("osd_tracing");
   jspan parent_span =
       JTracer::tracedFunction("ms_fast_dispatch_begins");
       JTracer::tracedSubroutine(parent_span, m->get_type_name().data());
@@ -9283,6 +9283,7 @@ void OSD::dequeue_op(
   PGRef pg, OpRequestRef op,
   ThreadPool::TPHandle &handle)
 {
+
 #ifdef WITH_JAEGER
   jspan parent_span = JTracer::tracedFunction("dequeue_op_begins");
 #endif

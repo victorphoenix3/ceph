@@ -57,7 +57,7 @@ static jspan extract(const char* name,
 
   // Propogation span
   auto span = opentracing::Tracer::Global()->StartSpan(
-      "propagationSpan", {ChildOf(span_context_maybe->get())});
+      "propagationSpanAddNiceNameToIt", {ChildOf(span_context_maybe->get())});
   span->Finish();
 
   return span;

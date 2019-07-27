@@ -6708,10 +6708,10 @@ void OSD::ms_fast_dispatch(Message *m)
   }
 
 #ifdef WITH_JAEGER
-  JTracer::setUpTracer("OSD_TRACING");
-  jspan parent_span =
+  JTracer::setUpTracer("osd_tracing");
+  jspan ms_fast_dispatch =
       JTracer::tracedFunction("ms_fast_dispatch_begins");
-      JTracer::tracedSubroutine(parent_span, m->get_type_name().data());
+      JTracer::tracedSubroutine(ms_fast_dispatch, m->get_type_name().data());
 #endif
 
   // peering event?
@@ -6763,6 +6763,15 @@ void OSD::ms_fast_dispatch(Message *m)
 #ifdef WITH_LTTNG
     osd_reqid_t reqid = op->get_reqid();
 #endif
+
+#ifdef WITH_JAEGER
+    osd_reqid_t reqid = op->get_reqid();
+    //osd_op
+    jspan request_id_test =
+	JTracer::tracerSubroutine(ms_fast_dispatch, reqid.name._type);
+    request_id_test->Finish();
+#endif
+
     tracepoint(osd, ms_fast_dispatch, reqid.name._type, reqid.name._num,
 	       reqid.tid, reqid.inc);
   }
@@ -6801,8 +6810,8 @@ void OSD::ms_fast_dispatch(Message *m)
   OID_EVENT_TRACE_WITH_MSG(m, "MS_FAST_DISPATCH_END", false);
 
 #ifdef WITH_JAEGER
-  JTracer::tracedSubroutine(parent_span, "MS_FAST_DISPATCH_ENDS");
-  parent_span->Finish();
+  JTracer::tracedSubroutine(ms_fast_dispatch, "ms_fast_dispatch_ends");
+  ms_fast_dispatch->Finish();
 #endif
 }
 

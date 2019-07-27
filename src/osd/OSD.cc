@@ -6760,15 +6760,15 @@ void OSD::ms_fast_dispatch(Message *m)
 
   OpRequestRef op = op_tracker.create_request<OpRequest, Message*>(m);
   {
-#ifdef WITH_LTTNG
-    osd_reqid_t reqid = op->get_reqid();
-#endif
+//#ifdef WITH_LTTNG
+//    osd_reqid_t reqid = op->get_reqid();
+//#endif
 
 #ifdef WITH_JAEGER
     osd_reqid_t reqid = op->get_reqid();
     //osd_op
     jspan request_id_test =
-	JTracer::tracerSubroutine(ms_fast_dispatch, reqid.name._type);
+	JTracer::tracedSubroutine(ms_fast_dispatch, reqid.name._type);
     request_id_test->Finish();
 #endif
 

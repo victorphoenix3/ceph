@@ -935,7 +935,7 @@ void Message::decode_trace(bufferlist::const_iterator &p, bool create)
     return;
 
   const auto msgr = connection->get_messenger();
-  const iuto endpoint = msgr->get_trace_endpoint();
+  const auto endpoint = msgr->get_trace_endpoint();
   if (info.trace_id) {
     trace.init(get_type_name(), endpoint, &info, true);
     std::cout << t_meta;

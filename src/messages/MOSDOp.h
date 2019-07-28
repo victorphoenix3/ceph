@@ -34,17 +34,11 @@ class OSD;
 
 class MOSDOp : public MOSDFastDispatchOp {
 
-// #ifdef WITH_JAEGER
-// #include "include/tracer.h"
-//   public:
-//   JTracer::jspan;
-// #endif
-
   private:
   static constexpr int HEAD_VERSION = 8;
   static constexpr int COMPAT_VERSION = 3;
 
-private:
+  private:
   uint32_t client_inc = 0;
   __u32 osdmap_epoch = 0;
   __u32 flags = 0;

@@ -85,7 +85,6 @@ public:
     if (header.version >= 2) {
       decode(min_epoch, p);
       decode_trace(p);
-      //decode_trace_jaeger(p);
     } else {
       min_epoch = map_epoch;
     }
@@ -122,7 +121,6 @@ public:
       header.version = HEAD_VERSION;
       encode(min_epoch, payload);
       encode_trace(payload, features);
-      //encode_trace_jaeger(payload, features);
     } else {
       header.version = 1;
     }

@@ -11,12 +11,12 @@
  * Foundation.  See file COPYING.
  *
  */
+#include "OpQueueItem.h"
+#include "OSD.h"
+
 #ifdef WITH_JAEGER
 #include "common/tracer.h"
 #endif
-
-#include "OpQueueItem.h"
-#include "OSD.h"
 
 void PGOpItem::run(
   OSD *osd,

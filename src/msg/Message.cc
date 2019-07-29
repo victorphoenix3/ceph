@@ -967,32 +967,6 @@ void Message::decode_trace(bufferlist::const_iterator &p, bool create)
 #endif
 }
 
-#ifdef WITH_JAEGER
-  string Message::encode_trace_jaeger(
-      bufferlist & bl, uint64_t features, jspan& parent_span) const {
-    using ceph::encode;
-
-    auto p = trace.get_info();
-    static const blkin_trace_info empty = {0, 0, 0};
-    if (!p) {
-      p = &empty;
-    }
-    string t_meta = JTracer::inject(parent_span, "injecting");
-    encode(t_meta, bl);
-    std::cout << t_meta;
-    encode(*p, bl);
-
-    return t_meta;
-  }
-
-#ifdef WITH_JAEGER
-  void Message::decode_trace_jaeger(bufferlist::const_iterator & p, bool create, string t_meta) {
-    blkin_trace_info info = {};
-    decode(t_meta, p);
-    decode(info, p);
-
-#endif
-
 #ifdef WITH_BLKIN
     if (!connection) return;
 

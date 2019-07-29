@@ -6880,7 +6880,6 @@ void OSD::dispatch_session_waiting(SessionRef session, OSDMapRef osdmap)
 
 void OSD::ms_fast_dispatch(Message *m)
 {
-
   FUNCTRACE(cct);
   if (service.is_stopping()) {
     m->put();
@@ -6947,9 +6946,9 @@ void OSD::ms_fast_dispatch(Message *m)
 #ifdef WITH_JAEGER
     osd_reqid_t reqid = op->get_reqid();
     //osd_op
-    jspan request_id_test =
-	JTracer::tracedSubroutine(ms_fast_dispatch, reinterpret_cast<const char*>(reqid.name._type));
-    request_id_test->Finish();
+//    jspan request_id_test =
+//	JTracer::tracedSubroutine(ms_fast_dispatch, reinterpret_cast<const char*>(reqid.name._type));
+//    request_id_test->Finish();
 #endif
 
     tracepoint(osd, ms_fast_dispatch, reqid.name._type, reqid.name._num,

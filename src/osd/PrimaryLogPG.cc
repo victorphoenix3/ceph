@@ -1572,6 +1572,9 @@ void PrimaryLogPG::do_request(
     op->pg_trace.event("do request");
   }
 
+//#ifdef WITH_JAEGER
+//  jspan do_request_span = JTracer::tracedFunction(“do_request”);
+//#endif
 
   // make sure we have a new enough map
   auto p = waiting_for_map.find(op->get_source());

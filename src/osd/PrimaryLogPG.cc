@@ -58,6 +58,10 @@
 #define tracepoint(...)
 #endif
 
+#ifdef WITH_JAEGER
+#include "common/tracer.h"
+#endif
+
 #define dout_context cct
 #define dout_subsys ceph_subsys_osd
 #define DOUT_PREFIX_ARGS this, osd->whoami, get_osdmap()
@@ -1619,6 +1623,11 @@ void PrimaryLogPG::do_request(
     op->pg_trace.init("pg op", &trace_endpoint, &op->osd_trace);
     op->pg_trace.event("do request");
   }
+
+#ifdef WITH_JAEGER
+jspan do_request_span = JTracer::tracedFunction("do_request_begins");
+#endif
+
   // make sure we have a new enough map
   auto p = waiting_for_map.find(op->get_source());
   if (p != waiting_for_map.end()) {
@@ -1781,6 +1790,12 @@ void PrimaryLogPG::do_request(
   default:
     ceph_abort_msg("bad message type in do_request");
   }
+
+#ifdef WITH_JAEGER
+  JTracer::tracedSubroutine(do_request_span,"do_request_ends");
+  do_request_span->Finish();
+#endif
+
 }
 
 hobject_t PrimaryLogPG::earliest_backfill() const
@@ -1806,6 +1821,11 @@ void PrimaryLogPG::do_op(OpRequestRef& op)
   FUNCTRACE(cct);
   // NOTE: take a non-const pointer here; we must be careful not to
   // change anything that will break other reads on m (operator<<).
+
+#ifdef WITH_JAEGER
+  jspan do_op_span = JTracer::tracedFunction("do_op_begins");
+#endif
+
   MOSDOp *m = static_cast<MOSDOp*>(op->get_nonconst_req());
   ceph_assert(m->get_type() == CEPH_MSG_OSD_OP);
   if (m->finish_decode()) {
@@ -2307,6 +2327,12 @@ void PrimaryLogPG::do_op(OpRequestRef& op)
 
   // force recovery of the oldest missing object if too many logs
   maybe_force_recovery();
+  
+#ifdef WITH_JAEGER
+  JTracer::tracedSubroutine(do_op_span,"do_op_ends");
+  do_op_span->Finish();
+#endif
+
 }
 
 PrimaryLogPG::cache_result_t PrimaryLogPG::maybe_handle_manifest_detail(
@@ -3812,6 +3838,11 @@ void PrimaryLogPG::promote_object(ObjectContextRef obc,
 
 void PrimaryLogPG::execute_ctx(OpContext *ctx)
 {
+
+#ifdef WITH_JAEGER
+  jspan execute_ctx_span = JTracer::tracedFunction("execute_ctx_begins");
+#endif
+
   FUNCTRACE(cct);
   dout(10) << __func__ << " " << ctx << dendl;
   ctx->reset_obs(ctx->obc);
@@ -4024,6 +4055,12 @@ void PrimaryLogPG::execute_ctx(OpContext *ctx)
   issue_repop(repop, ctx);
   eval_repop(repop);
   repop->put();
+
+#ifdef WITH_JAEGER
+  JTracer::tracedSubroutine(execute_ctx_span, "execute_ctx_ends");
+  execute_ctx_span->Finish();
+#endif
+
 }
 
 void PrimaryLogPG::close_op_ctx(OpContext *ctx) {
@@ -5622,6 +5659,11 @@ int PrimaryLogPG::do_sparse_read(OpContext *ctx, OSDOp& osd_op) {
 
 int PrimaryLogPG::do_osd_ops(OpContext *ctx, vector<OSDOp>& ops)
 {
+
+#ifdef WITH_JAEGER
+  jspan do_osd_ops_span = JTracer::tracedFunction("do_osd_ops_begins");
+#endif
+
   int result = 0;
   SnapSetContext *ssc = ctx->obc->ssc;
   ObjectState& obs = ctx->new_obs;
@@ -7753,6 +7795,12 @@ int PrimaryLogPG::do_osd_ops(OpContext *ctx, vector<OSDOp>& ops)
   if (result < 0) {
     dout(10) << __func__ << " error: " << cpp_strerror(result) << dendl;
   }
+
+#ifdef WITH_JAEGER
+  JTracer::tracedSubroutine(do_osd_ops_span, "do_osd_op_ends");
+  do_osd_ops_span->Finish();
+#endif
+
   return result;
 }
 
@@ -7868,7 +7916,6 @@ inline int PrimaryLogPG::_delete_oid(
   oi.size = 0;
   oi.new_object();
 
-  // disconnect all watchers
   for (map<pair<uint64_t, entity_name_t>, watch_info_t>::iterator p =
 	 oi.watchers.begin();
        p != oi.watchers.end();
@@ -8417,6 +8464,10 @@ int PrimaryLogPG::prepare_transaction(OpContext *ctx)
 {
   ceph_assert(!ctx->ops->empty());
 
+#ifdef WITH_JAEGER
+  jspan prepare_transaction_span = JTracer::tracedFunction("transaction_preparation_starts");
+#endif
+
   // valid snap context?
   if (!ctx->snapc.is_valid()) {
     dout(10) << " invalid snapc " << ctx->snapc << dendl;
@@ -8476,11 +8527,22 @@ int PrimaryLogPG::prepare_transaction(OpContext *ctx)
 	     pg_log_entry_t::DELETE,
 	     result);
 
+
+#ifdef WITH_JAEGER
+  JTracer::tracedSubroutine(prepare_transaction_span, "transaction_prepared");
+  prepare_transaction_span->Finish();
+#endif
+
   return result;
+
 }
 
 void PrimaryLogPG::finish_ctx(OpContext *ctx, int log_op_type, int result)
 {
+#ifdef WITH_JAEGER
+  jspan finish_ctx_span = JTracer::tracedFunction(“finish_ctx_begins”);
+#endif
+
   const hobject_t& soid = ctx->obs->oi.soid;
   dout(20) << __func__ << " " << soid << " " << ctx
 	   << " op " << pg_log_entry_t::get_op_name(log_op_type)
@@ -8584,6 +8646,12 @@ void PrimaryLogPG::finish_ctx(OpContext *ctx, int log_op_type, int result)
     ctx->obc->ssc->exists = true;
     ctx->obc->ssc->snapset = ctx->new_snapset;
   }
+
+#ifdef WITH_JAEGER
+      JTracer::tracedSubroutine(finish_ctx_span, "finish_ctx_ends");
+  finish_ctx_span->Finish();
+#endif
+
 }
 
 void PrimaryLogPG::apply_stats(
@@ -10465,6 +10533,11 @@ void PrimaryLogPG::op_applied(const eversion_t &applied_version)
 
 void PrimaryLogPG::eval_repop(RepGather *repop)
 {
+
+#ifdef WITH_JAEGER
+  jspan eval_repop_span = JTracer::tracedFunction("eval_repop_begins");
+#endif
+
   const MOSDOp *m = NULL;
   if (repop->op)
     m = repop->op->get_req<MOSDOp>();
@@ -10516,10 +10589,19 @@ void PrimaryLogPG::eval_repop(RepGather *repop)
       }
     }
   }
+
+#ifdef WITH_JAEGER
+  JTracer::tracedSubroutine(eval_repop_span, "eval_repop_ends");
+  eval_repop_span->Finish();
 }
 
 void PrimaryLogPG::issue_repop(RepGather *repop, OpContext *ctx)
 {
+
+#ifdef WITH_JAEGER
+  jspan issue_repop_span->tracedFunction("issue_repop_begins");
+#endif
+
   FUNCTRACE(cct);
   const hobject_t& soid = ctx->obs->oi.soid;
   dout(7) << "issue_repop rep_tid " << repop->rep_tid
@@ -10562,6 +10644,12 @@ void PrimaryLogPG::issue_repop(RepGather *repop, OpContext *ctx)
     repop->rep_tid,
     ctx->reqid,
     ctx->op);
+
+#ifdef WITH_JAEGER
+  JTracer::tracedSubroutine(issue_repop_span, "issue_repop_ends");
+  issue_repop_span->Finish();
+#endif
+
 }
 
 PrimaryLogPG::RepGather *PrimaryLogPG::new_repop(

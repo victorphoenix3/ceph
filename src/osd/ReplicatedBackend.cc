@@ -445,6 +445,11 @@ void ReplicatedBackend::submit_transaction(
   osd_reqid_t reqid,
   OpRequestRef orig_op)
 {
+  
+#ifdef WITH_JAEGER
+jspan submit_transaction_span = JTracer::tracedFunction(“submit_transaction_begins”);
+#endif
+
   parent->apply_stats(
     soid,
     delta_stats);
@@ -515,6 +520,12 @@ void ReplicatedBackend::submit_transaction(
   if (at_version != eversion_t()) {
     parent->op_applied(at_version);
   }
+
+#ifdef WITH_JAEGER
+      JTracer::tracedSubroutine(submit_transaction_span, "submit_transaction_ends");
+  submit_transation_span->Finish();
+#endif
+
 }
 
 void ReplicatedBackend::op_commit(
@@ -979,6 +990,7 @@ void ReplicatedBackend::issue_op(
     // avoid doing the same work in generate_subop
     bufferlist logs;
     encode(log_entries, logs);
+    encode_trace(log_entries, logs);
 
     for (const auto& shard : get_parent()->get_acting_recovery_backfill_shards()) {
       if (shard == parent->whoami_shard()) continue;
@@ -1045,9 +1057,6 @@ void ReplicatedBackend::do_repop(OpRequestRef op)
 
   auto p = const_cast<bufferlist&>(m->get_data()).cbegin();
   decode(rm->opt, p);
-#ifdef WITH_JAEGER
-//  Message::decode_trace_jaeger(p,false,"t_meta");
-#endif
   if (m->new_temp_oid != hobject_t()) {
     dout(20) << __func__ << " start tracking temp " << m->new_temp_oid << dendl;
     add_temp_obj(m->new_temp_oid);
@@ -1064,6 +1073,7 @@ void ReplicatedBackend::do_repop(OpRequestRef op)
 
   p = const_cast<bufferlist&>(m->logbl).begin();
   decode(log, p);
+  decode_trace(p);
   rm->opt.set_fadvise_flag(CEPH_OSD_OP_FLAG_FADVISE_DONTNEED);
 
   bool update_snaps = false;

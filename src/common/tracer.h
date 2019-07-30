@@ -21,7 +21,7 @@ static void setUpTracer(const char* serviceToTrace) {
       std::static_pointer_cast<opentracing::Tracer>(tracer));
 }
 
-static void tracedSubroutine(
+static jspan tracedSubroutine(
     jspan& parentSpan,
     const char* subRoutineContext) {
   auto span = opentracing::Tracer::Global()->StartSpan(
@@ -46,7 +46,7 @@ static std::string inject(jspan& span, const char* name) {
   return ss.str();
 }
 
-static void extract(jspan& span, const char* name,
+static jspan extract(const char* name,
 	     std::string t_meta) {
   std::stringstream ss(t_meta);
   //    if(!tracer){
@@ -56,10 +56,11 @@ static void extract(jspan& span, const char* name,
   assert(span_context_maybe);
 
   // Propogation span
-  auto _span = opentracing::Tracer::Global()->StartSpan(
+  auto span = opentracing::Tracer::Global()->StartSpan(
       "propagationSpan", {ChildOf(span_context_maybe->get())});
+  span->Finish();
 
-  auto span1 = std::move(_span);
+  return span;
 }
 
 };

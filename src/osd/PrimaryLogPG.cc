@@ -59,6 +59,10 @@
 #define tracepoint(...)
 #endif
 
+#ifdef WITH_JAEGER
+#include "common/tracer.h"
+#endif
+
 #define dout_context cct
 #define dout_subsys ceph_subsys_osd
 #define DOUT_PREFIX_ARGS this, osd->whoami, get_osdmap()
@@ -1572,9 +1576,9 @@ void PrimaryLogPG::do_request(
     op->pg_trace.event("do request");
   }
 
-//#ifdef WITH_JAEGER
-//  jspan do_request_span = JTracer::tracedFunction(“do_request”);
-//#endif
+#ifdef WITH_JAEGER
+jspan do_request_span = JTracer::tracedFunction(“do_request”);
+#endif
 
   // make sure we have a new enough map
   auto p = waiting_for_map.find(op->get_source());
@@ -1739,6 +1743,12 @@ void PrimaryLogPG::do_request(
   default:
     ceph_abort_msg("bad message type in do_request");
   }
+
+#ifdef WITH_JAEGER
+  JTracer::tracedSubroutine(do_request_span,"do_request_ends");
+  do_request_span->Finish();
+#endif
+
 }
 
 hobject_t PrimaryLogPG::earliest_backfill() const
@@ -1764,6 +1774,11 @@ void PrimaryLogPG::do_op(OpRequestRef& op)
   FUNCTRACE(cct);
   // NOTE: take a non-const pointer here; we must be careful not to
   // change anything that will break other reads on m (operator<<).
+
+#ifdef WITH_JAEGER
+  jspan do_op_span = JTracer::tracedSubroutine(do_request_span, "do_op_begins");
+#endif
+
   MOSDOp *m = static_cast<MOSDOp*>(op->get_nonconst_req());
   ceph_assert(m->get_type() == CEPH_MSG_OSD_OP);
   if (m->finish_decode()) {
@@ -2256,6 +2271,12 @@ void PrimaryLogPG::do_op(OpRequestRef& op)
 
   // force recovery of the oldest missing object if too many logs
   maybe_force_recovery();
+  
+#ifdef WITH_JAEGER
+  JTracer::tracedSubroutine(do_op_span,"do_op_ends");
+  do_op_span->Finish();
+#endif
+
 }
 
 PrimaryLogPG::cache_result_t PrimaryLogPG::maybe_handle_manifest_detail(

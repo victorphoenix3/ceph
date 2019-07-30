@@ -944,6 +944,8 @@ void Message::decode_trace(bufferlist::const_iterator &p, bool create)
                         msgr->cct->_conf->osd_blkin_trace_all)) {
     // create a trace even if we didn't get one on the wire
     trace.init(get_type_name(), endpoint);
+
+    span->Finish();
     trace.event("created trace");
   }
   trace.keyval("tid", get_tid());
@@ -951,7 +953,6 @@ void Message::decode_trace(bufferlist::const_iterator &p, bool create)
   trace.keyval("entity num", get_source().num());
 #endif
 }
-
 
 // This routine is not used for ordinary messages, but only when encapsulating a message
 // for forwarding and routing.  It's also used in a backward compatibility test, which only

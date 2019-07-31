@@ -8362,6 +8362,10 @@ int PrimaryLogPG::prepare_transaction(OpContext *ctx)
 {
   ceph_assert(!ctx->ops->empty());
 
+#ifdef WITH_JAEGER
+  jspan prepare_transaction_span = JTracer::tracedFunction("transaction_preparation_starts");
+#endif
+
   // valid snap context?
   if (!ctx->snapc.is_valid()) {
     dout(10) << " invalid snapc " << ctx->snapc << dendl;
@@ -8422,6 +8426,12 @@ int PrimaryLogPG::prepare_transaction(OpContext *ctx)
 	     pg_log_entry_t::DELETE);
 
   return result;
+
+#ifdef WITH_JAEGER
+  JTracer::tracedSubroutine(prepare_transaction_span, "transaction_prepared");
+  prepare_transaction_span->Finish();
+#endif
+
 }
 
 void PrimaryLogPG::finish_ctx(OpContext *ctx, int log_op_type)

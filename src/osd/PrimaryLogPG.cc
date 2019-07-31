@@ -3736,6 +3736,11 @@ void PrimaryLogPG::promote_object(ObjectContextRef obc,
 
 void PrimaryLogPG::execute_ctx(OpContext *ctx)
 {
+
+#ifdef WITH_JAEGER
+  jspan execute_ctx = JTracer::tracedFunction("execute_ctx_begins");
+#endif
+
   FUNCTRACE(cct);
   dout(10) << __func__ << " " << ctx << dendl;
   ctx->reset_obs(ctx->obc);
@@ -5612,7 +5617,7 @@ int PrimaryLogPG::do_osd_ops(OpContext *ctx, vector<OSDOp>& ops)
 {
 
 #ifdef WITH_JAEGER
-  jspan do_osd_ops_spans = JTracer::tracedFunction("do_osd_ops_begins");
+  jspan do_osd_ops_span = JTracer::tracedFunction("do_osd_ops_begins");
 #endif
 
   int result = 0;

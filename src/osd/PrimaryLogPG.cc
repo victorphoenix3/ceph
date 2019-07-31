@@ -1577,7 +1577,7 @@ void PrimaryLogPG::do_request(
   }
 
 #ifdef WITH_JAEGER
-jspan do_request_span = JTracer::tracedFunction("do_request_begins");
+jspan do_request_span = JTracer::tracedFunction(“do_request”);
 #endif
 
   // make sure we have a new enough map
@@ -1776,7 +1776,7 @@ void PrimaryLogPG::do_op(OpRequestRef& op)
   // change anything that will break other reads on m (operator<<).
 
 #ifdef WITH_JAEGER
-  jspan do_op_span = JTracer::tracedSubroutine(do_request_span, "do_op_begins");
+  jspan do_op_span = JTracer::tracedFunction("do_op_begins");
 #endif
 
   MOSDOp *m = static_cast<MOSDOp*>(op->get_nonconst_req());
@@ -3738,7 +3738,7 @@ void PrimaryLogPG::execute_ctx(OpContext *ctx)
 {
 
 #ifdef WITH_JAEGER
-  jspan execute_ctx = JTracer::tracedFunction("execute_ctx_begins");
+  jspan execute_ctx_span = JTracer::tracedFunction("execute_ctx_begins");
 #endif
 
   FUNCTRACE(cct);

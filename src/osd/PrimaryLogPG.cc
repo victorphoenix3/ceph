@@ -1776,7 +1776,7 @@ void PrimaryLogPG::do_op(OpRequestRef& op)
   // change anything that will break other reads on m (operator<<).
 
 #ifdef WITH_JAEGER
-  jspan do_op_span = JTracer::tracedFunction("do_op_begins");
+  jspan do_op_span = JTracer::tracedSubroutine(do_request_span, "do_op_begins");
 #endif
 
   MOSDOp *m = static_cast<MOSDOp*>(op->get_nonconst_req());
@@ -3736,14 +3736,7 @@ void PrimaryLogPG::promote_object(ObjectContextRef obc,
 
 void PrimaryLogPG::execute_ctx(OpContext *ctx)
 {
-
-#ifdef WITH_JAEGER
-jspan execute_ctx_span = JTracer::tracedFunction("execute_ctx_begins");
-#endif
-
   FUNCTRACE(cct);
-
-
   dout(10) << __func__ << " " << ctx << dendl;
   ctx->reset_obs(ctx->obc);
   ctx->update_log_only = false; // reset in case finish_copyfrom() is re-running execute_ctx
@@ -5617,6 +5610,11 @@ int PrimaryLogPG::do_sparse_read(OpContext *ctx, OSDOp& osd_op) {
 
 int PrimaryLogPG::do_osd_ops(OpContext *ctx, vector<OSDOp>& ops)
 {
+
+#ifdef WITH_JAEGER
+  jspan do_osd_ops_spans = JTracer::tracedFunction("do_osd_ops_begins");
+#endif
+
   int result = 0;
   SnapSetContext *ssc = ctx->obc->ssc;
   ObjectState& obs = ctx->new_obs;
@@ -7698,6 +7696,12 @@ int PrimaryLogPG::do_osd_ops(OpContext *ctx, vector<OSDOp>& ops)
     if (result < 0)
       break;
   }
+
+#ifdef WITH_JAEGER
+  JTracer::tracedSubroutine(do_osd_ops_span, "do_osd_op_ends");
+  do_osd_ops_span->Finish();
+#endif
+
   return result;
 }
 
@@ -8425,12 +8429,13 @@ int PrimaryLogPG::prepare_transaction(OpContext *ctx)
 	     ctx->new_obs.exists ? pg_log_entry_t::MODIFY :
 	     pg_log_entry_t::DELETE);
 
-  return result;
 
 #ifdef WITH_JAEGER
   JTracer::tracedSubroutine(prepare_transaction_span, "transaction_prepared");
   prepare_transaction_span->Finish();
 #endif
+
+  return result;
 
 }
 

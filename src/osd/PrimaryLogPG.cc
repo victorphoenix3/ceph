@@ -8446,6 +8446,10 @@ int PrimaryLogPG::prepare_transaction(OpContext *ctx)
 
 void PrimaryLogPG::finish_ctx(OpContext *ctx, int log_op_type)
 {
+#ifdef WITH_JAEGER
+  jspan finish_ctx_span = JTracer::tracedFunction(“finish_ctx_begins”);
+#endif
+
   const hobject_t& soid = ctx->obs->oi.soid;
   dout(20) << __func__ << " " << soid << " " << ctx
 	   << " op " << pg_log_entry_t::get_op_name(log_op_type)
@@ -8540,6 +8544,12 @@ void PrimaryLogPG::finish_ctx(OpContext *ctx, int log_op_type)
     ctx->obc->ssc->exists = true;
     ctx->obc->ssc->snapset = ctx->new_snapset;
   }
+
+#ifdef WITH_JAEGER
+      JTracer::tracedSubroutine(finish_ctx_span, "finish_ctx_ends");
+  finish_ctx_span->Finish();
+#endif
+
 }
 
 void PrimaryLogPG::apply_stats(
@@ -10428,6 +10438,11 @@ void PrimaryLogPG::op_applied(const eversion_t &applied_version)
 
 void PrimaryLogPG::eval_repop(RepGather *repop)
 {
+
+#ifdef WITH_JAEGER
+  jspan eval_repop_span = JTracer::tracedFunction("eval_repop_begins");
+#endif
+
   const MOSDOp *m = NULL;
   if (repop->op)
     m = static_cast<const MOSDOp *>(repop->op->get_req());
@@ -10479,10 +10494,19 @@ void PrimaryLogPG::eval_repop(RepGather *repop)
       }
     }
   }
+
+#ifdef WITH_JAEGER
+  JTracer::tracedSubroutine(eval_repop_span, "eval_repop_ends");
+  eval_repop_span->Finish();
 }
 
 void PrimaryLogPG::issue_repop(RepGather *repop, OpContext *ctx)
 {
+
+#ifdef WITH_JAEGER
+  jspan issue_repop_span->tracedFunction("issue_repop_begins");
+#endif
+
   FUNCTRACE(cct);
   const hobject_t& soid = ctx->obs->oi.soid;
   dout(7) << "issue_repop rep_tid " << repop->rep_tid
@@ -10525,6 +10549,12 @@ void PrimaryLogPG::issue_repop(RepGather *repop, OpContext *ctx)
     repop->rep_tid,
     ctx->reqid,
     ctx->op);
+
+#ifdef WITH_JAEGER
+  JTracer::tracedSubroutine(issue_repop_span, "issue_repop_ends");
+  issue_repop_span->Finish();
+#endif
+
 }
 
 PrimaryLogPG::RepGather *PrimaryLogPG::new_repop(

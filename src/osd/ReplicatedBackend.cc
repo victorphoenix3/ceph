@@ -445,6 +445,11 @@ void ReplicatedBackend::submit_transaction(
   osd_reqid_t reqid,
   OpRequestRef orig_op)
 {
+  
+#ifdef WITH_JAEGER
+jspan submit_transaction_span = JTracer::tracedFunction(“submit_transaction_begins”);
+#endif
+
   parent->apply_stats(
     soid,
     delta_stats);
@@ -515,6 +520,12 @@ void ReplicatedBackend::submit_transaction(
   if (at_version != eversion_t()) {
     parent->op_applied(at_version);
   }
+
+#ifdef WITH_JAEGER
+      JTracer::tracedSubroutine(submit_transaction_span, "submit_transaction_ends");
+  submit_transation_span->Finish();
+#endif
+
 }
 
 void ReplicatedBackend::op_commit(
@@ -1046,9 +1057,6 @@ void ReplicatedBackend::do_repop(OpRequestRef op)
 
   auto p = const_cast<bufferlist&>(m->get_data()).cbegin();
   decode(rm->opt, p);
-#ifdef WITH_JAEGER
-//  Message::decode_trace_jaeger(p,false,"t_meta");
-#endif
   if (m->new_temp_oid != hobject_t()) {
     dout(20) << __func__ << " start tracking temp " << m->new_temp_oid << dendl;
     add_temp_obj(m->new_temp_oid);

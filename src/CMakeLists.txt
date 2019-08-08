@@ -378,6 +378,8 @@ set(ceph_common_deps
   ${BLKID_LIBRARIES}
   ${Backtrace_LIBRARIES}
   ${BLKIN_LIBRARIES}
+  #${Jaeger_LIBRARIES}
+  ${Complete_Jaeger_LIBRARIES}
   ${CRYPTO_LIBS}
   ${GSSAPI_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT}

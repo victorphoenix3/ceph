@@ -176,6 +176,9 @@
 #undef dout_prefix
 #define dout_prefix _prefix(_dout, whoami, get_osdmap_epoch())
 
+#ifdef WITH_JAEGER
+#include "common/tracer.h"
+#endif
 
 static ostream& _prefix(std::ostream* _dout, int whoami, epoch_t epoch) {
   return *_dout << "osd." << whoami << " " << epoch << " ";
@@ -6928,6 +6931,13 @@ void OSD::ms_fast_dispatch(Message *m)
     return;
   }
 
+#ifdef WITH_JAEGER
+  JTracer::setUpTracer("osd_tracing");
+  jspan ms_fast_dispatch =
+      JTracer::tracedFunction("ms_fast_dispatch_begins");
+      JTracer::tracedSubroutine(ms_fast_dispatch, m->get_type_name().data());
+#endif
+
   // peering event?
   switch (m->get_type()) {
   case CEPH_MSG_PING:
@@ -7013,6 +7023,12 @@ void OSD::ms_fast_dispatch(Message *m)
     }
   }
   OID_EVENT_TRACE_WITH_MSG(m, "MS_FAST_DISPATCH_END", false); 
+
+#ifdef WITH_JAEGER
+  JTracer::tracedSubroutine(ms_fast_dispatch, "ms_fast_dispatch_ends");
+  ms_fast_dispatch->Finish();
+#endif
+
 }
 
 int OSD::ms_handle_authentication(Connection *con)

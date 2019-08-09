@@ -24,6 +24,10 @@
 #include "include/util.h"
 #include "OSD.h"
 
+#ifdef WITH_JAEGER
+#include "common/tracer.h"
+#endif
+
 #define dout_context cct
 #define dout_subsys ceph_subsys_osd
 #define DOUT_PREFIX_ARGS this
@@ -442,7 +446,7 @@ void ReplicatedBackend::submit_transaction(
 {
   
 #ifdef WITH_JAEGER
-jspan submit_transaction_span = JTracer::tracedFunction(“submit_transaction_begins”);
+jspan submit_transaction_span = JTracer::tracedFunction("submit_transaction_begins");
 #endif
 
   parent->apply_stats(
@@ -518,7 +522,7 @@ jspan submit_transaction_span = JTracer::tracedFunction(“submit_transaction_be
 
 #ifdef WITH_JAEGER
       JTracer::tracedSubroutine(submit_transaction_span, "submit_transaction_ends");
-  submit_transation_span->Finish();
+  submit_transaction_span->Finish();
 #endif
 
 }
@@ -985,7 +989,7 @@ void ReplicatedBackend::issue_op(
     // avoid doing the same work in generate_subop
     bufferlist logs;
     encode(log_entries, logs);
-    encode_trace(log_entries, logs);
+    //encode_trace(log_entries, logs);
 
     for (const auto& shard : get_parent()->get_acting_recovery_backfill_shards()) {
       if (shard == parent->whoami_shard()) continue;
@@ -1069,7 +1073,7 @@ void ReplicatedBackend::do_repop(OpRequestRef op)
 
   p = const_cast<bufferlist&>(m->logbl).begin();
   decode(log, p);
-  decode_trace(p);
+  //decode_trace(p);
   rm->opt.set_fadvise_flag(CEPH_OSD_OP_FLAG_FADVISE_DONTNEED);
 
   bool update_snaps = false;

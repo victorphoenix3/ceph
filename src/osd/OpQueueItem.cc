@@ -15,10 +15,6 @@
 #include "OpQueueItem.h"
 #include "OSD.h"
 
-#ifdef WITH_JAEGER
-#include "common/tracer.h"
-#endif
-
 void PGOpItem::run(
   OSD *osd,
   OSDShard *sdata,

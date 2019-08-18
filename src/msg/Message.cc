@@ -945,7 +945,6 @@ void Message::decode_trace(bufferlist::const_iterator &p, bool create)
     // create a trace even if we didn't get one on the wire
     trace.init(get_type_name(), endpoint);
 
-    span->Finish();
     trace.event("created trace");
   }
   trace.keyval("tid", get_tid());

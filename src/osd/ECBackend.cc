@@ -993,6 +993,7 @@ void ECBackend::handle_sub_write(
 
 #ifdef WITH_JAEGER
   JTracer::tracedSubroutine(handle_sub_write_span, "sub_write_handle_ends");
+  handle_sub_write_span->Finish();
 #endif
 
 }

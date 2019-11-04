@@ -165,6 +165,10 @@
 #include "json_spirit/json_spirit_reader.h"
 #include "json_spirit/json_spirit_writer.h"
 
+#ifdef WITH_JAEGER
+#include "common/tracer.h"
+#endif
+
 #ifdef WITH_LTTNG
 #define TRACEPOINT_DEFINE
 #define TRACEPOINT_PROBE_DYNAMIC_LINKAGE
@@ -179,10 +183,6 @@
 #define dout_subsys ceph_subsys_osd
 #undef dout_prefix
 #define dout_prefix _prefix(_dout, whoami, get_osdmap_epoch())
-
-#ifdef WITH_JAEGER
-#include "common/tracer.h"
-#endif
 
 using namespace ceph::osd::scheduler;
 
@@ -1654,6 +1654,14 @@ void OSDService::reply_op_error(OpRequestRef op, int err, eversion_t v,
 				       !m->has_flag(CEPH_OSD_FLAG_RETURNVEC));
   reply->set_reply_versions(v, uv);
   reply->set_op_returns(op_returns);
+#ifdef WITH_JAEGER
+  jspan op_error_span = opentracing::Tracer::Global()->StartSpan(
+      "reply_op_error",{opentracing::v2::ChildOf(&(op->osd_parent_span)->context())});
+  op_error_span->Log({
+      {"type", m->get_type()},
+      {"err code", err}
+      });
+#endif
   m->get_connection()->send_message(reply);
 }
 
@@ -1945,11 +1953,11 @@ void OSDService::_queue_for_recovery(
 #define dout_prefix *_dout
 
 // Commands shared between OSD's console and admin console:
-namespace ceph { 
-namespace osd_cmds { 
+namespace ceph {
+namespace osd_cmds {
 
 int heap(CephContext& cct, const cmdmap_t& cmdmap, Formatter& f, std::ostream& os);
- 
+
 }} // namespace ceph::osd_cmds
 
 int OSD::mkfs(CephContext *cct, ObjectStore *store, uuid_d fsid, int whoami)
@@ -2201,8 +2209,8 @@ OSD::OSD(CephContext *cct_, ObjectStore *store_,
 {
 
   if (!gss_ktfile_client.empty()) {
-    // Assert we can export environment variable 
-    /* 
+    // Assert we can export environment variable
+    /*
         The default client keytab is used, if it is present and readable,
         to automatically obtain initial credentials for GSSAPI client
         applications. The principal name of the first entry in the client
@@ -2211,7 +2219,7 @@ OSD::OSD(CephContext *cct_, ObjectStore *store_,
         2. The default_client_keytab_name profile variable in [libdefaults].
         3. The hardcoded default, DEFCKTNAME.
     */
-    const int32_t set_result(setenv("KRB5_CLIENT_KTNAME", 
+    const int32_t set_result(setenv("KRB5_CLIENT_KTNAME",
                                     gss_ktfile_client.c_str(), 1));
     ceph_assert(set_result == 0);
   }
@@ -2674,7 +2682,7 @@ will start to track new ops received afterwards.";
     store->compact();
     auto end = ceph::coarse_mono_clock::now();
     double duration = std::chrono::duration<double>(end-start).count();
-    dout(1) << "finished manual compaction in " 
+    dout(1) << "finished manual compaction in "
             << duration
             << " seconds" << dendl;
     f->open_object_section("compact_result");
@@ -6687,7 +6695,7 @@ void OSD::got_full_map(epoch_t e)
     requested_full_first = requested_full_last = 0;
     return;
   }
-  
+
   requested_full_first = e + 1;
 
   dout(10) << __func__ << " " << e << ", requested " << requested_full_first
@@ -7032,18 +7040,15 @@ void OSD::dispatch_session_waiting(const ceph::ref_t<Session>& session, OSDMapRe
 
 void OSD::ms_fast_dispatch(Message *m)
 {
+#ifdef WITH_JAEGER
+  JTracer::setUpTracer("osd_tracer");
+#endif
+
   FUNCTRACE(cct);
   if (service.is_stopping()) {
     m->put();
     return;
   }
-
-#ifdef WITH_JAEGER
-  JTracer::setUpTracer("osd_tracing");
-  jspan ms_fast_dispatch =
-      JTracer::tracedFunction("ms_fast_dispatch_begins");
-      JTracer::tracedSubroutine(ms_fast_dispatch, m->get_type_name().data());
-#endif
 
   // peering event?
   switch (m->get_type()) {
@@ -7100,12 +7105,25 @@ void OSD::ms_fast_dispatch(Message *m)
         reqid.name._num, reqid.tid, reqid.inc);
   }
 
-  if (m->trace)
+#ifdef WITH_JAEGER
+jspan dispatch_span = opentracing::Tracer::Global()->StartSpan("op-request-created");
+op->set_osd_parent_span(dispatch_span);
+#endif
+
+  if (m->trace){
     op->osd_trace.init("osd op", &trace_endpoint, &m->trace);
+
+  }
 
   // note sender epoch, min req's epoch
   op->sent_epoch = static_cast<MOSDFastDispatchOp*>(m)->get_map_epoch();
   op->min_epoch = static_cast<MOSDFastDispatchOp*>(m)->get_min_epoch();
+#ifdef WITH_JAEGER
+  op->osd_parent_span->Log({
+      {"sent epoch by op", op->sent_epoch},
+      {"min epoch for op", op->min_epoch}
+      });
+#endif
   ceph_assert(op->min_epoch <= op->sent_epoch); // sanity check!
 
   service.maybe_inject_dispatch_delay();
@@ -7131,12 +7149,8 @@ void OSD::ms_fast_dispatch(Message *m)
       service.release_map(nextmap);
     }
   }
-  OID_EVENT_TRACE_WITH_MSG(m, "MS_FAST_DISPATCH_END", false); 
 
-#ifdef WITH_JAEGER
-  JTracer::tracedSubroutine(ms_fast_dispatch, "ms_fast_dispatch_ends");
-  ms_fast_dispatch->Finish();
-#endif
+  OID_EVENT_TRACE_WITH_MSG(m, "MS_FAST_DISPATCH_END", false);
 
 }
 
@@ -8285,7 +8299,7 @@ void OSD::_committed_osd_maps(epoch_t first, epoch_t last, MOSDMap *m)
 	set<int> avoid_ports;
 #if defined(__FreeBSD__)
         // prevent FreeBSD from grabbing the client_messenger port during
-        // rebinding. In which case a cluster_meesneger will connect also 
+        // rebinding. In which case a cluster_meesneger will connect also
 	// to the same port
 	client_messenger->get_myaddrs().get_ports(&avoid_ports);
 #endif
@@ -9473,7 +9487,7 @@ void OSD::do_recovery(
       // This is true for the first recovery op and when the previous recovery op
       // has been scheduled in the past. The next recovery op is scheduled after
       // completing the sleep from now.
-      
+
       if (auto now = ceph::real_clock::now();
 	  service.recovery_schedule_time < now) {
         service.recovery_schedule_time = now;
@@ -9503,7 +9517,7 @@ void OSD::do_recovery(
 #endif
 
     bool do_unfound = pg->start_recovery_ops(reserved_pushes, handle, &started);
-    dout(10) << "do_recovery started " << started << "/" << reserved_pushes 
+    dout(10) << "do_recovery started " << started << "/" << reserved_pushes
 	     << " on " << *pg << dendl;
 
     if (do_unfound) {
@@ -9605,6 +9619,18 @@ void OSD::enqueue_op(spg_t pg, OpRequestRef&& op, epoch_t epoch)
   op->osd_trace.event("enqueue op");
   op->osd_trace.keyval("priority", priority);
   op->osd_trace.keyval("cost", cost);
+
+#ifdef WITH_JAEGER
+    jspan enqueue_op_span = opentracing::Tracer::Global()->StartSpan(
+      "enqueue_op",{opentracing::v2::ChildOf(&(op->osd_parent_span)->context())});
+  enqueue_op_span->Log({
+      {"priority", priority},
+      {"cost", cost},
+      {"epoch", epoch},
+      {"owner", owner} //Not got owner in UI
+      });
+#endif
+
   op->mark_queued_for_pg();
   logger->tinc(l_osd_op_before_queue_op_lat, latency);
   op_shardedwq.queue(
@@ -9647,7 +9673,6 @@ void OSD::dequeue_op(
   ThreadPool::TPHandle &handle)
 {
   const Message *m = op->get_req();
-
   FUNCTRACE(cct);
   OID_EVENT_TRACE_WITH_MSG(m, "DEQUEUE_OP_BEGIN", false);
 
@@ -9672,6 +9697,7 @@ void OSD::dequeue_op(
 
   op->mark_reached_pg();
   op->osd_trace.event("dequeue_op");
+
 
   pg->do_request(op, handle);
 
@@ -9902,7 +9928,7 @@ void OSD::check_config()
 		 << cct->_conf->osd_pg_epoch_persisted_max_stale << ")";
   }
   if (cct->_conf->osd_object_clean_region_max_num_intervals < 0) {
-    clog->warn() << "osd_object_clean_region_max_num_intervals (" 
+    clog->warn() << "osd_object_clean_region_max_num_intervals ("
                  << cct->_conf->osd_object_clean_region_max_num_intervals
                 << ") is < 0";
   }
@@ -10766,8 +10792,8 @@ void OSD::ShardedOpWQ::_enqueue_front(OpSchedulerItem&& item)
   sdata->sdata_cond.notify_one();
 }
 
-namespace ceph { 
-namespace osd_cmds { 
+namespace ceph {
+namespace osd_cmds {
 
 int heap(CephContext& cct, const cmdmap_t& cmdmap, Formatter& f,
 	 std::ostream& os)
@@ -10776,13 +10802,13 @@ int heap(CephContext& cct, const cmdmap_t& cmdmap, Formatter& f,
         os << "could not issue heap profiler command -- not using tcmalloc!";
         return -EOPNOTSUPP;
   }
-  
+
   string cmd;
   if (!cmd_getval(&cct, cmdmap, "heapcmd", cmd)) {
         os << "unable to get value for command \"" << cmd << "\"";
        return -EINVAL;
   }
-  
+
   std::vector<std::string> cmd_vec;
   get_str_vec(cmd, cmd_vec);
 
@@ -10790,10 +10816,10 @@ int heap(CephContext& cct, const cmdmap_t& cmdmap, Formatter& f,
   if (cmd_getval(&cct, cmdmap, "value", val)) {
     cmd_vec.push_back(val);
   }
-  
+
   ceph_heap_profiler_handle_command(cmd_vec, os);
-  
+
   return 0;
 }
- 
+
 }} // namespace ceph::osd_cmds

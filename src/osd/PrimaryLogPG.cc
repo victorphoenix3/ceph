@@ -74,6 +74,10 @@ static ostream& _prefix(std::ostream *_dout, T *pg) {
 
 #include <errno.h>
 
+#ifdef WITH_JAEGER
+#include "common/tracer.h"
+#endif
+
 MEMPOOL_DEFINE_OBJECT_FACTORY(PrimaryLogPG, replicatedpg, osd);
 
 using namespace ceph::osd::scheduler;
@@ -1146,6 +1150,10 @@ void PrimaryLogPG::do_pg_op(OpRequestRef op)
   ceph_assert(m->get_type() == CEPH_MSG_OSD_OP);
   dout(10) << "do_pg_op " << *m << dendl;
 
+#ifdef WITH_JAEGER
+  jspan do_pg_op_span = opentracing::Tracer::Global()->StartSpan(
+      "do_pg_op",{opentracing::v2::ChildOf(&(op->osd_parent_span)->context())});`
+#endif
   op->mark_started();
 
   int result = 0;
@@ -1618,6 +1626,12 @@ void PrimaryLogPG::do_request(
     op->pg_trace.init("pg op", &trace_endpoint, &op->osd_trace);
     op->pg_trace.event("do request");
   }
+
+#ifdef WITH_JAEGER
+  jspan do_request_span = opentracing::Tracer::Global()->StartSpan(
+      "do request init",{opentracing::v2::ChildOf(&(op->osd_parent_span)->context())});
+#endif
+
   // make sure we have a new enough map
   auto p = waiting_for_map.find(op->get_source());
   if (p != waiting_for_map.end()) {
@@ -1648,6 +1662,12 @@ void PrimaryLogPG::do_request(
     auto session = ceph::ref_cast<Session>(m->get_connection()->get_priv());
     if (!session)
       return;  // drop it.
+
+#ifdef WITH_JAEGER
+  do_request_span->Log({
+      {"msg", msg_type}
+      });
+#endif
 
     if (msg_type == CEPH_MSG_OSD_OP) {
       if (session->check_backoff(cct, info.pgid,
@@ -1780,6 +1800,7 @@ void PrimaryLogPG::do_request(
   default:
     ceph_abort_msg("bad message type in do_request");
   }
+
 }
 
 hobject_t PrimaryLogPG::earliest_backfill() const

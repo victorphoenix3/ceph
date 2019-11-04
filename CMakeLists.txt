@@ -342,11 +342,19 @@ endif(WITH_BLKIN)
 option(WITH_JAEGER "Use jaeger to create tracepoints and display it on Jaeger UI" ON)
 
 if(WITH_JAEGER)
-  find_package(OpenTracing REQUIRED)
-  find_package(Jaeger REQUIRED)
-  find_package(yaml-cpp REQUIRED)
-  set(Complete_Jaeger_LIBRARIES ${Jaeger_LIBRARIES} ${OpenTracing_LIBRARIES} ${yaml-cpp_LIBRARIES})
-  include_directories(SYSTEM ${Jaeger_INCLUDE_DIRS} ${yaml-cpp_INCLUDE_DIRS} ${OpenTracing_INCLUDE_DIRS})
+  include(BuildJaeger)
+  build_jaeger()
+
+  if(NOT WITH_SYSTEM_JAEGER)
+  endif(NOT WITH_SYSTEM_JAEGER)
+
+  add_definitions(-DWITH_JAEGER=1)
+  #find_package(OpenTracing REQUIRED)
+  #find_package(Jaeger REQUIRED)
+  #find_package(yaml-cpp REQUIRED)
+
+ # set(Complete_Jaeger_LIBRARIES ${Jaeger_LIBRARIES} ${OpenTracing_LIBRARIES} ${yaml-cpp_LIBRARIES})
+#  include_directories(SYSTEM ${Jaeger_INCLUDE_DIRS} ${yaml-cpp_INCLUDE_DIRS} ${OpenTracing_INCLUDE_DIRS})
 endif(WITH_JAEGER)
 
 option(WITH_BOOST_CONTEXT "Enable boost::asio stackful coroutines" ON)
@@ -360,7 +368,8 @@ option(WITH_RADOSGW_FCGI_FRONTEND "Rados Gateway's FCGI frontend is enabled" OFF
 option(WITH_RADOSGW_BEAST_FRONTEND "Rados Gateway's Beast frontend is enabled" ON)
 option(WITH_RADOSGW_BEAST_OPENSSL "Rados Gateway's Beast frontend uses OpenSSL" ON)
 option(WITH_RADOSGW_AMQP_ENDPOINT "Rados Gateway's pubsub support for AMQP push endpoint" ON)
-option(WITH_RADOSGW_KAFKA_ENDPOINT "Rados Gateway's pubsub support for Kafka push endpoint" ON)
+option(WITH_RADOSGW_KAFKA_ENDPOINT "Rados Gateway's pubsub support for Kafka
+push endpoint" OFF)
 
 if(WITH_RADOSGW)
   find_package(EXPAT REQUIRED)

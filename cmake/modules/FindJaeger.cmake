@@ -48,9 +48,6 @@ find_path(Jaeger_INCLUDE_DIRS NAMES  jaegertracing/Tracer.h)
 find_library(Jaeger_LIBRARIES NAMES jaegertracing)
 
 if(Jaeger_INCLUDE_DIRS AND Jaeger_LIBRARIES)
-  # find tracef() and tracelog() support
-  set(Jaeger_HAS_TRACEF 0)
-  set(Jaeger_HAS_TRACELOG 0)
 
   set(Jaeger_VERSION_STRING "0.5.0")
 

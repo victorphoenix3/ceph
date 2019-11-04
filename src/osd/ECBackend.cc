@@ -875,6 +875,7 @@ struct SubWriteCommitted : public Context {
     : pg(pg), msg(msg), tid(tid),
       version(version), last_complete(last_complete), trace(trace) {}
   void finish(int) override {
+
     if (msg)
       msg->mark_event("sub_op_committed");
     pg->sub_write_committed(tid, version, last_complete, trace);
@@ -918,6 +919,7 @@ void ECBackend::handle_sub_write(
   ECSubWrite &op,
   const ZTracer::Trace &trace)
 {
+
   if (msg)
     msg->mark_event("sub_op_started");
   trace.event("handle_sub_write");
@@ -985,6 +987,7 @@ void ECBackend::handle_sub_write(
     // dummy rollforward transaction doesn't get at_version (and doesn't advance it)
     get_parent()->op_applied(op.at_version);
   }
+
 }
 
 void ECBackend::handle_sub_read(

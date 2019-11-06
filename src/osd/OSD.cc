@@ -6987,6 +6987,8 @@ void OSD::ms_fast_dispatch(Message *m)
   //TODO: extract relevant tags and logs from message, need to understand what
   //will be relevant from call stack and failing osd
   JTracer jtracer;
+  jspan test = JTracer::tracedFunction("test101");
+  test->Finish();
   jtracer.setUpTracer("OSD_TRACING");
   JTracer::jspan msFastDispatchSpan =
       jtracer.tracedFunction((m->get_type_name()).data());

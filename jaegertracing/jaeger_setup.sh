@@ -1,6 +1,11 @@
 WORKSPACE="$(dirname "$(pwd)")"
 
-NAME="${NAME:-ceph-container-0}"
+#Build image if not already existing 
+if ! [["$(docker images -q ceph-container-0 2> /dev/null)" == "" ]]; then
+    docker build -t jaeger-ceph-container .
+fi
+
+NAME="${NAME:-jaeger-ceph-container}"
 CEPH="${CEPH:-$WORKSPACE/ceph}"
 CCACHE="${CCACHE:-$WORKSPACE/ceph-ccache}"
 VERSION="${VERSION:-master}"

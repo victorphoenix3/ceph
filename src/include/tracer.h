@@ -13,6 +13,7 @@
 typedef std::unique_ptr<opentracing::Span> jspan;
 
 class JTracer {
+
 public:
 
 static void setUpTracer(const char* serviceToTrace) {

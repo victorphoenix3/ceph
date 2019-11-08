@@ -37,7 +37,7 @@ class MOSDOp : public MOSDFastDispatchOp {
 // #ifdef WITH_JAEGER
 // #include "include/tracer.h"
 //   public:
-//   JTracer::jspan;
+//    jspan;
 // #endif
 
   private:

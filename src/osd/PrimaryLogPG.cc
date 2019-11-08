@@ -1645,13 +1645,13 @@ void PrimaryLogPG::do_request(
 #ifdef WITH_JAEGER
 //    JTracer::setUpTracer("OSD_TRACING"); 
      JTracer jtracer;
-     JTracer::jspan doRequestSpan =
-	jtracer.tracedFunction("do_request_string");
+      jspan doRequestSpan =
+	JTracer::tracedFunction("do_request_string");
      doRequestSpan->Finish();
 #endif
 // 
 // #ifdef WITH_JAEGER
-//   JTracer::jspan carrierSpan =
+//    jspan carrierSpan =
 //       JTracer::tracedSubroutine(doRequestSpan, "PG_OP_INIT_DO_REQUEST");
 // //  doRequestSpan->Finish();
 //   carrierSpan->Finish();
@@ -1854,7 +1854,7 @@ void PrimaryLogPG::do_op(OpRequestRef& op)
 
 
 // #ifdef WITH_JAEGER
-//   JTracer::jspan carrierSpan =
+//    jspan carrierSpan =
 //       JTracer::tracedSubroutine(parentSpan, "do_op BEGINS");
 //   parentSpan->Finish();
 //   carrierSpan->Finish();

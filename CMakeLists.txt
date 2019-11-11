@@ -335,6 +335,17 @@ if(WITH_BLKIN)
   include_directories(SYSTEM src/blkin/blkin-lib)
 endif(WITH_BLKIN)
 
+if(WITH_JAEGER)
+  add_definitions(-DWITH_JAEGER=1)
+  #TODO: handle the case if libraries found locally, why be redundant?
+  #set(JAEGER_DIR "${CMAKE_CURRENT_LIST_DIR}/jaegertracing/jaeger-client-cpp")
+  find_package(OPENTRACE REQUIRED)
+  find_package(JAEGER REQUIRED)
+  find_package(YAMLCPP REQUIRED)
+  set(COMPLETE_JAEGER_LIBRARIES ${JAEGER_LIBRARIES} ${OPENTRACE_LIBRARIES} ${YAMLCPP_LIBRARIES})
+  include_directories(SYSTEM ${JAEGER_INCLUDE_DIRS} ${YAMLCPP_INCLUDE_DIRS} ${OPENTRACE_INCLUDE_DIRS})
+endif(WITH_JAEGER)
+
 #option for RGW
 option(WITH_RADOSGW "Rados Gateway is enabled" ON)
 option(WITH_RADOSGW_FCGI_FRONTEND "Rados Gateway's FCGI frontend is enabled" OFF)

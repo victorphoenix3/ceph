@@ -15,11 +15,11 @@
 #include "osd/scheduler/OpSchedulerItem.h"
 #include "osd/OSD.h"
 
-namespace ceph::osd::scheduler {
-
 #ifdef WITH_JAEGER
 #include "common/tracer.h"
 #endif
+
+namespace ceph::osd::scheduler {
 
 void PGOpItem::run(
   OSD *osd,

@@ -165,6 +165,10 @@
 #include "json_spirit/json_spirit_reader.h"
 #include "json_spirit/json_spirit_writer.h"
 
+#ifdef WITH_JAEGER
+#include "include/tracer.h"
+#endif
+
 #ifdef WITH_LTTNG
 #define TRACEPOINT_DEFINE
 #define TRACEPOINT_PROBE_DYNAMIC_LINKAGE
@@ -6972,12 +6976,23 @@ void OSD::dispatch_session_waiting(const ceph::ref_t<Session>& session, OSDMapRe
 
 void OSD::ms_fast_dispatch(Message *m)
 {
+
   FUNCTRACE(cct);
   if (service.is_stopping()) {
     m->put();
     return;
   }
 
+#ifdef WITH_JAEGER
+  //TODO: extract relevant tags and logs from message, need to understand what
+  //will be relevant from call stack and failing osd
+  JTracer jtracer;
+  jtracer.setUpTracer("OSD_TRACING");
+  jspan msFastDispatchSpan =
+      jtracer.tracedFunction((m->get_type_name()).data());
+
+  // parentSpan->Finish()
+#endif
   // peering event?
   switch (m->get_type()) {
   case CEPH_MSG_PING:
@@ -7029,8 +7044,8 @@ void OSD::ms_fast_dispatch(Message *m)
 #ifdef WITH_LTTNG
     osd_reqid_t reqid = op->get_reqid();
 #endif
-    tracepoint(osd, ms_fast_dispatch, reqid.name._type,
-        reqid.name._num, reqid.tid, reqid.inc);
+    tracepoint(osd, ms_fast_dispatch, reqid.name._type, reqid.name._num,
+	       reqid.tid, reqid.inc);
   }
 
   if (m->trace)
@@ -7064,7 +7079,14 @@ void OSD::ms_fast_dispatch(Message *m)
       service.release_map(nextmap);
     }
   }
-  OID_EVENT_TRACE_WITH_MSG(m, "MS_FAST_DISPATCH_END", false); 
+  OID_EVENT_TRACE_WITH_MSG(m, "MS_FAST_DISPATCH_END", false);
+
+#ifdef WITH_JAEGER
+  jspan carrierSpan =
+      jtracer.tracedSubroutine(msFastDispatchSpan, "MS_FAST_DISPATCH_ENDS");
+  msFastDispatchSpan->Finish();
+  carrierSpan->Finish();
+#endif
 }
 
 int OSD::ms_handle_authentication(Connection *con)

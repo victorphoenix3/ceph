@@ -11,7 +11,32 @@
 #include <jaegertracing/Tracer.h>
 
 class JTracer {
+
+private:
+
+JTracer(){};  // Private so that it can  not be called
+JTracer(JTracer const&){};             // copy constructor is private
+JTracer& operator=(JTracer const&){};  // assignment operator is private
+static JTracer* m_pInstance;
+
+};
+
 public:
+
+// Global static pointer used to ensure a single instance of the class.
+JTracer* JTracer::m_pInstance = NULL;
+
+/** This function is called to create an instance of the class.
+Calling the constructor publicly is not allowed. The constructor
+is private and is only called by this Instance function.
+*/
+JTracer* JTracer::Instance()
+{
+ if (!m_pInstance)   // Only allow one instance of class to be generated.
+    m_pInstance = new JTracer;
+
+ return m_pInstance;
+}
 
 static inline void setUpTracer(const char* serviceToTrace) {
   static auto configYAML = YAML::LoadFile("../jaegertracing/config.yml");

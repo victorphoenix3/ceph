@@ -278,7 +278,8 @@ a {
   color: $color-required-text;
 }
 /* Forms */
-.form-group > .col-form-label > span.required {
+.form-group > .col-form-label > span.required,
+.form-group > .col-sm-12 > .col-form-label > span.required {
   @extend .fa;
   @extend .fa-asterisk;
   @extend .required;
@@ -320,7 +321,7 @@ a {
 }
 .custom-icon {
   padding: 10px;
-  margin-right: 1em;
+  margin-right: 8px;
   background-clip: padding-box;
   background-size: contain;
   background-repeat: no-repeat;

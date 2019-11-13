@@ -176,7 +176,9 @@ set(GCOV_PREFIX_STRIP 4)
 option(ENABLE_GIT_VERSION "build Ceph with git version string" ON)
 if(${ENABLE_GIT_VERSION})
   get_git_head_revision(GIT_REFSPEC CEPH_GIT_VER)
-  git_describe(CEPH_GIT_NICE_VER --always)
+  git_describe(CEPH_GIT_NICE_VER_WITH_V --always)
+  # remove leading 'v'
+  string(SUBSTRING ${CEPH_GIT_NICE_VER_WITH_V} 1 -1 CEPH_GIT_NICE_VER)
   #if building from a source tarball via make-dist
   if(${CEPH_GIT_VER} STREQUAL "GITDIR-NOTFOUND")
     message(STATUS "Ceph/.git directory not found, parsing ${CMAKE_CURRENT_SOURCE_DIR}/.git_version for CEPH_GIT_VER and CEPH_GIT_NICE_VER")
@@ -423,7 +425,7 @@ add_library(ceph-common SHARED ${ceph_common_objs})
 target_link_libraries(ceph-common ${ceph_common_deps})
 # appease dpkg-shlibdeps
 set_target_properties(ceph-common PROPERTIES
-  SOVERSION 0
+  SOVERSION 2
   SKIP_RPATH TRUE)
 if(NOT APPLE AND NOT FREEBSD)
   # Apple uses Mach-O, not ELF. so this option does not apply to APPLE.
@@ -474,9 +476,7 @@ if(WITH_LIBRADOSSTRIPER)
   add_subdirectory(libradosstriper)
 endif()
 
-if(WITH_MGR)
-  add_subdirectory(mgr)
-endif()
+add_subdirectory(mgr)
 
 set(librados_config_srcs
   librados-config.cc)
@@ -494,6 +494,7 @@ endif()
 add_subdirectory(pybind)
 add_subdirectory(ceph-volume)
 add_subdirectory(python-common)
+add_subdirectory(ceph-daemon)
 
 # Monitor
 add_subdirectory(mon)

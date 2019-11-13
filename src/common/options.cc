@@ -176,7 +176,7 @@ int Option::parse_value(
       return -EINVAL;
     }
     *out = addr;
-  } else if (type == Option::TYPE_ADDR) {
+  } else if (type == Option::TYPE_ADDRVEC) {
     entity_addrvec_t addr;
     if (!addr.parse(val.c_str())){
       return -EINVAL;
@@ -362,6 +362,11 @@ std::vector<Option> get_global_options() {
     .add_tag("service"),
 
     Option("public_addr", Option::TYPE_ADDR, Option::LEVEL_BASIC)
+    .set_description("public-facing address to bind to")
+    .set_flag(Option::FLAG_STARTUP)
+    .add_service({"mon", "mds", "osd", "mgr"}),
+
+    Option("public_addrv", Option::TYPE_ADDRVEC, Option::LEVEL_BASIC)
     .set_description("public-facing address to bind to")
     .set_flag(Option::FLAG_STARTUP)
     .add_service({"mon", "mds", "osd", "mgr"}),
@@ -1711,6 +1716,13 @@ std::vector<Option> get_global_options() {
     .set_default(true)
     .add_service("mon")
     .set_description("issue POOL_PG_NUM_NOT_POWER_OF_TWO warning if pool has a non-power-of-two pg_num value"),
+
+    Option("mon_warn_on_pool_no_redundancy", Option::TYPE_BOOL, Option::LEVEL_ADVANCED)
+    .set_default(true)
+    .add_service("mon")
+    .set_description("Issue a health warning if any pool is configured with no replicas")
+    .add_see_also("osd_pool_default_size")
+    .add_see_also("osd_pool_default_min_size"),
 
     Option("mon_warn_on_misplaced", Option::TYPE_BOOL, Option::LEVEL_ADVANCED)
     .set_default(false)
@@ -6346,7 +6358,7 @@ std::vector<Option> get_rgw_options() {
     .set_default(1000)
     .set_description("Max number of buckets per user")
     .set_long_description(
-        "A user can create this many buckets. Zero means unlimmited, negative number means "
+        "A user can create this many buckets. Zero means unlimited, negative number means "
         "user cannot create any buckets (although user will retain buckets already created."),
 
     Option("rgw_objexp_gc_interval", Option::TYPE_UINT, Option::LEVEL_ADVANCED)

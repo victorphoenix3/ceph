@@ -544,13 +544,6 @@ MDSRank::MDSRank(
   op_tracker.set_history_size_and_duration(cct->_conf->mds_op_history_size,
                                            cct->_conf->mds_op_history_duration);
 
-  std::string rank_str = stringify(get_nodeid());
-  std::map<std::string, std::string> service_metadata = {{"rank", rank_str}};
-  int r = mgrc->service_daemon_register("mds", rank_str, service_metadata);
-  if (r < 0) {
-    derr << ": failed to register with manager for service status update" << dendl;
-  }
-
   schedule_update_timer_task();
 }
 
@@ -3189,6 +3182,9 @@ void MDSRank::create_logger()
 
     // useful dir/inode/subtree stats
     mds_plb.set_prio_default(PerfCountersBuilder::PRIO_USEFUL);
+    mds_plb.add_u64(l_mds_root_rfiles, "root_rfiles", "root inode rfiles");
+    mds_plb.add_u64(l_mds_root_rbytes, "root_rbytes", "root inode rbytes");
+    mds_plb.add_u64(l_mds_root_rsnaps, "root_rsnaps", "root inode rsnaps");
     mds_plb.add_u64_counter(l_mds_dir_fetch, "dir_fetch", "Directory fetch");
     mds_plb.add_u64_counter(l_mds_dir_commit, "dir_commit", "Directory commit");
     mds_plb.add_u64_counter(l_mds_dir_split, "dir_split", "Directory split");

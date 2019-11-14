@@ -23,6 +23,10 @@
 #include "common/valgrind.h"
 #include "common/zipkin_trace.h"
 
+#ifdef WITH_JAEGER
+#include "common/tracer.h"
+#endif
+
 #define dout_subsys ceph_subsys_
 
 #ifndef WITH_SEASTAR
@@ -90,6 +94,10 @@ void common_init_finish(CephContext *cct)
   cct->_finished = true;
   cct->init_crypto();
   ZTracer::ztrace_init();
+
+#ifdef WITH_JAEGER
+  JTracer::setUpTracer("osd_tracing");
+#endif
 
   if (!cct->_log->is_started()) {
     cct->_log->start();

@@ -26,6 +26,10 @@
 
 #include "PrimaryLogPG.h"
 
+#ifdef WITH_JAEGER
+#include "common/tracer.h"
+#endif
+
 #define dout_context cct
 #define dout_subsys ceph_subsys_osd
 #define DOUT_PREFIX_ARGS this
@@ -875,6 +879,7 @@ struct SubWriteCommitted : public Context {
     : pg(pg), msg(msg), tid(tid),
       version(version), last_complete(last_complete), trace(trace) {}
   void finish(int) override {
+
     if (msg)
       msg->mark_event("sub_op_committed");
     pg->sub_write_committed(tid, version, last_complete, trace);
@@ -918,6 +923,11 @@ void ECBackend::handle_sub_write(
   ECSubWrite &op,
   const ZTracer::Trace &trace)
 {
+
+#ifdef WITH_JAEGER
+  jspan handle_sub_write_span = JTracer::tracedFunction("sub_write_handling_begins");
+#endif
+
   if (msg)
     msg->mark_event("sub_op_started");
   trace.event("handle_sub_write");
@@ -985,6 +995,11 @@ void ECBackend::handle_sub_write(
     // dummy rollforward transaction doesn't get at_version (and doesn't advance it)
     get_parent()->op_applied(op.at_version);
   }
+
+#ifdef WITH_JAEGER
+  JTracer::tracedSubroutine(handle_sub_write_span, "sub_write_handle_ends");
+#endif
+
 }
 
 void ECBackend::handle_sub_read(

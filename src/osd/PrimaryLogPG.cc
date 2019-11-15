@@ -1641,6 +1641,10 @@ void PrimaryLogPG::do_request(
     op->pg_trace.event("do request");
   }
 
+  if(op->osd_trace_jaeger){
+  pg_trace_jaeger = JTracer::tracedFunction("test two spans actively work"); 
+  }
+
 #ifdef WITH_JAEGER
 jspan do_request_span = JTracer::tracedSubroutine(ms_fast_dispatch,"do_request_begins");
 #endif

@@ -58,9 +58,9 @@
 #define tracepoint(...)
 #endif
 
-#ifdef WITH_JAEGER
-#include "common/tracer.h"
-#endif
+//#ifdef WITH_JAEGER
+//#include "common/tracer.h"
+//#endif
 
 #define dout_context cct
 #define dout_subsys ceph_subsys_osd
@@ -1623,12 +1623,12 @@ void PrimaryLogPG::do_request(
     op->pg_trace.event("do request");
   }
 
-#ifdef WITH_JAEGER
-  if (op->osd_trace_jaeger){
- // pg_trace_jaeger = JTracer::tracedFunction("test two spans actively work"); 
-  jspan do_request_span = JTracer::tracedSubroutine(op->osd_trace_jaeger,"do_request_begins");
-  }
-#endif
+//#ifdef WITH_JAEGER
+//  if (op->osd_trace_jaeger){
+// // pg_trace_jaeger = JTracer::tracedFunction("test two spans actively work"); 
+//  jspan do_request_span = JTracer::tracedSubroutine(op->osd_trace_jaeger,"do_request_begins");
+//  }
+//#endif
 
   // make sure we have a new enough map
   auto p = waiting_for_map.find(op->get_source());
@@ -1793,11 +1793,11 @@ void PrimaryLogPG::do_request(
     ceph_abort_msg("bad message type in do_request");
   }
 
-#ifdef WITH_JAEGER
-//  JTracer::tracedSubroutine(do_request_span,"do_request_ends");
-  do_request_span->Finish();
-  (op->osd_trace_jaeger)->Finish();
-#endif
+//#ifdef WITH_JAEGER
+////  JTracer::tracedSubroutine(do_request_span,"do_request_ends");
+//  do_request_span->Finish();
+//  (op->osd_trace_jaeger)->Finish();
+//#endif
 
 }
 

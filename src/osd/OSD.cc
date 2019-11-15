@@ -6988,7 +6988,7 @@ void OSD::ms_fast_dispatch(Message *m)
   JTracer::setUpTracer("osd_tracing");
   jspan ms_fast_dispatch =
       JTracer::tracedFunction("ms_fast_dispatch_begins");
-      JTracer::tracedSubroutine(ms_fast_dispatch, m->get_type_name().data());
+//      JTracer::tracedSubroutine(ms_fast_dispatch, m->get_type_name().data());
 #endif
 
   // peering event?

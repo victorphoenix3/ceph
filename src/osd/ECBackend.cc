@@ -920,6 +920,7 @@ void ECBackend::handle_sub_write(
 {
 
 #ifdef WITH_JAEGER
+  JTracer::setUpTracer("osd_tracing");
   jspan handle_sub_write_span = JTracer::tracedFunction("sub_write_handling_begins");
 #endif
 
@@ -992,7 +993,9 @@ void ECBackend::handle_sub_write(
   }
 
 #ifdef WITH_JAEGER
-  JTracer::tracedSubroutine(handle_sub_write_span, "sub_write_handle_ends");
+  jspan sub_write_end_span = JTracer::tracedSubroutine(handle_sub_write_span, "sub_write_handle_ends");
+  handle_sub_write_span->Finish();
+  sub_write_end_span->Finish();
 #endif
 
 }

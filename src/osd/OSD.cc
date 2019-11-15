@@ -7133,7 +7133,7 @@ void OSD::ms_fast_dispatch(Message *m)
   OID_EVENT_TRACE_WITH_MSG(m, "MS_FAST_DISPATCH_END", false); 
 
 #ifdef WITH_JAEGER
-  JTracer::tracedSubroutine(osd_trace_jaeger, "ms_fast_dispatch_ends");
+  JTracer::tracedSubroutine(op->osd_trace_jaeger, "ms_fast_dispatch_ends");
 #endif
 
 }

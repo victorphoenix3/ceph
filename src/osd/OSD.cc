@@ -7038,9 +7038,11 @@ void OSD::ms_fast_dispatch(Message *m)
     return;
   }
 
+OpRequestRef op = op_tracker.create_request<OpRequest, Message*>(m);
+
 #ifdef WITH_JAEGER
   JTracer::setUpTracer("osd_tracing");
-  op->osd_trace_jaeger = JTracer::tracedFunction("ms_fast_dispatch_begins");
+  {  op->osd_trace_jaeger = JTracer::tracedFunction("ms_fast_dispatch_begins");}
 //      JTracer::tracedSubroutine(ms_fast_dispatch, m->get_type_name().data());
 #endif
 
@@ -7090,7 +7092,6 @@ void OSD::ms_fast_dispatch(Message *m)
     }
   }
 
-  OpRequestRef op = op_tracker.create_request<OpRequest, Message*>(m);
   {
 #ifdef WITH_LTTNG
     osd_reqid_t reqid = op->get_reqid();
@@ -7131,10 +7132,6 @@ void OSD::ms_fast_dispatch(Message *m)
     }
   }
   OID_EVENT_TRACE_WITH_MSG(m, "MS_FAST_DISPATCH_END", false); 
-
-#ifdef WITH_JAEGER
-  JTracer::tracedSubroutine(op->osd_trace_jaeger, "ms_fast_dispatch_ends");
-#endif
 
 }
 

@@ -34,17 +34,13 @@ using std::stringstream;
 
 using ceph::Formatter;
 
-OpRequest::OpRequest(Message* req, OpTracker* tracker)
+OpRequest::OpRequest(Message* req, OpTracker* tracker, 
+    jspan& osd_trace_jaeger(opentracing::Tracer::Global()->StartSpan("op-request-created")))
     : TrackedOp(tracker, req->get_throttle_stamp()),
       request(req),
       hit_flag_points(0),
       latest_flag_point(0),
       hitset_inserted(false) {
-
-#ifndef WITH_JAEGER
-JTracer::setUpTracer("osd-services");
-jspan osd_trace_jaeger = opentracing::Tracer::Global()->StartSpan("op-request-created");
-#endif
 
   if (req->get_priority() < tracker->cct->_conf->osd_client_op_priority) {
     // don't warn as quickly for low priority ops

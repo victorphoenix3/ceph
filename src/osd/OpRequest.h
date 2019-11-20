@@ -85,6 +85,9 @@ struct OpRequest : public TrackedOp {
 
 private:
   Message *request; /// the logical request we are tracking
+#ifndef WITH_JAEGER
+  jspan osd_trace_jaeger;
+#endif 
   osd_reqid_t reqid;
   entity_inst_t req_src_inst;
   uint8_t hit_flag_points;
@@ -98,7 +101,7 @@ private:
   static const uint8_t flag_commit_sent = 1 << 5;
   std::vector<ClassInfo> classes_;
 
-  OpRequest(Message *req, OpTracker *tracker);
+  OpRequest(Message *req, OpTracker *tracker,jspan& osd_trace_jaeger);
 
 protected:
   void _dump_op_descriptor_unlocked(std::ostream& stream) const override;

@@ -7088,6 +7088,7 @@ OpRequestRef op = op_tracker.create_request<OpRequest, Message*>(m);
     }
   }
 
+  OpRequestRef op = op_tracker.create_request<OpRequest, Message*>(m);
   {
 #ifdef WITH_LTTNG
     osd_reqid_t reqid = op->get_reqid();
@@ -7127,6 +7128,7 @@ OpRequestRef op = op_tracker.create_request<OpRequest, Message*>(m);
       service.release_map(nextmap);
     }
   }
+
   OID_EVENT_TRACE_WITH_MSG(m, "MS_FAST_DISPATCH_END", false);
 
 }

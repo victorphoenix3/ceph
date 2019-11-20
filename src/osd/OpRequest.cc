@@ -43,7 +43,7 @@ OpRequest::OpRequest(Message* req, OpTracker* tracker)
 
 #ifndef WITH_JAEGER
 JTracer::setUpTracer("osd-services");
-osd_tracer_jaeger = opentracing::Tracer::Global()->StartSpan("op-request-created");
+jspan osd_trace_jaeger = opentracing::Tracer::Global()->StartSpan("op-request-created");
 #endif
 
   if (req->get_priority() < tracker->cct->_conf->osd_client_op_priority) {

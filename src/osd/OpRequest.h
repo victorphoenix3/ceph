@@ -30,7 +30,6 @@ struct OpRequest : public TrackedOp {
 
   // rmw flags
   int rmw_flags;
-  jspan osd_trace_jaeger;
 
   bool check_rmw(int flag) const ;
   bool may_read() const;

@@ -2643,9 +2643,7 @@ will start to track new ops received afterwards.";
   } else if (prefix == "smart") {
     string devid;
     cmd_getval(cct, cmdmap, "devid", devid);
-    ostringstream out;
-    probe_smart(devid, out);
-    outbl.append(out.str());
+    probe_smart(devid, ss);
   } else if (prefix == "list_devices") {
     set<string> devnames;
     store->get_devices(&devnames);
@@ -7026,6 +7024,7 @@ void OSD::ms_fast_dispatch(Message *m)
     }
   }
 
+  OpRequestRef op = op_tracker.create_request<OpRequest, Message*>(m);
   {
 #ifdef WITH_LTTNG
     osd_reqid_t reqid = op->get_reqid();
@@ -7066,7 +7065,6 @@ void OSD::ms_fast_dispatch(Message *m)
     }
   }
   OID_EVENT_TRACE_WITH_MSG(m, "MS_FAST_DISPATCH_END", false); 
-
 }
 
 int OSD::ms_handle_authentication(Connection *con)

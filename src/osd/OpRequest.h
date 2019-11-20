@@ -18,6 +18,10 @@
 #include "osd/osd_types.h"
 #include "common/TrackedOp.h"
 
+#ifndef WITH_JAEGER
+#include "common/tracer.h"
+#endif
+
 /**
  * The OpRequest takes in a Message* and takes over a single reference
  * to it, which it puts() when destroyed.
@@ -70,7 +74,6 @@ private:
   static const uint8_t flag_started =     1 << 3;
   static const uint8_t flag_sub_op_sent = 1 << 4;
   static const uint8_t flag_commit_sent = 1 << 5;
-
   OpRequest(Message *req, OpTracker *tracker);
 
 protected:

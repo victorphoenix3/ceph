@@ -23,6 +23,10 @@
 #define tracepoint(...)
 #endif
 
+#ifndef WITH_JAEGER
+#include "common/tracer.h"
+#endif 
+
 using std::ostream;
 using std::set;
 using std::string;
@@ -36,6 +40,12 @@ OpRequest::OpRequest(Message* req, OpTracker* tracker)
       hit_flag_points(0),
       latest_flag_point(0),
       hitset_inserted(false) {
+
+#ifndef WITH_JAEGER
+JTracer::setUpTracer("osd-services");
+osd_tracer_jaeger = opentracing::Tracer::Global()->StartSpan("op-request-created");
+#endif
+
   if (req->get_priority() < tracker->cct->_conf->osd_client_op_priority) {
     // don't warn as quickly for low priority ops
     warn_interval_multiplier = tracker->cct->_conf->osd_recovery_op_warn_multiple;
@@ -126,6 +136,11 @@ void OpRequest::mark_flag_point(uint8_t flag, const char *s) {
   tracepoint(oprequest, mark_flag_point, reqid.name._type,
 	     reqid.name._num, reqid.tid, reqid.inc, op_info.get_flags(),
 	     flag, s, old_flags, hit_flag_points);
+
+#ifndef WITH_JAEGER
+osd_trace_jaeger->SetTag("hit_flag_points", hit_flag_points);
+#endif
+
 }
 
 void OpRequest::mark_flag_point_string(uint8_t flag, const string& s) {

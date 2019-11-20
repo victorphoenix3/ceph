@@ -21,7 +21,6 @@
 #include "common/Clock.h"
 #include "include/spinlock.h"
 #include "msg/Message.h"
-#include "common/tracer.h"
 
 #define OPTRACKER_PREALLOC_EVENTS 20
 
@@ -287,12 +286,6 @@ public:
   ZTracer::Trace pg_trace;
   ZTracer::Trace store_trace;
   ZTracer::Trace journal_trace;
-
-  jspan osd_trace_jaeger;
-  jspan pg_trace_jaeger;
-  jspan store_trace_jaeger;
-  jspan journal_trace_jaeger;
-  
 
   virtual ~TrackedOp() {}
 

@@ -26,10 +26,6 @@
 
 #include "PrimaryLogPG.h"
 
-//#ifdef WITH_JAEGER
-//#include "common/tracer.h"
-//#endif
-
 #define dout_context cct
 #define dout_subsys ceph_subsys_osd
 #define DOUT_PREFIX_ARGS this
@@ -919,11 +915,6 @@ void ECBackend::handle_sub_write(
   const ZTracer::Trace &trace)
 {
 
-//#ifdef WITH_JAEGER
-//  JTracer::setUpTracer("osd_tracing");
-//  jspan handle_sub_write_span = JTracer::tracedFunction("sub_write_handling_begins");
-//#endif
-
   if (msg)
     msg->mark_event("sub_op_started");
   trace.event("handle_sub_write");
@@ -991,12 +982,6 @@ void ECBackend::handle_sub_write(
     // dummy rollforward transaction doesn't get at_version (and doesn't advance it)
     get_parent()->op_applied(op.at_version);
   }
-
-//#ifdef WITH_JAEGER
-//  jspan sub_write_end_span = JTracer::tracedSubroutine(handle_sub_write_span, "sub_write_handle_ends");
-//  handle_sub_write_span->Finish();
-//  sub_write_end_span->Finish();
-//#endif
 
 }
 

@@ -101,7 +101,7 @@ private:
   static const uint8_t flag_commit_sent = 1 << 5;
   std::vector<ClassInfo> classes_;
 
-  OpRequest(Message *req, OpTracker *tracker,jspan& osd_trace_jaeger);
+  OpRequest(Message *req, OpTracker *tracker);
 
 protected:
   void _dump_op_descriptor_unlocked(std::ostream& stream) const override;

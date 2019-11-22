@@ -72,9 +72,5 @@ static void extract(jspan& span, const char* name="test_text",
 }
 };
 
-#ifdef WITH_JAEGER
-  JTracer::setUpTracer("osd_tracing");
-#endif
-
 #endif
 

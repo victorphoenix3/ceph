@@ -674,7 +674,7 @@ def install_base_units(fsid):
     endscript
     missingok
     notifempty
-    su root ceph
+    su root root
 }
 """ % fsid)
 
@@ -1145,9 +1145,9 @@ def command_bootstrap():
         add_newline = False
         if os.path.exists(auth_keys_file):
             with open(auth_keys_file, 'r') as f:
-                f.seek(0, 2)
+                f.seek(0, os.SEEK_END)
                 if f.tell() > 0:
-                    f.seek(-1, 2)  # go to last character
+                    f.seek(f.tell()-1, os.SEEK_SET) # go to last char
                     if f.read() != '\n':
                         add_newline = True
         with open(auth_keys_file, 'a') as f:
@@ -1231,7 +1231,9 @@ def command_run():
     # type: () -> int
     (daemon_type, daemon_id) = args.name.split('.', 1)
     c = get_container(args.fsid, daemon_type, daemon_id)
-    return subprocess.call(c.run_cmd())
+    command = c.run_cmd()
+    logger.debug("Running command: %s" % ' '.join(command))
+    return subprocess.call(command)
 
 ##################################
 
@@ -1270,7 +1272,9 @@ def command_shell():
         args=[],
         container_args=container_args,
         volume_mounts=mounts)
-    return subprocess.call(c.shell_cmd(command))
+    command = c.shell_cmd(command)
+    logger.debug("Running command: %s" % ' '.join(command))
+    return subprocess.call(command)
 
 ##################################
 
@@ -1292,7 +1296,9 @@ def command_enter():
         ]
     c = get_container(args.fsid, daemon_type, daemon_id,
                       container_args=container_args)
-    return subprocess.call(c.exec_cmd(command))
+    command = c.exec_cmd(command)
+    logger.debug("Running command: %s" % ' '.join(command))
+    return subprocess.call(command)
 
 ##################################
 
@@ -1359,7 +1365,7 @@ def command_logs():
     # type: () -> None
     if not args.fsid:
         raise RuntimeError('must pass --fsid to specify cluster')
-    cmd = [container_path, 'logs']
+    cmd = [str(container_path), 'logs'] # type: List[str]
     if args.follow:
         cmd.append('-f')
     if args.tail:
@@ -1368,6 +1374,7 @@ def command_logs():
 
     # call this directly, without our wrapper, so that we get an unmolested
     # stdout with logger prefixing.
+    logger.debug("Running command: %s" % ' '.join(cmd))
     subprocess.call(cmd) # type: ignore
 
 ##################################
@@ -1439,22 +1446,26 @@ def list_daemons(detail=True, legacy_dir=None):
                         # get container id
                         (i['enabled'], i['state']) = check_unit(unit_name)
                         container_id = None
+                        image_name = None
+                        image_id = None
                         version = None
                         out, err, code = call(
                             [
                                 container_path, 'inspect',
-                                '--format', '{{.Id}}',
+                                '--format', '{{.Id}},{{.Config.Image}},{{.Image}}',
                                 'ceph-%s-%s' % (fsid, j)
                             ],
                             verbose_on_failure=False)
                         if not code:
-                            container_id = out.strip()[0:12]
+                            (container_id, image_name, image_id) = out.strip().split(',')
                             out, err, code = call(
                                 [container_path, 'exec', container_id,
                                  'ceph', '-v'])
                             if not code and out.startswith('ceph version '):
                                 version = out.split(' ')[2]
                         i['container_id'] = container_id
+                        i['container_image_name'] = image_name
+                        i['container_image_id'] = image_id
                         i['version'] = version
                     ls.append(i)
 
@@ -1612,8 +1623,9 @@ def _get_parser():
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument(
         '--image',
-        default=DEFAULT_IMAGE,
-        help='container image')
+        default=os.environ.get('CEPH_DAEMON_IMAGE', DEFAULT_IMAGE),
+        help='container image. Can also be set via the "CEPH_DAEMON_IMAGE" '
+        'env var')
     parser.add_argument(
         '--docker',
         action='store_true',

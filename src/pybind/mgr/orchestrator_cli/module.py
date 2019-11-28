@@ -171,8 +171,37 @@ class OrchestratorCli(orchestrator.OrchestratorClientMixin, MgrModule):
         completion = self.get_hosts()
         self._orchestrator_wait([completion])
         orchestrator.raise_if_exception(completion)
-        result = "\n".join(map(lambda node: node.name, completion.result))
-        return HandleCommandResult(stdout=result)
+        table = PrettyTable(
+            ['HOST', 'LABELS'],
+            border=False)
+        table.align = 'l'
+        table.left_padding_width = 0
+        table.right_padding_width = 1
+        for node in completion.result:
+            table.add_row((node.name, ' '.join(node.labels)))
+        return HandleCommandResult(stdout=table.get_string())
+
+    @orchestrator._cli_write_command(
+        'orchestrator host label add',
+        'name=host,type=CephString '
+        'name=label,type=CephString',
+        'Add a host label')
+    def _host_label_add(self, host, label):
+        completion = self.add_host_label(host, label)
+        self._orchestrator_wait([completion])
+        orchestrator.raise_if_exception(completion)
+        return HandleCommandResult(stdout=completion.result_str())
+
+    @orchestrator._cli_write_command(
+        'orchestrator host label rm',
+        'name=host,type=CephString '
+        'name=label,type=CephString',
+        'Add a host label')
+    def _host_label_add(self, host, label):
+        completion = self.remove_host_label(host, label)
+        self._orchestrator_wait([completion])
+        orchestrator.raise_if_exception(completion)
+        return HandleCommandResult(stdout=completion.result_str())
 
     @orchestrator._cli_read_command(
         'orchestrator device ls',
@@ -251,8 +280,8 @@ class OrchestratorCli(orchestrator.OrchestratorClientMixin, MgrModule):
             return HandleCommandResult(stdout=json.dumps(data))
         else:
             table = PrettyTable(
-                ['NAME', 'HOST', 'CONTAINER', 'VERSION', 'STATUS',
-                 'DESCRIPTION'],
+                ['NAME', 'HOST', 'STATUS',
+                 'VERSION', 'IMAGE NAME', 'IMAGE ID', 'CONTAINER ID'],
                 border=False)
             table.align = 'l'
             table.left_padding_width = 0
@@ -268,10 +297,11 @@ class OrchestratorCli(orchestrator.OrchestratorClientMixin, MgrModule):
                 table.add_row((
                     s.name(),
                     ukn(s.nodename),
-                    ukn(s.container_id),
-                    ukn(s.version),
                     status,
-                    ukn(s.status_desc)))
+                    ukn(s.version),
+                    ukn(s.container_image_name),
+                    ukn(s.container_image_id)[0:12],
+                    ukn(s.container_id)[0:12]))
 
             return HandleCommandResult(stdout=table.get_string())
 
@@ -309,19 +339,7 @@ Usage:
         else:
             return HandleCommandResult(-errno.EINVAL, stderr=usage)
 
-        # TODO: Remove this and make the orchestrator composable
-        #   Like a future or so.
-        host_completion = self.get_hosts()
-        self._orchestrator_wait([host_completion])
-        orchestrator.raise_if_exception(host_completion)
-        all_hosts = [h.name for h in host_completion.result]
-
-        try:
-            drive_group.validate(all_hosts)
-        except DriveGroupValidationError as e:
-            return HandleCommandResult(-errno.EINVAL, stderr=str(e))
-
-        completion = self.create_osds(drive_group, all_hosts)
+        completion = self.create_osds(drive_group)
         self._orchestrator_wait([completion])
         orchestrator.raise_if_exception(completion)
         self.log.warning(str(completion.result))
@@ -641,6 +659,16 @@ Usage:
 
         return HandleCommandResult(-errno.EINVAL, stderr="Module '{0}' not found".format(module_name))
 
+    @orchestrator._cli_write_command(
+        'orchestrator cancel',
+        desc='cancels ongoing operations')
+    def _cancel(self):
+        """
+        ProgressReferences might get stuck. Let's unstuck them.
+        """
+        self.cancel_completions()
+        return HandleCommandResult()
+
     @orchestrator._cli_read_command(
         'orchestrator status',
         desc='Report configured backend and its status')
@@ -678,3 +706,6 @@ Usage:
             assert False
         except orchestrator.OrchestratorError as e:
             assert e.args == ('hello', 'world')
+
+        c = orchestrator.TrivialReadCompletion(result=True)
+        assert c.has_result

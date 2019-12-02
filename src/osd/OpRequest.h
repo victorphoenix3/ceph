@@ -85,9 +85,6 @@ struct OpRequest : public TrackedOp {
 
 private:
   Message *request; /// the logical request we are tracking
-#ifndef WITH_JAEGER
-  jspan osd_trace_jaeger;
-#endif 
   osd_reqid_t reqid;
   entity_inst_t req_src_inst;
   uint8_t hit_flag_points;
@@ -100,6 +97,7 @@ private:
   static const uint8_t flag_sub_op_sent = 1 << 4;
   static const uint8_t flag_commit_sent = 1 << 5;
   std::vector<ClassInfo> classes_;
+  jspan osd_trace_jaeger;
 
   OpRequest(Message *req, OpTracker *tracker);
 
@@ -121,6 +119,7 @@ public:
 
   template<class T>
   const T* get_req() const { return static_cast<const T*>(request); }
+  jspan get_parent_span() { return osd_trace_jaeger; }
 
   const Message *get_req() const { return request; }
   Message *get_nonconst_req() { return request; }

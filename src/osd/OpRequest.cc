@@ -25,6 +25,7 @@
 
 #ifdef WITH_JAEGER
 #include "common/tracer.h"
+#include <jaegertracing/Tracer.h>
 #endif 
 
 using std::ostream;
@@ -41,10 +42,8 @@ OpRequest::OpRequest(Message* req, OpTracker* tracker)
       latest_flag_point(0),
       hitset_inserted(false) {
   
-  jspan osd_trace_jaeger(opentracing::Tracer::Global()->StartSpan("op-request-created"));
-  osd_trace_jaeger->SetTag("hit_flag_points", hit_flag_points);
-  osd_trace_jaeger->Finish();
-
+  //osd_trace_jaeger = opentracing::Tracer::Global()->StartSpan("op-request-created");
+  //osd_trace_jaeger->SetTag("hit_flag_points", hit_flag_points);
   if (req->get_priority() < tracker->cct->_conf->osd_client_op_priority) {
     // don't warn as quickly for low priority ops
     warn_interval_multiplier = tracker->cct->_conf->osd_recovery_op_warn_multiple;
@@ -135,6 +134,14 @@ void OpRequest::mark_flag_point(uint8_t flag, const char *s) {
   tracepoint(oprequest, mark_flag_point, reqid.name._type,
 	     reqid.name._num, reqid.tid, reqid.inc, op_info.get_flags(),
 	     flag, s, old_flags, hit_flag_points);
+//  auto flag_point_span = opentracing::Tracer::Global()->StartSpan(
+//      "mark_point", {opentracing::v2::ChildOf(&osd_trace_jaeger->context())});
+//  flag_point_span->Log({
+//      {"hit_flag_points", hit_flag_points}
+//      ,{"reqid.name._type", reqid.name._type}
+//      ,{"reqid.name._num", reqid.name._num}
+//      });
+//  flag_point_span->Finish();
 
 }
 
@@ -148,6 +155,14 @@ void OpRequest::mark_flag_point_string(uint8_t flag, const string& s) {
   tracepoint(oprequest, mark_flag_point, reqid.name._type,
 	     reqid.name._num, reqid.tid, reqid.inc, op_info.get_flags(),
 	     flag, s.c_str(), old_flags, hit_flag_points);
+//  auto flag_point_span = opentracing::Tracer::Global()->StartSpan(
+//      "mark_point", {opentracing::v2::ChildOf(&osd_trace_jaeger->context())});
+//  flag_point_span->Log({
+//      {"hit_flag_points", hit_flag_points}
+//      ,{"reqid.name._type", reqid.name._type}
+//      ,{"reqid.name._num", reqid.name._num}
+//      });
+//  flag_point_span->Finish();
 }
 
 bool OpRequest::filter_out(const set<string>& filters)

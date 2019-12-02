@@ -7095,15 +7095,22 @@ OpRequestRef op = op_tracker.create_request<OpRequest, Message*>(m);
 
   OpRequestRef op = op_tracker.create_request<OpRequest, Message*>(m);
   {
+   jspan osd_trace_jaeger = op->get_parent_span();
+   osd_trace_jaeger = opentracing::Tracer::Global()->StartSpan("op-request-created");
+//  (op->osd_trace_jaeger)->SetTag("hit_flag_points", hit_flag_points);
 #ifdef WITH_LTTNG
     osd_reqid_t reqid = op->get_reqid();
 #endif
     tracepoint(osd, ms_fast_dispatch, reqid.name._type,
         reqid.name._num, reqid.tid, reqid.inc);
+
+
   }
 
-  if (m->trace)
+  if (m->trace){
     op->osd_trace.init("osd op", &trace_endpoint, &m->trace);
+
+  }
 
   // note sender epoch, min req's epoch
   op->sent_epoch = static_cast<MOSDFastDispatchOp*>(m)->get_map_epoch();

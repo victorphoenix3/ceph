@@ -17,9 +17,7 @@
 #include "osd/osd_types.h"
 #include "common/TrackedOp.h"
 
-#ifndef WITH_JAEGER
 #include "common/tracer.h"
-#endif
 
 /**
  * The OpRequest takes in a Message* and takes over a single reference
@@ -119,7 +117,7 @@ public:
 
   template<class T>
   const T* get_req() const { return static_cast<const T*>(request); }
-  jspan get_parent_span() { return osd_trace_jaeger; }
+  jspan& get_parent_span() { return osd_trace_jaeger; }
 
   const Message *get_req() const { return request; }
   Message *get_nonconst_req() { return request; }

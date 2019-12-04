@@ -165,7 +165,9 @@
 #include "json_spirit/json_spirit_reader.h"
 #include "json_spirit/json_spirit_writer.h"
 
+#ifdef WITH_JAEGER
 #include "common/tracer.h"
+#endif
 
 #ifdef WITH_LTTNG
 #define TRACEPOINT_DEFINE
@@ -7033,6 +7035,7 @@ void OSD::ms_fast_dispatch(Message *m)
 #ifdef WITH_JAEGER
   JTracer::setUpTracer("osd_tracer");
 #endif
+
   FUNCTRACE(cct);
   if (service.is_stopping()) {
     m->put();
@@ -7102,9 +7105,10 @@ OpRequestRef op = op_tracker.create_request<OpRequest, Message*>(m);
         reqid.name._num, reqid.tid, reqid.inc);
   }
 
-   jspan& osd_trace_jaeger = op->get_parent_span();
-   osd_trace_jaeger = opentracing::Tracer::Global()->StartSpan("op-request-created");
-//  (op->osd_trace_jaeger)->SetTag("hit_flag_points", hit_flag_points);
+#ifdef WITH_JAEGER
+   jspan& osd_parent_span = op->get_parent_span();
+   osd_parent_span = opentracing::Tracer::Global()->StartSpan("op-request-created");
+#endif
 
   if (m->trace){
     op->osd_trace.init("osd op", &trace_endpoint, &m->trace);
@@ -9609,13 +9613,18 @@ void OSD::enqueue_op(spg_t pg, OpRequestRef&& op, epoch_t epoch)
   op->osd_trace.event("enqueue op");
   op->osd_trace.keyval("priority", priority);
   op->osd_trace.keyval("cost", cost);
-  jspan temp_span = opentracing::Tracer::Global()->StartSpan(
+
+#ifdef WITH_JAEGER
+   op->enqueue_op_span = opentracing::Tracer::Global()->StartSpan(
       "enqueue_op", {opentracing::v2::ChildOf(&(op->get_parent_span())->context())});
-  temp_span->Log({
+  op->enqueue_op_span->Log({
       {"priority", priority},
       {"cost", cost},
-      {"epoch", epoch}
+      {"epoch", epoch},
+      {"latency", latency}
       });
+#endif
+
   op->mark_queued_for_pg();
   logger->tinc(l_osd_op_before_queue_op_lat, latency);
   op_shardedwq.queue(

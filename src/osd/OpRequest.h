@@ -19,6 +19,10 @@
 
 #include "common/tracer.h"
 
+#ifdef WITH_JAEGER
+#include "common/tracer.h"
+#endif
+
 /**
  * The OpRequest takes in a Message* and takes over a single reference
  * to it, which it puts() when destroyed.
@@ -95,7 +99,7 @@ private:
   static const uint8_t flag_sub_op_sent = 1 << 4;
   static const uint8_t flag_commit_sent = 1 << 5;
   std::vector<ClassInfo> classes_;
-  jspan osd_trace_jaeger;
+
 
   OpRequest(Message *req, OpTracker *tracker);
 
@@ -112,12 +116,19 @@ public:
   bool check_send_map = true; ///< true until we check if sender needs a map
   epoch_t sent_epoch = 0;     ///< client's map epoch
   epoch_t min_epoch = 0;      ///< min epoch needed to handle this msg
+#ifdef WITH_JAEGER
+  jspan osd_parent_span;
+  jspan enqueue_op_span;
+  jspan dequeue_op_span;
+#endif
 
   bool hitset_inserted;
 
   template<class T>
   const T* get_req() const { return static_cast<const T*>(request); }
-  jspan& get_parent_span() { return osd_trace_jaeger; }
+#ifdef WITH_JAEGER
+  jspan& get_parent_span() { return osd_parent_span; }
+#endif
 
   const Message *get_req() const { return request; }
   Message *get_nonconst_req() { return request; }

@@ -7031,17 +7031,16 @@ void OSD::ms_fast_dispatch(Message *m)
 
   OpRequestRef op = op_tracker.create_request<OpRequest, Message*>(m);
   {
-   jspan osd_trace_jaeger = op->get_parent_span();
-   osd_trace_jaeger = opentracing::Tracer::Global()->StartSpan("op-request-created");
-//  (op->osd_trace_jaeger)->SetTag("hit_flag_points", hit_flag_points);
 #ifdef WITH_LTTNG
     osd_reqid_t reqid = op->get_reqid();
 #endif
     tracepoint(osd, ms_fast_dispatch, reqid.name._type,
         reqid.name._num, reqid.tid, reqid.inc);
-
-
   }
+
+   jspan& osd_trace_jaeger = op->get_parent_span();
+   osd_trace_jaeger = opentracing::Tracer::Global()->StartSpan("op-request-created");
+//  (op->osd_trace_jaeger)->SetTag("hit_flag_points", hit_flag_points);
 
   if (m->trace){
     op->osd_trace.init("osd op", &trace_endpoint, &m->trace);
@@ -9539,6 +9538,13 @@ void OSD::enqueue_op(spg_t pg, OpRequestRef&& op, epoch_t epoch)
   op->osd_trace.event("enqueue op");
   op->osd_trace.keyval("priority", priority);
   op->osd_trace.keyval("cost", cost);
+  jspan temp_span = opentracing::Tracer::Global()->StartSpan(
+      "enqueue_op", {opentracing::v2::ChildOf(&(op->get_parent_span())->context())});
+  temp_span->Log({
+      {"priority", priority},
+      {"cost", cost},
+      {"epoch", epoch}
+      });
   op->mark_queued_for_pg();
   logger->tinc(l_osd_op_before_queue_op_lat, latency);
   op_shardedwq.queue(

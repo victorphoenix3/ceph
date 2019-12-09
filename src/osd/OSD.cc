@@ -7098,8 +7098,7 @@ void OSD::ms_fast_dispatch(Message *m)
   }
 
 #ifdef WITH_JAEGER
-   jspan& osd_parent_span = op->get_parent_span();
-   osd_parent_span = opentracing::Tracer::Global()->StartSpan("op-request-created");
+   op->osd_parent_span = opentracing::Tracer::Global()->StartSpan("op-request-created");
 #endif
 
   if (m->trace){
@@ -9614,7 +9613,7 @@ void OSD::enqueue_op(spg_t pg, OpRequestRef&& op, epoch_t epoch)
 
 #ifdef WITH_JAEGER
    op->enqueue_op_span = opentracing::Tracer::Global()->StartSpan(
-      "enqueue_op", {opentracing::v2::ChildOf(&(op->get_parent_span())->context())});
+      "enqueue_op", {opentracing::v2::ChildOf(op->osd_parent_span)context())});
   op->enqueue_op_span->Log({
       {"priority", priority},
       {"cost", cost},
@@ -9676,7 +9675,7 @@ void OSD::dequeue_op(
 
 #ifdef WITH_JAEGER
   jspan dequeue_op_span = opentracing::Tracer::Global()->StartSpan(
-      "dequeue op initiated", {opentracing::v2::ChildOf(&(op->get_parent_span())->context())});
+      "dequeue op initiated", {opentracing::v2::ChildOf(op->osd_parent_span)context())});
   dequeue_op_span->Log({
       {"priority", priority},
       {"cost", cost},

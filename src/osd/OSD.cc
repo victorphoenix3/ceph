@@ -9665,7 +9665,10 @@ void OSD::dequeue_op(
   ThreadPool::TPHandle &handle)
 {
   const Message *m = op->get_req();
-
+#ifdef WITH_JAEGER
+  (op->enqueue_op_span)->Finish();
+  jspan& osd_parent_span = op->get_parent_span();
+#endif
   FUNCTRACE(cct);
   OID_EVENT_TRACE_WITH_MSG(m, "DEQUEUE_OP_BEGIN", false);
 
@@ -9690,12 +9693,24 @@ void OSD::dequeue_op(
 
   op->mark_reached_pg();
   op->osd_trace.event("dequeue_op");
+#ifdef WITH_JAEGER
+  auto dequeue_op_span = opentracing::Tracer::Global()->StartSpan(
+      "dequeue op initiated", {opentracing::v2::ChildOf(&(op->get_parent_span())->context())});
+  dequeue_op_span->Log({
+      {"priority", priority},
+      {"cost", cost},
+      {"pg", pg}
+      });
+#endif
+
 
   pg->do_request(op, handle);
 
   // finish
   dout(10) << "dequeue_op " << op << " finish" << dendl;
   OID_EVENT_TRACE_WITH_MSG(m, "DEQUEUE_OP_END", false);
+  auto dequeued_span = opentracing::Tracer::Global()->StartSpan(
+      "dequeue finished", {opentracing::v2::ChildOf(&dequeue_op_span->context())});
 }
 
 

@@ -74,6 +74,10 @@ static ostream& _prefix(std::ostream *_dout, T *pg) {
 
 #include <errno.h>
 
+#ifdef WITH_JAEGER
+#include "common/tracer.h"
+#endif
+
 MEMPOOL_DEFINE_OBJECT_FACTORY(PrimaryLogPG, replicatedpg, osd);
 
 using namespace ceph::osd::scheduler;

@@ -7042,14 +7042,6 @@ void OSD::ms_fast_dispatch(Message *m)
     return;
   }
 
-OpRequestRef op = op_tracker.create_request<OpRequest, Message*>(m);
-
-#ifdef WITH_JAEGER
-  JTracer::setUpTracer("osd_tracing");
-  {  op->osd_trace_jaeger = JTracer::tracedFunction("ms_fast_dispatch_begins");}
-//      JTracer::tracedSubroutine(ms_fast_dispatch, m->get_type_name().data());
-#endif
-
   // peering event?
   switch (m->get_type()) {
   case CEPH_MSG_PING:
@@ -7118,6 +7110,10 @@ OpRequestRef op = op_tracker.create_request<OpRequest, Message*>(m);
   // note sender epoch, min req's epoch
   op->sent_epoch = static_cast<MOSDFastDispatchOp*>(m)->get_map_epoch();
   op->min_epoch = static_cast<MOSDFastDispatchOp*>(m)->get_min_epoch();
+  osd_parent_span->Log({
+      {"sent epoch by op", op->sent_epoch},
+      {"min epoch for op", op->min_epoch}
+      });
   ceph_assert(op->min_epoch <= op->sent_epoch); // sanity check!
 
   service.maybe_inject_dispatch_delay();
@@ -9621,7 +9617,7 @@ void OSD::enqueue_op(spg_t pg, OpRequestRef&& op, epoch_t epoch)
       {"priority", priority},
       {"cost", cost},
       {"epoch", epoch},
-      {"latency", latency}
+      {"owner", owner}
       });
 #endif
 

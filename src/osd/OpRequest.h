@@ -118,17 +118,15 @@ public:
   epoch_t min_epoch = 0;      ///< min epoch needed to handle this msg
 #ifdef WITH_JAEGER
   jspan osd_parent_span;
-  jspan enqueue_op_span;
-  jspan dequeue_op_span;
 #endif
 
   bool hitset_inserted;
 
   template<class T>
   const T* get_req() const { return static_cast<const T*>(request); }
-#ifdef WITH_JAEGER
-  jspan& get_parent_span() { return osd_parent_span; }
-#endif
+//#ifdef WITH_JAEGER
+//  jspan& get_parent_span() { return osd_parent_span; }
+//#endif
 
   const Message *get_req() const { return request; }
   Message *get_nonconst_req() { return request; }

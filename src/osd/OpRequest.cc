@@ -133,7 +133,7 @@ void OpRequest::mark_flag_point(uint8_t flag, const char *s) {
 	     flag, s, old_flags, hit_flag_points);
 #ifdef WITH_JAEGER
   auto marker_span = opentracing::Tracer::Global()->StartSpan(
-      s, {opentracing::v2::ChildOf(&osd_parent_span->context())});
+      s, {opentracing::v2::ChildOf(&(op->osd_parent_span)->context())});
   marker_span->Log({
       {"hit_flag_points", hit_flag_points},
       });
@@ -154,7 +154,7 @@ void OpRequest::mark_flag_point_string(uint8_t flag, const string& s) {
 	     flag, s.c_str(), old_flags, hit_flag_points);
 #ifdef WITH_JAEGER
   auto marker_span = opentracing::Tracer::Global()->StartSpan(
-      s, {opentracing::v2::ChildOf(&osd_parent_span->context())});
+      s, {opentracing::v2::ChildOf(&(op->osd_parent_span)->context())});
   marker_span->Log({
       {"hit_flag_points", hit_flag_points},
       {"mark_event", s}

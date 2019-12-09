@@ -9618,7 +9618,7 @@ void OSD::enqueue_op(spg_t pg, OpRequestRef&& op, epoch_t epoch)
       {"priority", priority},
       {"cost", cost},
       {"epoch", epoch},
-      {"owner", owner}
+      {"owner", owner} //Not got owner in UI
       });
 #endif
 

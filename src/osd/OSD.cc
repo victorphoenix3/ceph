@@ -7110,10 +7110,12 @@ void OSD::ms_fast_dispatch(Message *m)
   // note sender epoch, min req's epoch
   op->sent_epoch = static_cast<MOSDFastDispatchOp*>(m)->get_map_epoch();
   op->min_epoch = static_cast<MOSDFastDispatchOp*>(m)->get_min_epoch();
+#ifdef WITH_JAEGER
   osd_parent_span->Log({
       {"sent epoch by op", op->sent_epoch},
       {"min epoch for op", op->min_epoch}
       });
+#endif
   ceph_assert(op->min_epoch <= op->sent_epoch); // sanity check!
 
   service.maybe_inject_dispatch_delay();

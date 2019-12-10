@@ -23,111 +23,109 @@
 #include "common/tracer.h"
 #endif
 
-/**
- * The OpRequest takes in a Message* and takes over a single reference
- * to it, which it puts() when destroyed.
- */
-struct OpRequest : public TrackedOp {
-  friend class OpTracker;
+  /**
+   * The OpRequest takes in a Message* and takes over a single reference
+   * to it, which it puts() when destroyed.
+   */
+  struct OpRequest : public TrackedOp {
+    friend class OpTracker;
 
-  // rmw flags
-  int rmw_flags;
+    // rmw flags
+    int rmw_flags;
 
-  bool check_rmw(int flag) const ;
-  bool may_read() const;
-  bool may_write() const;
-  bool may_cache() const;
-  bool rwordered_forced() const;
-  bool rwordered() const;
-  bool includes_pg_op();
-  bool need_read_cap() const;
-  bool need_write_cap() const;
-  bool need_promote();
-  bool need_skip_handle_cache();
-  bool need_skip_promote();
-  bool allows_returnvec() const;
-  void set_read();
-  void set_write();
-  void set_cache();
-  void set_class_read();
-  void set_class_write();
-  void set_pg_op();
-  void set_promote();
-  void set_skip_handle_cache();
-  void set_skip_promote();
-  void set_force_rwordered();
-  void set_returnvec();
+    bool check_rmw(int flag) const ;
+    bool may_read() const;
+    bool may_write() const;
+    bool may_cache() const;
+    bool rwordered_forced() const;
+    bool rwordered() const;
+    bool includes_pg_op();
+    bool need_read_cap() const;
+    bool need_write_cap() const;
+    bool need_promote();
+    bool need_skip_handle_cache();
+    bool need_skip_promote();
+    bool allows_returnvec() const;
+    void set_read();
+    void set_write();
+    void set_cache();
+    void set_class_read();
+    void set_class_write();
+    void set_pg_op();
+    void set_promote();
+    void set_skip_handle_cache();
+    void set_skip_promote();
+    void set_force_rwordered();
+    void set_returnvec();
 
-  struct ClassInfo {
-    ClassInfo(std::string&& class_name, std::string&& method_name,
-              bool read, bool write, bool whitelisted) :
-      class_name(std::move(class_name)), method_name(std::move(method_name)),
-      read(read), write(write), whitelisted(whitelisted)
-    {}
-    const std::string class_name;
-    const std::string method_name;
-    const bool read, write, whitelisted;
-  };
+    struct ClassInfo {
+      ClassInfo(std::string&& class_name, std::string&& method_name,
+		bool read, bool write, bool whitelisted) :
+	class_name(std::move(class_name)), method_name(std::move(method_name)),
+	read(read), write(write), whitelisted(whitelisted)
+      {}
+      const std::string class_name;
+      const std::string method_name;
+      const bool read, write, whitelisted;
+    };
 
-  void add_class(std::string&& class_name, std::string&& method_name,
-                 bool read, bool write, bool whitelisted) {
-    classes_.emplace_back(std::move(class_name), std::move(method_name),
-                          read, write, whitelisted);
-  }
+    void add_class(std::string&& class_name, std::string&& method_name,
+		   bool read, bool write, bool whitelisted) {
+      classes_.emplace_back(std::move(class_name), std::move(method_name),
+			    read, write, whitelisted);
+    }
 
-  std::vector<ClassInfo> classes() const {
-    return classes_;
-  }
+    std::vector<ClassInfo> classes() const {
+      return classes_;
+    }
 
-  void _dump(ceph::Formatter *f) const override;
+    void _dump(ceph::Formatter *f) const override;
 
-  bool has_feature(uint64_t f) const {
-    return request->get_connection()->has_feature(f);
-  }
+    bool has_feature(uint64_t f) const {
+      return request->get_connection()->has_feature(f);
+    }
 
-private:
-  Message *request; /// the logical request we are tracking
-  osd_reqid_t reqid;
-  entity_inst_t req_src_inst;
-  uint8_t hit_flag_points;
-  uint8_t latest_flag_point;
-  utime_t dequeued_time;
-  static const uint8_t flag_queued_for_pg=1 << 0;
-  static const uint8_t flag_reached_pg =  1 << 1;
-  static const uint8_t flag_delayed =     1 << 2;
-  static const uint8_t flag_started =     1 << 3;
-  static const uint8_t flag_sub_op_sent = 1 << 4;
-  static const uint8_t flag_commit_sent = 1 << 5;
-  std::vector<ClassInfo> classes_;
+  private:
+    Message *request; /// the logical request we are tracking
+    osd_reqid_t reqid;
+    entity_inst_t req_src_inst;
+    uint8_t hit_flag_points;
+    uint8_t latest_flag_point;
+    utime_t dequeued_time;
+    static const uint8_t flag_queued_for_pg=1 << 0;
+    static const uint8_t flag_reached_pg =  1 << 1;
+    static const uint8_t flag_delayed =     1 << 2;
+    static const uint8_t flag_started =     1 << 3;
+    static const uint8_t flag_sub_op_sent = 1 << 4;
+    static const uint8_t flag_commit_sent = 1 << 5;
+    std::vector<ClassInfo> classes_;
 
 
-  OpRequest(Message *req, OpTracker *tracker);
+    OpRequest(Message *req, OpTracker *tracker);
 
-protected:
-  void _dump_op_descriptor_unlocked(std::ostream& stream) const override;
-  void _unregistered() override;
-  bool filter_out(const std::set<std::string>& filters) override;
+  protected:
+    void _dump_op_descriptor_unlocked(std::ostream& stream) const override;
+    void _unregistered() override;
+    bool filter_out(const std::set<std::string>& filters) override;
 
-public:
-  ~OpRequest() override {
-    request->put();
-  }
+  public:
+    ~OpRequest() override {
+      request->put();
+    }
 
-  bool check_send_map = true; ///< true until we check if sender needs a map
-  epoch_t sent_epoch = 0;     ///< client's map epoch
-  epoch_t min_epoch = 0;      ///< min epoch needed to handle this msg
+    bool check_send_map = true; ///< true until we check if sender needs a map
+    epoch_t sent_epoch = 0;     ///< client's map epoch
+    epoch_t min_epoch = 0;      ///< min epoch needed to handle this msg
 #ifdef WITH_JAEGER
-  jspan osd_parent_span;
-  jspan enqueue_op_span;
+    jspan osd_parent_span;
+    jspan enqueue_op_span;
+    jspan do_request_span;
 #endif
 
-  bool hitset_inserted;
+    bool hitset_inserted;
 
-  template<class T>
-  const T* get_req() const { return static_cast<const T*>(request); }
-#ifdef WITH_JAEGER
-  jspan& get_parent_span() { return osd_parent_span; }
-#endif
+    template<class T>
+    const T* get_req() const { return static_cast<const T*>(request); }
 
   const Message *get_req() const { return request; }
   Message *get_nonconst_req() { return request; }

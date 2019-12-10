@@ -1622,6 +1622,9 @@ void PrimaryLogPG::do_request(
     op->pg_trace.init("pg op", &trace_endpoint, &op->osd_trace);
     op->pg_trace.event("do request");
   }
+#ifdef WITH_JAEGER
+  jspan do_request_span = opentracing::Tracer::Global()->StartSpan("do request op");
+#endif
 
   // make sure we have a new enough map
   auto p = waiting_for_map.find(op->get_source());

@@ -26,6 +26,7 @@
  * to it, which it puts() when destroyed.
  */
 struct OpRequest : public TrackedOp {
+  typedef std::unique_ptr<opentracing::Span> jspan;
   friend class OpTracker;
 
 private:

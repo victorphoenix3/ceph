@@ -7110,7 +7110,7 @@ void OSD::ms_fast_dispatch(Message *m)
   op->sent_epoch = static_cast<MOSDFastDispatchOp*>(m)->get_map_epoch();
   op->min_epoch = static_cast<MOSDFastDispatchOp*>(m)->get_min_epoch();
 #ifdef WITH_JAEGER
-  osd_parent_span->Log({
+  op->osd_parent_span->Log({
       {"sent epoch by op", op->sent_epoch},
       {"min epoch for op", op->min_epoch}
       });
@@ -9613,7 +9613,7 @@ void OSD::enqueue_op(spg_t pg, OpRequestRef&& op, epoch_t epoch)
 
 #ifdef WITH_JAEGER
    op->enqueue_op_span = opentracing::Tracer::Global()->StartSpan(
-      "enqueue_op", {opentracing::v2::ChildOf(op->osd_parent_span)context())});
+      "enqueue_op",{opentracing::v2::ChildOf(&(op->osd_parent_span)->context())});
   op->enqueue_op_span->Log({
       {"priority", priority},
       {"cost", cost},

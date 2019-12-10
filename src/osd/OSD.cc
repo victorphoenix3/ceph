@@ -9664,9 +9664,6 @@ void OSD::dequeue_op(
   ThreadPool::TPHandle &handle)
 {
   const Message *m = op->get_req();
-#ifdef WITH_JAEGER
-  (op->enqueue_op_span)->Finish();
-#endif
   FUNCTRACE(cct);
   OID_EVENT_TRACE_WITH_MSG(m, "DEQUEUE_OP_BEGIN", false);
 
@@ -9674,14 +9671,8 @@ void OSD::dequeue_op(
   op->set_dequeued_time(now);
 
 #ifdef WITH_JAEGER
-  jspan dequeue_op_span = opentracing::Tracer::Global()->StartSpan(
-      "dequeue op initiated", {opentracing::v2::ChildOf(op->osd_parent_span)context())});
-  dequeue_op_span->Log({
-      {"priority", priority},
-      {"cost", cost},
-      {"pg", pg},
-      {"dequeue start time", now}
-      });
+  op->enqueue_op_span->Log({{ "dequeued time", now }});
+  (op->enqueue_op_span)->Finish();
 #endif
 
   utime_t latency = now - m->get_recv_stamp();
@@ -9709,10 +9700,6 @@ void OSD::dequeue_op(
   // finish
   dout(10) << "dequeue_op " << op << " finish" << dendl;
   OID_EVENT_TRACE_WITH_MSG(m, "DEQUEUE_OP_END", false);
-//  jspan dequeued_span = opentracing::Tracer::Global()->StartSpan(
-//      "dequeue finished", {opentracing::v2::ChildOf(&(dequeue_op_span)->context())});
-//   dequeue_op_span->Log({{"dequeue finish time", ceph_clock_now()},
-//       });      
 }
 
 

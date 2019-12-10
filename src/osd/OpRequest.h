@@ -14,118 +14,89 @@
 #ifndef OPREQUEST_H_
 #define OPREQUEST_H_
 
+#include "osd/osd_op_util.h"
 #include "osd/osd_types.h"
 #include "common/TrackedOp.h"
-
-#include "common/tracer.h"
-
 #ifdef WITH_JAEGER
 #include "common/tracer.h"
 #endif
 
-  /**
-   * The OpRequest takes in a Message* and takes over a single reference
-   * to it, which it puts() when destroyed.
-   */
-  struct OpRequest : public TrackedOp {
-    friend class OpTracker;
+/**
+ * The OpRequest takes in a Message* and takes over a single reference
+ * to it, which it puts() when destroyed.
+ */
+struct OpRequest : public TrackedOp {
+  friend class OpTracker;
 
-    // rmw flags
-    int rmw_flags;
+private:
+  OpInfo op_info;
 
-    bool check_rmw(int flag) const ;
-    bool may_read() const;
-    bool may_write() const;
-    bool may_cache() const;
-    bool rwordered_forced() const;
-    bool rwordered() const;
-    bool includes_pg_op();
-    bool need_read_cap() const;
-    bool need_write_cap() const;
-    bool need_promote();
-    bool need_skip_handle_cache();
-    bool need_skip_promote();
-    bool allows_returnvec() const;
-    void set_read();
-    void set_write();
-    void set_cache();
-    void set_class_read();
-    void set_class_write();
-    void set_pg_op();
-    void set_promote();
-    void set_skip_handle_cache();
-    void set_skip_promote();
-    void set_force_rwordered();
-    void set_returnvec();
+public:
+  int maybe_init_op_info(const OSDMap &osdmap);
+  jspan osd_parent_span;
+  jspan enqueue_op_span;
+  jspan do_request_span;
 
-    struct ClassInfo {
-      ClassInfo(std::string&& class_name, std::string&& method_name,
-		bool read, bool write, bool whitelisted) :
-	class_name(std::move(class_name)), method_name(std::move(method_name)),
-	read(read), write(write), whitelisted(whitelisted)
-      {}
-      const std::string class_name;
-      const std::string method_name;
-      const bool read, write, whitelisted;
-    };
+  auto get_flags() const { return op_info.get_flags(); }
+  bool op_info_needs_init() const { return op_info.get_flags() == 0; }
+  bool check_rmw(int flag) const { return op_info.check_rmw(flag); }
+  bool may_read() const { return op_info.may_read(); }
+  bool may_write() const { return op_info.may_write(); }
+  bool may_cache() const { return op_info.may_cache(); }
+  bool rwordered_forced() const { return op_info.rwordered_forced(); }
+  bool rwordered() const { return op_info.rwordered(); }
+  bool includes_pg_op() const { return op_info.includes_pg_op(); }
+  bool need_read_cap() const { return op_info.need_read_cap(); }
+  bool need_write_cap() const { return op_info.need_write_cap(); }
+  bool need_promote() const { return op_info.need_promote(); }
+  bool need_skip_handle_cache() const { return op_info.need_skip_handle_cache(); }
+  bool need_skip_promote() const { return op_info.need_skip_promote(); }
+  bool allows_returnvec() const { return op_info.allows_returnvec(); }
 
-    void add_class(std::string&& class_name, std::string&& method_name,
-		   bool read, bool write, bool whitelisted) {
-      classes_.emplace_back(std::move(class_name), std::move(method_name),
-			    read, write, whitelisted);
-    }
+  std::vector<OpInfo::ClassInfo> classes() const {
+    return op_info.get_classes();
+  }
 
-    std::vector<ClassInfo> classes() const {
-      return classes_;
-    }
+  void _dump(ceph::Formatter *f) const override;
 
-    void _dump(ceph::Formatter *f) const override;
+  bool has_feature(uint64_t f) const {
+    return request->get_connection()->has_feature(f);
+  }
 
-    bool has_feature(uint64_t f) const {
-      return request->get_connection()->has_feature(f);
-    }
+private:
+  Message *request; /// the logical request we are tracking
+  osd_reqid_t reqid;
+  entity_inst_t req_src_inst;
+  uint8_t hit_flag_points;
+  uint8_t latest_flag_point;
+  utime_t dequeued_time;
+  static const uint8_t flag_queued_for_pg=1 << 0;
+  static const uint8_t flag_reached_pg =  1 << 1;
+  static const uint8_t flag_delayed =     1 << 2;
+  static const uint8_t flag_started =     1 << 3;
+  static const uint8_t flag_sub_op_sent = 1 << 4;
+  static const uint8_t flag_commit_sent = 1 << 5;
 
-  private:
-    Message *request; /// the logical request we are tracking
-    osd_reqid_t reqid;
-    entity_inst_t req_src_inst;
-    uint8_t hit_flag_points;
-    uint8_t latest_flag_point;
-    utime_t dequeued_time;
-    static const uint8_t flag_queued_for_pg=1 << 0;
-    static const uint8_t flag_reached_pg =  1 << 1;
-    static const uint8_t flag_delayed =     1 << 2;
-    static const uint8_t flag_started =     1 << 3;
-    static const uint8_t flag_sub_op_sent = 1 << 4;
-    static const uint8_t flag_commit_sent = 1 << 5;
-    std::vector<ClassInfo> classes_;
+  OpRequest(Message *req, OpTracker *tracker);
 
+protected:
+  void _dump_op_descriptor_unlocked(std::ostream& stream) const override;
+  void _unregistered() override;
+  bool filter_out(const std::set<std::string>& filters) override;
 
-    OpRequest(Message *req, OpTracker *tracker);
+public:
+  ~OpRequest() override {
+    request->put();
+  }
 
-  protected:
-    void _dump_op_descriptor_unlocked(std::ostream& stream) const override;
-    void _unregistered() override;
-    bool filter_out(const std::set<std::string>& filters) override;
+  bool check_send_map = true; ///< true until we check if sender needs a map
+  epoch_t sent_epoch = 0;     ///< client's map epoch
+  epoch_t min_epoch = 0;      ///< min epoch needed to handle this msg
 
-  public:
-    ~OpRequest() override {
-      request->put();
-    }
+  bool hitset_inserted;
 
-    bool check_send_map = true; ///< true until we check if sender needs a map
-    epoch_t sent_epoch = 0;     ///< client's map epoch
-    epoch_t min_epoch = 0;      ///< min epoch needed to handle this msg
-#ifdef WITH_JAEGER
-    jspan osd_parent_span;
-    jspan enqueue_op_span;
-    jspan do_request_span;
-#endif
-
-    bool hitset_inserted;
-
-    template<class T>
-    const T* get_req() const { return static_cast<const T*>(request); }
+  template<class T>
+  const T* get_req() const { return static_cast<const T*>(request); }
 
   const Message *get_req() const { return request; }
   Message *get_nonconst_req() { return request; }
@@ -184,13 +155,10 @@
   typedef boost::intrusive_ptr<OpRequest> Ref;
 
 private:
-  void set_rmw_flags(int flags);
   void mark_flag_point(uint8_t flag, const char *s);
   void mark_flag_point_string(uint8_t flag, const std::string& s);
 };
 
 typedef OpRequest::Ref OpRequestRef;
-
-std::ostream& operator<<(std::ostream& out, const OpRequest::ClassInfo& i);
 
 #endif /* OPREQUEST_H_ */

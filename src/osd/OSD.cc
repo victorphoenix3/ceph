@@ -9614,13 +9614,13 @@ void OSD::enqueue_op(spg_t pg, OpRequestRef&& op, epoch_t epoch)
 
 #ifdef WITH_JAEGER
 /*    op->enqueue_op_span = opentracing::Tracer::Global()->StartSpan(
-      "enqueue_op",{opentracing::v2::ChildOf(&(op->osd_parent_span)->context())}); */
+      "enqueue_op",{opentracing::v2::ChildOf(&(op->osd_parent_span)->context())});
   op->enqueue_op_span->Log({
       {"priority", priority},
       {"cost", cost},
       {"epoch", epoch},
       {"owner", owner} //Not got owner in UI
-      });
+      }); */
 #endif
 
   op->mark_queued_for_pg();

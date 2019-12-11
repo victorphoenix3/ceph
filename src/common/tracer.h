@@ -15,14 +15,13 @@ typedef std::unique_ptr<opentracing::Span> jspan;
 class JTracer {
 
 public:
-static std::shared_ptr<opentracing::v2::Tracer> setUpTracer(std::string serviceToTrace) {
+static void setUpTracer(const char* serviceToTrace) {
   static auto configYAML = YAML::LoadFile("../jaegertracing/config.yml");
   static auto config = jaegertracing::Config::parse(configYAML);
   static auto tracer = jaegertracing::Tracer::make(
       serviceToTrace, config, jaegertracing::logging::consoleLogger());
   opentracing::Tracer::InitGlobal(
       std::static_pointer_cast<opentracing::Tracer>(tracer));
-  return tracer;
 }
 
 static jspan tracedSubroutine(

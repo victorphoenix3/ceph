@@ -31,9 +31,6 @@ private:
 
 public:
   int maybe_init_op_info(const OSDMap &osdmap);
-  jspan osd_parent_span;
-  jspan enqueue_op_span;
-  jspan do_request_span;
 
   auto get_flags() const { return op_info.get_flags(); }
   bool op_info_needs_init() const { return op_info.get_flags() == 0; }

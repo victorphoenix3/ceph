@@ -24,7 +24,6 @@
  * to it, which it puts() when destroyed.
  */
 struct OpRequest : public TrackedOp {
-  typedef std::unique_ptr<opentracing::Span> jspan;
   friend class OpTracker;
 
 private:
@@ -69,6 +68,9 @@ private:
   uint8_t hit_flag_points;
   uint8_t latest_flag_point;
   utime_t dequeued_time;
+  jspan osd_parent_span;
+  jspan enqueue_op_span;
+  jspan do_request_span;
   static const uint8_t flag_queued_for_pg=1 << 0;
   static const uint8_t flag_reached_pg =  1 << 1;
   static const uint8_t flag_delayed =     1 << 2;
@@ -96,6 +98,9 @@ public:
 
   template<class T>
   const T* get_req() const { return static_cast<const T*>(request); }
+  jspan& get_osd_parent_span() { return osd_parent_span; }
+  jspan& get_enqueue_op_span() { return enqueue_op_span; }
+  jspan& get_do_request_span() { return do_request_span; }
 
   const Message *get_req() const { return request; }
   Message *get_nonconst_req() { return request; }

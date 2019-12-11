@@ -7098,7 +7098,8 @@ void OSD::ms_fast_dispatch(Message *m)
   }
 
 #ifdef WITH_JAEGER
-   op->osd_parent_span = opentracing::Tracer::Global()->StartSpan("op-request-created");
+jspan& osd_parent_span = op->get_parent_span();
+   osd_parent_span = opentracing::Tracer::Global()->StartSpan("op-request-created");
 #endif
 
   if (m->trace){
@@ -7110,11 +7111,11 @@ void OSD::ms_fast_dispatch(Message *m)
   op->sent_epoch = static_cast<MOSDFastDispatchOp*>(m)->get_map_epoch();
   op->min_epoch = static_cast<MOSDFastDispatchOp*>(m)->get_min_epoch();
 #ifdef WITH_JAEGER
-  op->osd_parent_span->Log({
+  osd_parent_span->Log({
       {"sent epoch by op", op->sent_epoch},
       {"min epoch for op", op->min_epoch}
       });
-  op->osd_parent_span->Finish();
+  osd_parent_span->Finish();
 #endif
   ceph_assert(op->min_epoch <= op->sent_epoch); // sanity check!
 

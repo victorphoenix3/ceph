@@ -1624,8 +1624,12 @@ void PrimaryLogPG::do_request(
   }
 
 #ifdef WITH_JAEGER
-   op->do_request_span = opentracing::Tracer::Global()->StartSpan(
-      "do request initiated", {opentracing::v2::ChildOf(&(op->osd_parent_span)->context())});
+/*   (op->osd_parent_span)->Finish();
+//  //new parent
+//  op->do_request_span = opentracing::Tracer::Global()->StartSpan("do request init");
+// when osd_parent_span active
+  op->do_request_span = opentracing::Tracer::Global()->StartSpan(
+     "do request initiated", {opentracing::v2::ChildOf(&(op->osd_parent_span)->context())}); */
 #endif
 
   // make sure we have a new enough map
@@ -1823,6 +1827,7 @@ void PrimaryLogPG::do_op(OpRequestRef& op)
     m->clear_payload();
   }
 
+/*   op->do_request_span->Log */
   dout(20) << __func__ << ": op " << *m << dendl;
 
   const hobject_t head = m->get_hobj().get_head();

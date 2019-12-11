@@ -7114,6 +7114,7 @@ void OSD::ms_fast_dispatch(Message *m)
       {"sent epoch by op", op->sent_epoch},
       {"min epoch for op", op->min_epoch}
       });
+  op->osd_parent_span->Finish();
 #endif
   ceph_assert(op->min_epoch <= op->sent_epoch); // sanity check!
 
@@ -9612,8 +9613,8 @@ void OSD::enqueue_op(spg_t pg, OpRequestRef&& op, epoch_t epoch)
   op->osd_trace.keyval("cost", cost);
 
 #ifdef WITH_JAEGER
-   op->enqueue_op_span = opentracing::Tracer::Global()->StartSpan(
-      "enqueue_op",{opentracing::v2::ChildOf(&(op->osd_parent_span)->context())});
+/*    op->enqueue_op_span = opentracing::Tracer::Global()->StartSpan(
+      "enqueue_op",{opentracing::v2::ChildOf(&(op->osd_parent_span)->context())}); */
   op->enqueue_op_span->Log({
       {"priority", priority},
       {"cost", cost},
@@ -9671,8 +9672,8 @@ void OSD::dequeue_op(
   op->set_dequeued_time(now);
 
 #ifdef WITH_JAEGER
-  op->enqueue_op_span->Log({{ "dequeued time", now }});
-  (op->enqueue_op_span)->Finish();
+/*   op->enqueue_op_span->Log({{ "dequeued time", now }});
+  (op->enqueue_op_span)->Finish(); */
 #endif
 
   utime_t latency = now - m->get_recv_stamp();

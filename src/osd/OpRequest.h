@@ -95,9 +95,8 @@ public:
 
   template<class T>
   const T* get_req() const { return static_cast<const T*>(request); }
+  void set_osd_parent_span(jspan& span ) { osd_parent_span = move(span); }
   jspan& get_osd_parent_span() { return osd_parent_span; }
-  jspan& get_enqueue_op_span() { return enqueue_op_span; }
-  jspan& get_do_request_span() { return do_request_span; }
 
   const Message *get_req() const { return request; }
   Message *get_nonconst_req() { return request; }

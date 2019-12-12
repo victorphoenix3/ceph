@@ -7098,8 +7098,9 @@ void OSD::ms_fast_dispatch(Message *m)
   }
 
 #ifdef WITH_JAEGER
-jspan& osd_parent_span = op->get_parent_span();
-   osd_parent_span = opentracing::Tracer::Global()->StartSpan("op-request-created");
+std::shared_ptr<opentracing::Tracer> tracer = opentracing::Tracer::Global();
+jspan& osd_parent_span = tracer->StartSpan("op-request-created");
+op->set_osd_parent_span(osd_parent_span);
 #endif
 
   if (m->trace){
@@ -7111,11 +7112,11 @@ jspan& osd_parent_span = op->get_parent_span();
   op->sent_epoch = static_cast<MOSDFastDispatchOp*>(m)->get_map_epoch();
   op->min_epoch = static_cast<MOSDFastDispatchOp*>(m)->get_min_epoch();
 #ifdef WITH_JAEGER
-  osd_parent_span->Log({
+  op->osd_parent_span->Log({
       {"sent epoch by op", op->sent_epoch},
       {"min epoch for op", op->min_epoch}
       });
-  osd_parent_span->Finish();
+  op->osd_parent_span->Finish();
 #endif
   ceph_assert(op->min_epoch <= op->sent_epoch); // sanity check!
 
@@ -9614,14 +9615,15 @@ void OSD::enqueue_op(spg_t pg, OpRequestRef&& op, epoch_t epoch)
   op->osd_trace.keyval("cost", cost);
 
 #ifdef WITH_JAEGER
-/*    op->enqueue_op_span = opentracing::Tracer::Global()->StartSpan(
+  std::shared_ptr<opentracing::Tracer> tracer = opentracing::Tracer::Global();
+    op->enqueue_op_span = tracer->StartSpan(
       "enqueue_op",{opentracing::v2::ChildOf(&(op->osd_parent_span)->context())});
   op->enqueue_op_span->Log({
       {"priority", priority},
       {"cost", cost},
       {"epoch", epoch},
       {"owner", owner} //Not got owner in UI
-      }); */
+      });
 #endif
 
   op->mark_queued_for_pg();

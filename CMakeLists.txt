@@ -342,6 +342,7 @@ endif(WITH_BLKIN)
 option(WITH_JAEGER "Use jaeger to create tracepoints and display it on Jaeger UI" ON)
 
 if(WITH_JAEGER)
+  add_definitions(-DWITH_JAEGER=1)
   find_package(OpenTracing REQUIRED)
   find_package(Jaeger REQUIRED)
   find_package(yaml-cpp REQUIRED)
@@ -360,7 +361,8 @@ option(WITH_RADOSGW_FCGI_FRONTEND "Rados Gateway's FCGI frontend is enabled" OFF
 option(WITH_RADOSGW_BEAST_FRONTEND "Rados Gateway's Beast frontend is enabled" ON)
 option(WITH_RADOSGW_BEAST_OPENSSL "Rados Gateway's Beast frontend uses OpenSSL" ON)
 option(WITH_RADOSGW_AMQP_ENDPOINT "Rados Gateway's pubsub support for AMQP push endpoint" ON)
-option(WITH_RADOSGW_KAFKA_ENDPOINT "Rados Gateway's pubsub support for Kafka push endpoint" ON)
+option(WITH_RADOSGW_KAFKA_ENDPOINT "Rados Gateway's pubsub support for Kafka
+push endpoint" OFF)
 
 if(WITH_RADOSGW)
   find_package(EXPAT REQUIRED)

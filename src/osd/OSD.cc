@@ -7099,8 +7099,8 @@ void OSD::ms_fast_dispatch(Message *m)
 
 #ifdef WITH_JAEGER
 std::shared_ptr<opentracing::Tracer> tracer = opentracing::Tracer::Global();
-jspan& osd_parent_span = tracer->StartSpan("op-request-created");
-op->set_osd_parent_span(osd_parent_span);
+jspan dispatch_span = tracer->StartSpan("op-request-created");
+op->set_osd_parent_span(dispatch_span);
 #endif
 
   if (m->trace){
@@ -7116,7 +7116,6 @@ op->set_osd_parent_span(osd_parent_span);
       {"sent epoch by op", op->sent_epoch},
       {"min epoch for op", op->min_epoch}
       });
-  op->osd_parent_span->Finish();
 #endif
   ceph_assert(op->min_epoch <= op->sent_epoch); // sanity check!
 
@@ -9616,7 +9615,7 @@ void OSD::enqueue_op(spg_t pg, OpRequestRef&& op, epoch_t epoch)
 
 #ifdef WITH_JAEGER
   std::shared_ptr<opentracing::Tracer> tracer = opentracing::Tracer::Global();
-    op->enqueue_op_span = tracer->StartSpan(
+    jspan enqueue_op_span = tracer->StartSpan(
       "enqueue_op",{opentracing::v2::ChildOf(&(op->osd_parent_span)->context())});
   op->enqueue_op_span->Log({
       {"priority", priority},
@@ -9673,11 +9672,6 @@ void OSD::dequeue_op(
 
   utime_t now = ceph_clock_now();
   op->set_dequeued_time(now);
-
-#ifdef WITH_JAEGER
-/*   op->enqueue_op_span->Log({{ "dequeued time", now }});
-  (op->enqueue_op_span)->Finish(); */
-#endif
 
   utime_t latency = now - m->get_recv_stamp();
   dout(10) << "dequeue_op " << op << " prio " << m->get_priority()

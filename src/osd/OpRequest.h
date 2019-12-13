@@ -65,9 +65,9 @@ private:
   uint8_t hit_flag_points;
   uint8_t latest_flag_point;
   utime_t dequeued_time;
+#ifdef WITH_JAEGER
   jspan osd_parent_span;
-  jspan enqueue_op_span;
-  jspan do_request_span;
+#endif
   static const uint8_t flag_queued_for_pg=1 << 0;
   static const uint8_t flag_reached_pg =  1 << 1;
   static const uint8_t flag_delayed =     1 << 2;
@@ -95,8 +95,10 @@ public:
 
   template<class T>
   const T* get_req() const { return static_cast<const T*>(request); }
+#ifdef WITH_JAEGER
   void set_osd_parent_span(jspan& span ) { osd_parent_span = move(span); }
   jspan& get_osd_parent_span() { return osd_parent_span; }
+#endif
 
   const Message *get_req() const { return request; }
   Message *get_nonconst_req() { return request; }

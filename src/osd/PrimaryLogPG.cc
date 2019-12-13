@@ -1624,12 +1624,10 @@ void PrimaryLogPG::do_request(
   }
 
 #ifdef WITH_JAEGER
-/*   (op->osd_parent_span)->Finish();
-//  //new parent
-//  op->do_request_span = opentracing::Tracer::Global()->StartSpan("do request init");
-// when osd_parent_span active
-  op->do_request_span = opentracing::Tracer::Global()->StartSpan(
-     "do request initiated", {opentracing::v2::ChildOf(&(op->osd_parent_span)->context())}); */
+ (op->osd_parent_span)->Finish();
+  //new parent
+  jspan do_request_span = opentracing::Tracer::Global()->StartSpan("do request init");
+  op->set_osd_parent_span(do_request_span);
 #endif
 
   // make sure we have a new enough map

@@ -1834,7 +1834,6 @@ void PrimaryLogPG::do_op(OpRequestRef& op)
     m->clear_payload();
   }
 
-/*   op->do_request_span->Log */
   dout(20) << __func__ << ": op " << *m << dendl;
 
   const hobject_t head = m->get_hobj().get_head();

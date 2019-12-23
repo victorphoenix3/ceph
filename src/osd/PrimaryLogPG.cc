@@ -1152,7 +1152,7 @@ void PrimaryLogPG::do_pg_op(OpRequestRef op)
 
 #ifdef WITH_JAEGER
   jspan do_pg_op_span = opentracing::Tracer::Global()->StartSpan(
-      "do_pg_op",{opentracing::v2::ChildOf(&(op->osd_parent_span)->context())});`
+      "do_pg_op",{opentracing::v2::ChildOf(&(op->osd_parent_span)->context())});
 #endif
   op->mark_started();
 
@@ -1428,7 +1428,7 @@ void PrimaryLogPG::do_pg_op(OpRequestRef op)
 	  if (candidate >= next) {
 	    break;
 	  }
-	    
+
 	  if (response.entries.size() == list_size) {
 	    next = candidate;
 	    break;
@@ -1628,8 +1628,7 @@ void PrimaryLogPG::do_request(
   }
 
 #ifdef WITH_JAEGER
-  std::shared_ptr<opentracing::Tracer> tracer = opentracing::Tracer::Global();
-  jspan do_request_span = tracer->StartSpan(
+  jspan do_request_span = opentracing::Tracer::Global()->StartSpan(
       "do request init",{opentracing::v2::ChildOf(&(op->osd_parent_span)->context())});
 #endif
 

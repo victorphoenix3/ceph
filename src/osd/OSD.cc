@@ -7106,8 +7106,7 @@ void OSD::ms_fast_dispatch(Message *m)
   }
 
 #ifdef WITH_JAEGER
-std::shared_ptr<opentracing::Tracer> tracer = opentracing::Tracer::Global();
-jspan dispatch_span = tracer->StartSpan("op-request-created");
+jspan dispatch_span = opentracing::Tracer::Global()->StartSpan("op-request-created");
 op->set_osd_parent_span(dispatch_span);
 #endif
 
@@ -9622,8 +9621,7 @@ void OSD::enqueue_op(spg_t pg, OpRequestRef&& op, epoch_t epoch)
   op->osd_trace.keyval("cost", cost);
 
 #ifdef WITH_JAEGER
-  std::shared_ptr<opentracing::Tracer> tracer = opentracing::Tracer::Global();
-    jspan enqueue_op_span = tracer->StartSpan(
+    jspan enqueue_op_span = opentracing::Tracer::Global()->StartSpan(
       "enqueue_op",{opentracing::v2::ChildOf(&(op->osd_parent_span)->context())});
   enqueue_op_span->Log({
       {"priority", priority},

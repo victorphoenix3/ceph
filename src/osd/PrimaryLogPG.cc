@@ -1150,6 +1150,10 @@ void PrimaryLogPG::do_pg_op(OpRequestRef op)
   ceph_assert(m->get_type() == CEPH_MSG_OSD_OP);
   dout(10) << "do_pg_op " << *m << dendl;
 
+#ifdef WITH_JAEGER
+  jspan do_pg_op_span = opentracing::Tracer::Global()->StartSpan(
+      "do_pg_op",{opentracing::v2::ChildOf(&(op->osd_parent_span)->context())});`
+#endif
   op->mark_started();
 
   int result = 0;

@@ -9625,7 +9625,7 @@ void OSD::enqueue_op(spg_t pg, OpRequestRef&& op, epoch_t epoch)
   std::shared_ptr<opentracing::Tracer> tracer = opentracing::Tracer::Global();
     jspan enqueue_op_span = tracer->StartSpan(
       "enqueue_op",{opentracing::v2::ChildOf(&(op->osd_parent_span)->context())});
-  op->enqueue_op_span->Log({
+  enqueue_op_span->Log({
       {"priority", priority},
       {"cost", cost},
       {"epoch", epoch},

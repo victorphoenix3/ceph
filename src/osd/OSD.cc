@@ -1654,6 +1654,14 @@ void OSDService::reply_op_error(OpRequestRef op, int err, eversion_t v,
 				       !m->has_flag(CEPH_OSD_FLAG_RETURNVEC));
   reply->set_reply_versions(v, uv);
   reply->set_op_returns(op_returns);
+#ifdef WITH_JAEGER
+  jspan op_error_span = opentracing::Tracer::Global()->StartSpan(
+      "reply_op_error",{opentracing::v2::ChildOf(&(op->osd_parent_span)->context())});
+  op_error_span->Log({
+      {"type", m->get_type()},
+      {"err code", err}
+      });
+#endif
   m->get_connection()->send_message(reply);
 }
 

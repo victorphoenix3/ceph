@@ -1624,10 +1624,9 @@ void PrimaryLogPG::do_request(
   }
 
 #ifdef WITH_JAEGER
- (op->osd_parent_span)->Finish();
-  //new parent
-  jspan do_request_span = opentracing::Tracer::Global()->StartSpan("do request init");
-  op->set_osd_parent_span(do_request_span);
+  std::shared_ptr<opentracing::Tracer> tracer = opentracing::Tracer::Global();
+  jspan do_request_span = tracer->StartSpan(
+      "do request init",{opentracing::v2::ChildOf(&(op->osd_parent_span)->context())});
 #endif
 
   // make sure we have a new enough map
@@ -1660,6 +1659,12 @@ void PrimaryLogPG::do_request(
     auto session = ceph::ref_cast<Session>(m->get_connection()->get_priv());
     if (!session)
       return;  // drop it.
+
+#ifdef WITH_JAEGER
+  do_request_span->Log({
+      {"msg", msg_type}
+      });
+#endif
 
     if (msg_type == CEPH_MSG_OSD_OP) {
       if (session->check_backoff(cct, info.pgid,

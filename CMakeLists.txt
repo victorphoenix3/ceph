@@ -342,12 +342,6 @@ endif(WITH_BLKIN)
 option(WITH_JAEGER "Use jaeger to create tracepoints and display it on Jaeger UI" ON)
 
 if(WITH_JAEGER)
-  include(BuildJaeger)
-  build_jaeger()
-
-  if(NOT WITH_SYSTEM_JAEGER)
-  endif(NOT WITH_SYSTEM_JAEGER)
-
   add_definitions(-DWITH_JAEGER=1)
   #find_package(OpenTracing REQUIRED)
   #find_package(Jaeger REQUIRED)

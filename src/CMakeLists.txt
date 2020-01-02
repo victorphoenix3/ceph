@@ -390,11 +390,13 @@ set(ceph_common_deps
   ${BLKID_LIBRARIES}
   ${Backtrace_LIBRARIES}
   ${BLKIN_LIBRARIES}
-  ${Complete_Jaeger_LIBRARIES}
   ${CRYPTO_LIBS}
   ${GSSAPI_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT}
   ${CMAKE_DL_LIBS})
+if(WITH_JAEGER)
+  list(APPEND ceph_common_deps ${Complete_Jaeger_LIBRARIES})
+endif()
 if(HAVE_UDEV)
   list(APPEND ceph_common_deps ${UDEV_LIBRARIES})
 endif()

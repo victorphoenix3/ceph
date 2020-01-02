@@ -1833,6 +1833,9 @@ void PrimaryLogPG::do_op(OpRequestRef& op)
     m->clear_payload();
   }
 
+  op->do_op_span = opentracing::Tracer::Global()->StartSpan(
+      "do_op",{opentracing::v2::ChildOf(&(op->osd_parent_span)->context())});
+
   dout(20) << __func__ << ": op " << *m << dendl;
 
   const hobject_t head = m->get_hobj().get_head();
@@ -2011,6 +2014,15 @@ void PrimaryLogPG::do_op(OpRequestRef& op)
 	   << " -> " << (write_ordered ? "write-ordered" : "read-ordered")
 	   << " flags " << ceph_osd_flag_string(m->get_flags())
 	   << dendl;
+
+#ifdef WITH_JAEGER
+  op->do_op_span->Log({
+      {"may_write", op->may_write()},
+      {"may_read", op->may_read()},
+      {"may_cache", op->may_cache()},
+      {"flags", m->get_flags()}
+      });
+#endif
 
   // missing object?
   if (is_unreadable_object(head)) {

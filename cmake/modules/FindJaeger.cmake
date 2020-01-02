@@ -45,7 +45,7 @@
 #  License text for the above reference.)
 
 find_path(Jaeger_INCLUDE_DIRS NAMES  jaegertracing/Tracer.h)
-find_library(Jaeger_LIBRARIES NAMES jaegertracing)
+#find_library(Jaeger_LIBRARIES NAMES jaegertracing)
 
 if(Jaeger_INCLUDE_DIRS AND Jaeger_LIBRARIES)
 

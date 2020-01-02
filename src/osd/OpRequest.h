@@ -92,7 +92,7 @@ public:
 
 #ifdef WITH_JAEGER
   jspan osd_parent_span;
-  jspan marker_span
+  jspan marker_span;
   jspan do_op;
   void set_osd_parent_span(jspan& span ) { osd_parent_span = move(span); }
 #endif

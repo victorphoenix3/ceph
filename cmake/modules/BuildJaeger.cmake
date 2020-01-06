@@ -10,8 +10,10 @@ function(build_jaeger)
   list(APPEND Jaeger_CMAKE_ARGS --DCMAKE_INSTALL_PREFIX=<Jaeger_INSTALL_DIR>)
 
   include(BuildOpenTracing)
-    build_opentracing()
-  
+  build_opentracing()
+  include(Buildthrift)
+  build_thrift()
+
   find_package(yaml-cpp REQUIRED)
 
   if(CMAKE_MAKE_PROGRAM MATCHES "make")
@@ -34,7 +36,7 @@ function(build_jaeger)
     BUILD_ALWAYS TRUE
     INSTALL_COMMAND "true"
     LOG_BUILD TRUE
-    DEPENDS OpenTracing #Thrift yaml-cpp nlohmann-json  
+    DEPENDS OpenTracing thrift #yaml-cpp nlohmann-json
     )
 
   ExternalProject_Get_Property(Jaeger SOURCE_DIR)

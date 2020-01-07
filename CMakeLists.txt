@@ -243,7 +243,7 @@ if(WITH_KRBD AND NOT WITH_RBD)
 endif()
 if(LINUX)
   if(WITH_LIBCEPHFS OR WITH_KRBD)
-    # keyutils is only used when talking to the Linux Kernel key store 
+    # keyutils is only used when talking to the Linux Kernel key store
     find_package(keyutils REQUIRED)
     set(HAVE_KEYUTILS ${KEYUTILS_FOUND})
   endif()
@@ -341,6 +341,11 @@ if(WITH_BLKIN)
   set(BLKIN_LIBRARIES blkin ${LTTNGUST_LIBRARIES} lttng-ust-fork)
   include_directories(SYSTEM src/blkin/blkin-lib)
 endif(WITH_BLKIN)
+
+option(WITH_JAEGER "Use jaeger to create tracepoints and display it on Jaeger UI" ON)
+if(WITH_JAEGER)
+  set(HAVE_JAEGER ON)
+endif(WITH_JAEGER)
 
 option(WITH_BOOST_CONTEXT "Enable boost::asio stackful coroutines" ON)
 if(WITH_BOOST_CONTEXT)
@@ -490,7 +495,7 @@ option(PG_DEBUG_REFS "PG Ref debugging is enabled" OFF)
 
 option(WITH_TESTS "enable the build of ceph-test package scripts/binaries" ON)
 set(UNIT_TESTS_BUILT ${WITH_TESTS})
-set(CEPH_TEST_TIMEOUT 3600 CACHE STRING 
+set(CEPH_TEST_TIMEOUT 3600 CACHE STRING
   "Maximum time before a CTest gets killed" )
 
 # fio

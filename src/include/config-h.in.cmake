@@ -163,6 +163,9 @@
 /* Define if you want to OSD function instrumentation */
 #cmakedefine WITH_OSD_INSTRUMENT_FUNCTIONS
 
+/* Define if you want to use Jaeger */
+#cmakedefine WITH_JAEGER 1
+
 /* Define if you want to use Babeltrace */
 #cmakedefine WITH_BABELTRACE
 
@@ -233,7 +236,7 @@
 #cmakedefine HAVE_NAME_TO_HANDLE_AT
 
 /* we have a recent yasm and are x86_64 */
-#cmakedefine HAVE_GOOD_YASM_ELF64 
+#cmakedefine HAVE_GOOD_YASM_ELF64
 
 /* yasm can also build the isa-l */
 #cmakedefine HAVE_BETTER_YASM_ELF64

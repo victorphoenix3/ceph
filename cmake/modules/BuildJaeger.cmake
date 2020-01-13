@@ -38,7 +38,6 @@ function(build_jaeger)
     LOG_BUILD TRUE
     DEPENDS OpenTracing thrift #yaml-cpp nlohmann-json
     )
-
   ExternalProject_Get_Property(Jaeger SOURCE_DIR)
   message(STATUS "Source dir of Jaeger is ${SOURCE_DIR}}")
 endfunction()

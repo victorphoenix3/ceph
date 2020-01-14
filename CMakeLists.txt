@@ -344,7 +344,9 @@ endif(WITH_BLKIN)
 
 option(WITH_JAEGER "Use jaeger to create tracepoints and display it on Jaeger UI" ON)
 if(WITH_JAEGER)
-  set(HAVE_JAEGER ON)
+    include(BuildJaeger)
+    build_jaeger()
+  set(HAVE_JAEGER TRUE)
 endif(WITH_JAEGER)
 
 option(WITH_BOOST_CONTEXT "Enable boost::asio stackful coroutines" ON)
@@ -668,3 +670,4 @@ add_custom_target(tags DEPENDS ctags)
 
 find_package(CppCheck)
 find_package(IWYU)
+

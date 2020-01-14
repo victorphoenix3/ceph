@@ -362,9 +362,6 @@ set(ceph_common_deps
   ${GSSAPI_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT}
   ${CMAKE_DL_LIBS})
-if(WITH_JAEGER)
-  list(APPEND ceph_common_deps ${Complete_Jaeger_LIBRARIES})
-endif()
 if(HAVE_UDEV)
   list(APPEND ceph_common_deps ${UDEV_LIBRARIES})
 endif()

@@ -1,4 +1,5 @@
 function(build_thrift)
+  set(THRIFT_DOWNLOAD_DIR "${CMAKE_SOURCE_DIR}/src/jaegertracing")
   set(THRIFT_SOURCE_DIR "${CMAKE_SOURCE_DIR}/src/jaegertracing/thrift")
   set(THRIFT_ROOT_DIR "${CMAKE_CURRENT_BINARY_DIR}/src/thrift")
   set(THRIFT_INSTALL_DIR "${THRIFT_ROOT_DIR}/install")
@@ -15,16 +16,17 @@ function(build_thrift)
     set(make_cmd ${CMAKE_COMMAND} --build <BINARY_DIR> --target thrift)
   endif()
 
-
   include(ExternalProject)
   ExternalProject_Add(thrift
     URL http://archive.apache.org/dist/thrift/0.11.0/thrift-0.11.0.tar.gz
-    DOWNLOAD_DIR ${CMAKE_SOURCE_DIR}/src
+    DOWNLOAD_DIR ${THRIFT_DOWNLOAD_DIR}
     SOURCE_DIR ${THRIFT_SOURCE_DIR}
+    PREFIX ${THRIFT_ROOT_DIR}
     CONFIGURE_COMMAND ./bootstrap.sh && ./configure --prefix=<INSTALL_DIR>
     CMAKE_ARGS ${THRIFT_CMAKE_ARGS}
     BUILD_IN_SOURCE 1
     BUILD_COMMAND ${make_cmd}
+    INSTALL_DIR ${THRIFT_INSTALL_DIR}
     INSTALL_COMMAND make install
     )
 endfunction()

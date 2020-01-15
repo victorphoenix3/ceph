@@ -19,7 +19,7 @@ function(build_jaeger)
 
   if(CMAKE_MAKE_PROGRAM MATCHES "make")
     # try to inherit command line arguments passed by parent "make" job
-    set(make_cmd $(MAKE) Jaeger)
+    set(make_cmd $(MAKE))
   else()
     set(make_cmd ${CMAKE_COMMAND} --build <BINARY_DIR> --target Jaeger)
   endif()

@@ -6,8 +6,6 @@ function(build_thrift)
   set(THRIFT_BINARY_DIR "${THRIFT_ROOT_DIR}/build")
 
   set(THRIFT_CMAKE_ARGS -DCMAKE_POSITION_INDEPENDENT_CODE=ON)
-  list(APPEND THRIFT_CMAKE_ARGS -DBUILD_SHARED_LIBS=ON)
-  list(APPEND THRIFT_CMAKE_ARGS --DCMAKE_INSTALL_PREFIX=<THRIFT_INSTALL_DIR>)
 
   if(CMAKE_MAKE_PROGRAM MATCHES "make")
     # try to inherit command line arguments passed by parent "make" job
@@ -22,11 +20,41 @@ function(build_thrift)
     DOWNLOAD_DIR ${THRIFT_DOWNLOAD_DIR}
     SOURCE_DIR ${THRIFT_SOURCE_DIR}
     PREFIX ${THRIFT_ROOT_DIR}
-    CONFIGURE_COMMAND ./bootstrap.sh && ./configure --prefix=<INSTALL_DIR>
     CMAKE_ARGS ${THRIFT_CMAKE_ARGS}
-    BUILD_IN_SOURCE 1
+    BINARY_DIR ${THRIFT_BINARY_DIR}
     BUILD_COMMAND ${make_cmd}
     INSTALL_DIR ${THRIFT_INSTALL_DIR}
-    INSTALL_COMMAND make install
+    INSTALL_COMMAND sudo make install
     )
+  add_thrift_target()
+endfunction()
+
+function(add_thrift_target)
+  ExternalProject_Get_Property(thrift ${INSTALL_DIR})
+  ExternalProject_Get_Property(thrift ${BINARY_DIR})
+
+  set(thrift_INCLUDE_DIRS ${INSTALL_DIR}/include)
+  set(thrift_LIBRARIES ${BINARY_DIR})
+
+  if(thrift_INCLUDE_DIRS AND thrift_LIBRARIES)
+
+    if(NOT TARGET thrift)
+      add_library(thrift UNKNOWN IMPORTED)
+      set_target_properties(thrift PROPERTIES
+	INTERFACE_INCLUDE_DIRECTORIES "${thrift_INCLUDE_DIRS}"
+	INTERFACE_LINK_LIBRARIES ${CMAKE_DL_LIBS}
+	IMPORTED_LINK_INTERFACE_LANGUAGES "C"
+	IMPORTED_LOCATION "${thrift_LIBRARIES}")
+    endif()
+
+    # add libdl to required libraries
+    set(thrift_LIBRARIES ${thrift_LIBRARIES} ${CMAKE_DL_LIBS})
+  endif()
+
+  include(FindPackageHandleStandardArgs)
+  find_package_handle_standard_args(thrift FOUND_VAR thrift_FOUND
+				    REQUIRED_VARS thrift_LIBRARIES
+						  thrift_INCLUDE_DIRS
+				    VERSION_VAR thrift_VERSION_STRING)
+  mark_as_advanced(thrift_LIBRARIES thrift_INCLUDE_DIRS)
 endfunction()

@@ -13,7 +13,7 @@ namespace JTracer {
 
 inline void setup(const char* service_to_trace) {
   static auto yaml = YAML::LoadFile("../jaegertracing/config.yml");
-  static auto config = jaegertracing::Config::parse(configYAML);
+  static auto config = jaegertracing::Config::parse(yaml);
   static auto tracer = jaegertracing::Tracer::make(
       service_to_trace, config, jaegertracing::logging::consoleLogger());
   opentracing::Tracer::InitGlobal(

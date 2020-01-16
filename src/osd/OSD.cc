@@ -165,6 +165,10 @@
 #include "json_spirit/json_spirit_reader.h"
 #include "json_spirit/json_spirit_writer.h"
 
+#ifdef WITH_JAEGER
+#include "common/tracer.h"
+#endif
+
 #ifdef WITH_LTTNG
 #define TRACEPOINT_DEFINE
 #define TRACEPOINT_PROBE_DYNAMIC_LINKAGE
@@ -7001,6 +7005,9 @@ void OSD::dispatch_session_waiting(const ceph::ref_t<Session>& session, OSDMapRe
 
 void OSD::ms_fast_dispatch(Message *m)
 {
+#ifdef WITH_JAEGER
+  JTracer::setup("osd-services");
+#endif
   FUNCTRACE(cct);
   if (service.is_stopping()) {
     m->put();

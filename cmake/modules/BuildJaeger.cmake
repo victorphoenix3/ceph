@@ -12,8 +12,11 @@ function(build_jaeger)
   list(APPEND Jaeger_CMAKE_ARGS --DCMAKE_INSTALL_PREFIX=<Jaeger_INSTALL_DIR>)
   list(APPEND Jaeger_CMAKE_ARGS -DCMAKE_FIND_ROOT_PATH=${CMAKE_CURRENT_BINARY_DIR})
 
-  include(BuildOpenTracing)
-  build_opentracing()
+  find_package(OpenTracing 1.5.0)
+  if(NOT OpenTracing_FOUND)
+    include(BuildOpenTracing)
+    build_opentracing()
+  endif()
   include(Buildthrift)
   build_thrift()
 
@@ -70,6 +73,12 @@ function(add_jaeger)
 						  Jaeger_INCLUDE_DIRS
 				    VERSION_VAR Jaeger_VERSION_STRING)
   mark_as_advanced(Jaeger_LIBRARIES Jaeger_INCLUDE_DIRS)
+
+  set(Complete_Jaeger_LIBRARIES ${Jaeger_LIBRARIES} ${OpenTracing_LIBRARIES}
+    ${yaml-cpp_LIBRARIES} ${THRIFT_LIBRARIES})
+  include_directories(SYSTEM ${Jaeger_INCLUDE_DIRS} ${yaml-cpp_INCLUDE_DIRS}
+    ${OpenTracing_INCLUDE_DIRS} ${THRIFT_INCLUDE_DIR})
+
   message(STATUS  "Jaeger library path is ${Jaeger_LIBRARIES} and include dir path is
   ${Jaeger_INCLUDE_DIRS} and also Jaeger will be downloaded")
 endfunction()

@@ -33,7 +33,7 @@ function(add_thrift_target)
   ExternalProject_Get_Property(thrift ${INSTALL_DIR})
   ExternalProject_Get_Property(thrift ${BINARY_DIR})
 
-  set(thrift_INCLUDE_DIRS ${INSTALL_DIR}/include)
+  set(thrift_INCLUDE_DIRS /usr/local/include)
   set(thrift_LIBRARIES ${BINARY_DIR})
 
   if(thrift_INCLUDE_DIRS AND thrift_LIBRARIES)

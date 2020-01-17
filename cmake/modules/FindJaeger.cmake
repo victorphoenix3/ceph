@@ -36,6 +36,8 @@
 # (To distribute this file outside of CMake, substitute the full
 #  License text for the above reference.)
 
+list(APPEND CMAKE_FIND_ROOT_PATH "${CMAKE_CURRENT_BINARY_DIR}")
+
 find_path(Jaeger_INCLUDE_DIRS NAMES  jaegertracing/Tracer.h)
 find_library(Jaeger_LIBRARIES NAMES jaegertracing)
 

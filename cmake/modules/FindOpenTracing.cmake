@@ -44,6 +44,8 @@
 # (To distribute this file outside of CMake, substitute the full
 #  License text for the above reference.)
 
+list(APPEND CMAKE_FIND_ROOT_PATH "${CMAKE_CURRENT_BINARY_DIR}/src")
+
 find_path(OpenTracing_INCLUDE_DIRS NAMES  opentracing/tracer.h)
 find_library(OpenTracing_LIBRARIES NAMES opentracing)
 

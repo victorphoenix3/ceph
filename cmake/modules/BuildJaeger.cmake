@@ -1,16 +1,18 @@
 function(build_jaeger)
   set(Jaeger_DOWNLOAD_DIR "${CMAKE_SOURCE_DIR}/src/jaegertracing")
   set(Jaeger_SOURCE_DIR "${CMAKE_SOURCE_DIR}/src/jaegertracing/jaeger-client-cpp")
-  set(Jaeger_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/Jaeger")
-  set(Jaeger_ROOT_DIR "${CMAKE_CURRENT_BINARY_DIR}/Jaeger")
-  set(Jaeger_INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}/Jaeger/install")
+  set(Jaeger_ROOT_DIR "${CMAKE_CURRENT_BINARY_DIR}/src/Jaeger")
+  set(Jaeger_BINARY_DIR "${Jaeger_ROOT_DIR}")
+  set(Jaeger_INSTALL_DIR "${Jaeger_ROOT_DIR}/install")
 
   set(Jaeger_CMAKE_ARGS -DCMAKE_POSITION_INDEPENDENT_CODE=ON)
   list(APPEND Jaeger_CMAKE_ARGS -DBUILD_SHARED_LIBS=ON)
   list(APPEND Jaeger_CMAKE_ARGS -DHUNTER_ENABLED=OFF)
   list(APPEND Jaeger_CMAKE_ARGS -DBUILD_TESTING=OFF)
   list(APPEND Jaeger_CMAKE_ARGS --DCMAKE_INSTALL_PREFIX=<Jaeger_INSTALL_DIR>)
-  list(APPEND Jaeger_CMAKE_ARGS -DCMAKE_FIND_ROOT_PATH=${CMAKE_CURRENT_BINARY_DIR})
+  list(APPEND Jaeger_CMAKE_ARGS
+    -DCMAKE_FIND_ROOT_PATH=${CMAKE_CURRENT_BINARY_DIR}/src)
+  list(APPEND CMAKE_FIND_ROOT_PATH "${CMAKE_CURRENT_BINARY_DIR}/src")
 
   find_package(OpenTracing 1.5.0)
   if(NOT OpenTracing_FOUND)
@@ -37,8 +39,8 @@ function(build_jaeger)
     CMAKE_ARGS ${Jaeger_CMAKE_ARGS}
     BINARY_DIR ${Jaeger_BINARY_DIR}
     BUILD_COMMAND ${make_cmd}
-    INSTALL_DIR ${Jaeger_INSTALL_DIR}
-    INSTALL_COMMAND "true"
+    #INSTALL_DIR ${Jaeger_INSTALL_DIR}
+    #INSTALL_COMMAND "true"
     DEPENDS OpenTracing thrift #yaml-cpp nlohmann-json
     )
   #adds Jaeger libraries as build target
@@ -46,10 +48,10 @@ function(build_jaeger)
 endfunction()
 
 function(add_jaeger)
-  ExternalProject_Get_Property(Jaeger ${INSTALL_DIR})
-  ExternalProject_Get_Property(Jaeger ${BINARY_DIR})
+  ExternalProject_Get_Property(Jaeger INSTALL_DIR)
+  ExternalProject_Get_Property(Jaeger BINARY_DIR)
 
-  set(Jaeger_INCLUDE_DIRS ${INSTALL_DIR}/include)
+  set(Jaeger_INCLUDE_DIRS ${Jaeger_SOURCE_DIR}/src/jaegertracing)
   set(Jaeger_LIBRARIES ${BINARY_DIR})
 
   if(Jaeger_INCLUDE_DIRS AND Jaeger_LIBRARIES)
@@ -73,12 +75,11 @@ function(add_jaeger)
 						  Jaeger_INCLUDE_DIRS
 				    VERSION_VAR Jaeger_VERSION_STRING)
   mark_as_advanced(Jaeger_LIBRARIES Jaeger_INCLUDE_DIRS)
-
   set(Complete_Jaeger_LIBRARIES ${Jaeger_LIBRARIES} ${OpenTracing_LIBRARIES}
     ${yaml-cpp_LIBRARIES} ${THRIFT_LIBRARIES})
   include_directories(SYSTEM ${Jaeger_INCLUDE_DIRS} ${yaml-cpp_INCLUDE_DIRS}
     ${OpenTracing_INCLUDE_DIRS} ${THRIFT_INCLUDE_DIR})
 
-  message(STATUS  "Jaeger library path is ${Jaeger_LIBRARIES} and include dir path is
+  message(STATUS  "Jaeger library path is ${Complete_Jaeger_LIBRARIES} and include dir path is
   ${Jaeger_INCLUDE_DIRS} and also Jaeger will be downloaded")
 endfunction()

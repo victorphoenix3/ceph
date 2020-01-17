@@ -362,6 +362,11 @@ set(ceph_common_deps
   ${GSSAPI_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT}
   ${CMAKE_DL_LIBS})
+if(HAVE_JAEGER)
+  message(STATUS "jaeger libraries are going to be linked
+  ${Complete_Jaeger_LIBRARIES}")
+  list(APPEND ceph-common-deps ${Complete_Jaeger_LIBRARIES})
+endif()
 if(HAVE_UDEV)
   list(APPEND ceph_common_deps ${UDEV_LIBRARIES})
 endif()

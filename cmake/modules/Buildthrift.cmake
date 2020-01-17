@@ -34,8 +34,8 @@ function(add_thrift_target)
   ExternalProject_Get_Property(thrift BINARY_DIR)
 
   set(thrift_INCLUDE_DIRS /usr/local/include)
-  set(thrift_LIBRARIES
-    ${BINARY_DIR}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}thrift${CMAKE_SHARED_LIBRARY_SUFFIX})
+  set(thrift_LIBRARIES /usr/local/lib)
+  #set(thrift_LIBRARIES ${BINARY_DIR}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}thrift${CMAKE_SHARED_LIBRARY_SUFFIX})
 
   if(thrift_INCLUDE_DIRS AND thrift_LIBRARIES)
 

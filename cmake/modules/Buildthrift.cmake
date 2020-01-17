@@ -1,7 +1,7 @@
 function(build_thrift)
   set(THRIFT_DOWNLOAD_DIR "${CMAKE_SOURCE_DIR}/src/jaegertracing")
   set(THRIFT_SOURCE_DIR "${CMAKE_SOURCE_DIR}/src/jaegertracing/thrift")
-  set(THRIFT_ROOT_DIR "${CMAKE_CURRENT_BINARY_DIR}/src/thrift")
+  set(THRIFT_ROOT_DIR "${CMAKE_CURRENT_BINARY_DIR}/thrift")
   set(THRIFT_INSTALL_DIR "${THRIFT_ROOT_DIR}/install")
   set(THRIFT_BINARY_DIR "${THRIFT_ROOT_DIR}/build")
 
@@ -30,11 +30,12 @@ function(build_thrift)
 endfunction()
 
 function(add_thrift_target)
-  ExternalProject_Get_Property(thrift ${INSTALL_DIR})
-  ExternalProject_Get_Property(thrift ${BINARY_DIR})
+  ExternalProject_Get_Property(thrift INSTALL_DIR)
+  ExternalProject_Get_Property(thrift BINARY_DIR)
 
   set(thrift_INCLUDE_DIRS /usr/local/include)
-  set(thrift_LIBRARIES ${BINARY_DIR})
+  set(thrift_LIBRARIES
+    ${BINARY_DIR}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}thrift${CMAKE_SHARED_LIBRARY_SUFFIX})
 
   if(thrift_INCLUDE_DIRS AND thrift_LIBRARIES)
 
@@ -54,7 +55,6 @@ function(add_thrift_target)
   include(FindPackageHandleStandardArgs)
   find_package_handle_standard_args(thrift FOUND_VAR thrift_FOUND
 				    REQUIRED_VARS thrift_LIBRARIES
-						  thrift_INCLUDE_DIRS
-				    VERSION_VAR thrift_VERSION_STRING)
+						  thrift_INCLUDE_DIRS)
   mark_as_advanced(thrift_LIBRARIES thrift_INCLUDE_DIRS)
 endfunction()

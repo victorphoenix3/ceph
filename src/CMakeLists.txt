@@ -296,6 +296,11 @@ if(WITH_SEASTAR)
   file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/seastar/gen/include")
   add_subdirectory(crimson)
 endif()
+if(WITH_JAEGER)
+    include(BuildJaeger)
+    build_jaeger()
+  set(HAVE_JAEGER TRUE)
+endif(WITH_JAEGER)
 
 set(libcommon_files
   ${CMAKE_BINARY_DIR}/src/include/ceph_ver.h

@@ -343,11 +343,6 @@ if(WITH_BLKIN)
 endif(WITH_BLKIN)
 
 option(WITH_JAEGER "Use jaeger to create tracepoints and display it on Jaeger UI" ON)
-if(WITH_JAEGER)
-    include(BuildJaeger)
-    build_jaeger()
-  set(HAVE_JAEGER TRUE)
-endif(WITH_JAEGER)
 
 option(WITH_BOOST_CONTEXT "Enable boost::asio stackful coroutines" ON)
 if(WITH_BOOST_CONTEXT)

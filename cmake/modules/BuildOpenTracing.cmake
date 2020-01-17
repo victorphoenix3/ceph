@@ -5,6 +5,7 @@ function(build_opentracing)
   set(OpenTracing_BINARY_DIR "${OpenTracing_ROOT_DIR}")
 
   set(OpenTracing_CMAKE_ARGS -DCMAKE_POSITION_INDEPENDENT_CODE=ON)
+  set(OpenTracing_CMAKE_ARGS -DBUILD_MOCKTRACER=ON)
 
   if(CMAKE_MAKE_PROGRAM MATCHES "make")
     # try to inherit command line arguments passed by parent "make" job
@@ -24,18 +25,19 @@ function(build_opentracing)
     CMAKE_ARGS ${OpenTracing_CMAKE_ARGS}
     BINARY_DIR ${OpenTracing_BINARY_DIR}
     BUILD_COMMAND ${make_cmd}
-    #INSTALL_COMMAND "true"
+    INSTALL_COMMAND "true"
     )
+  add_opentracing_target()
 endfunction()
 
 function(add_opentracing_target)
-  ExternalProject_Get_Property(OpenTracing ${INSTALL_DIR})
-  ExternalProject_Get_Property(OpenTracing ${BINARY_DIR})
+  ExternalProject_Get_Property(OpenTracing INSTALL_DIR)
+  ExternalProject_Get_Property(OpenTracing BINARY_DIR)
 
   set(OpenTracing_INCLUDE_DIRS ${OpenTracing_SOURCE_DIR}/include)
-  set(OpenTracing_LIBRARIES ${BINARY_DIR})
-
-  if(OpenTracing_INCLUDE_DIRS AND OpenTracing_LIBRARIES)
+  set(OpenTracing_LIBRARIES ${BINARY_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}opentracing${CMAKE_SHARED_LIBRARY_SUFFIX})
+  list(APPEND OpenTracing_LIBRARIES ${BINARY_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}opentracing${CMAKE_SHARED_LIBRARY_SUFFIX})
+  #set(OpenTracing_LIBRARIES /usr/local/lib)
 
     if(NOT TARGET OpenTracing)
       add_library(OpenTracing UNKNOWN IMPORTED)
@@ -53,7 +55,6 @@ function(add_opentracing_target)
   include(FindPackageHandleStandardArgs)
   find_package_handle_standard_args(OpenTracing FOUND_VAR OpenTracing_FOUND
 				    REQUIRED_VARS OpenTracing_LIBRARIES
-						  OpenTracing_INCLUDE_DIRS
-				    VERSION_VAR OpenTracing_VERSION_STRING)
+						  OpenTracing_INCLUDE_DIRS)
   mark_as_advanced(OpenTracing_LIBRARIES OpenTracing_INCLUDE_DIRS)
 endfunction()

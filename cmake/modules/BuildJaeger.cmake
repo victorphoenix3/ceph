@@ -18,7 +18,7 @@ function(build_jaeger)
     include(BuildOpenTracing)
     build_opentracing()
   endif()
-  #found by jaeger client
+  #found by jaeger client: thrift, yaml-cpp, nlohmann-json
   include(Buildthrift)
   build_thrift()
 
@@ -51,9 +51,11 @@ function(export_jaeger)
   ExternalProject_Get_Property(Jaeger INSTALL_DIR)
   ExternalProject_Get_Property(Jaeger BINARY_DIR)
 
-  set(Jaeger_INCLUDE_DIRS ${Jaeger_SOURCE_DIR}/src/jaegertracing)
-  set(Jaeger_LIBRARIES ${BINARY_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}jaegertracing${CMAKE_SHARED_LIBRARY_SUFFIX})
-  list(APPEND Jaeger_LIBRARIES ${BINARY_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}jaegertracing${CMAKE_SHARED_LIBRARY_SUFFIX})
+  set(Jaeger_INCLUDE_DIRS /usr/local/include)
+  set(Jaeger_LIBRARIES /usr/local/lib/libjaegertracing.so)
+  #set(Jaeger_INCLUDE_DIRS ${Jaeger_SOURCE_DIR}/src/jaegertracing)
+  #set(Jaeger_LIBRARIES ${BINARY_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}jaegertracing${CMAKE_SHARED_LIBRARY_SUFFIX})
+  #list(APPEND Jaeger_LIBRARIES ${BINARY_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}jaegertracing${CMAKE_SHARED_LIBRARY_SUFFIX})
 
   if(Jaeger_INCLUDE_DIRS AND Jaeger_LIBRARIES)
 
@@ -70,14 +72,16 @@ function(export_jaeger)
     set(Jaeger_LIBRARIES ${Jaeger_LIBRARIES} ${CMAKE_DL_LIBS})
   endif()
 
-  #include(FindPackageHandleStandardArgs)
-  #find_package_handle_standard_args(Jaeger FOUND_VAR Jaeger_FOUND
-  #      			    REQUIRED_VARS Jaeger_LIBRARIES
-  #      					  Jaeger_INCLUDE_DIRS
-  #      					  Complete_Jaeger_LIBRARIES)
-  #mark_as_advanced(Jaeger_LIBRARIES Jaeger_INCLUDE_DIRS)
+  include(FindPackageHandleStandardArgs)
+  find_package_handle_standard_args(Jaeger FOUND_VAR Jaeger_FOUND
+        			    REQUIRED_VARS Jaeger_LIBRARIES
+        					  Jaeger_INCLUDE_DIRS
+        					  Complete_Jaeger_LIBRARIES)
+  mark_as_advanced(Jaeger_LIBRARIES Jaeger_INCLUDE_DIRS)
+
   set(Complete_Jaeger_LIBRARIES ${Jaeger_LIBRARIES} ${OpenTracing_LIBRARIES}
-    ${yaml-cpp_LIBRARIES} ${thirft_LIBRARIES} PARENT_SCOPE)
+    ${yaml-cpp_LIBRARIES} ${thirft_LIBRARIES} /usr/local/lib/libyaml-cpp.so
+ CACHE_INTERNAL "")
   include_directories(SYSTEM ${Jaeger_INCLUDE_DIRS} ${yaml-cpp_INCLUDE_DIRS}
     ${OpenTracing_INCLUDE_DIRS} ${THRIFT_INCLUDE_DIR})
 

@@ -5,7 +5,11 @@ function(build_thrift)
   set(THRIFT_INSTALL_DIR "${THRIFT_ROOT_DIR}/install")
   set(THRIFT_BINARY_DIR "${THRIFT_ROOT_DIR}/build")
 
-  set(THRIFT_CMAKE_ARGS -DCMAKE_POSITION_INDEPENDENT_CODE=ON)
+  set(THRIFT_CMAKE_ARGS -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+      THRIFT_CMAKE_ARGS -DBUILD_JAVA=OFF
+      THRIFT_CMAKE_ARGS -DBUILD_PYTHON=OFF
+      THRIFT_CMAKE_ARGS -DBUILD_TESTING=OFF
+      THRIFT_CMAKE_ARGS -DBUILD_TUTORIALS=OFF)
 
   if(CMAKE_MAKE_PROGRAM MATCHES "make")
     # try to inherit command line arguments passed by parent "make" job
@@ -17,6 +21,7 @@ function(build_thrift)
   include(ExternalProject)
   ExternalProject_Add(thrift
     URL http://archive.apache.org/dist/thrift/0.11.0/thrift-0.11.0.tar.gz
+    URL_HASH SHA1=bdf159ef455c6d3c71e95dba15a6d05f6aaca2a9
     DOWNLOAD_DIR ${THRIFT_DOWNLOAD_DIR}
     SOURCE_DIR ${THRIFT_SOURCE_DIR}
     PREFIX ${THRIFT_ROOT_DIR}

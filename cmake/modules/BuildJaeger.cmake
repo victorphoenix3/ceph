@@ -10,15 +10,15 @@ function(build_jaeger)
   list(APPEND Jaeger_CMAKE_ARGS -DHUNTER_ENABLED=OFF)
   list(APPEND Jaeger_CMAKE_ARGS -DBUILD_TESTING=OFF)
   list(APPEND Jaeger_CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=<Jaeger_INSTALL_DIR>)
-  list(APPEND Jaeger_CMAKE_ARGS -DCMAKE_FIND_ROOT_PATH=${CMAKE_CURRENT_BINARY_DIR}/src)
+  list(APPEND Jaeger_CMAKE_ARGS
+    -DCMAKE_PREFIX_PATH=${CMAKE_SOURCE_DIR}/src/jaegertracing})
+  list(APPEND Jaeger_CMAKE_ARGS -DCMAKE_FIND_ROOT_PATH=${Jaeger_SOURCE_DIR}/src)
+  list(APPEND Jaeger_CMAKE_ARGS
+    -DCMAKE_PREFIX_PATH="${CMAKE_CURRENT_BINARY_DIR}/src")
   list(APPEND CMAKE_FIND_ROOT_PATH "${CMAKE_CURRENT_BINARY_DIR}/src")
 
-  find_package(OpenTracing 1.5.0)
-  if(NOT OpenTracing_FOUND)
-    include(BuildOpenTracing)
-    build_opentracing()
-  endif()
-  #found by jaeger client: thrift, yaml-cpp, nlohmann-json
+  include(BuildOpenTracing)
+  build_opentracing()
   include(Buildthrift)
   build_thrift()
 
@@ -31,8 +31,8 @@ function(build_jaeger)
 
   include(ExternalProject)
   ExternalProject_Add(Jaeger
-    URL https://github.com/jaegertracing/jaeger-client-cpp/archive/v0.5.0.tar.gz
-    UPDATE_COMMAND "" #disables update on each run
+    GIT_REPOSITORY https://github.com/jaegertracing/jaeger-client-cpp.git
+    GIT_TAG v0.5
     DOWNLOAD_DIR ${Jaeger_DOWNLOAD_DIR}
     SOURCE_DIR ${Jaeger_SOURCE_DIR}
     PREFIX ${Jaeger_ROOT_DIR}
@@ -44,7 +44,7 @@ function(build_jaeger)
     DEPENDS OpenTracing thrift #yaml-cpp nlohmann-json
     )
   #adds Jaeger libraries as build target
-  export_jaeger()
+  #export_jaeger()
 endfunction()
 
 function(export_jaeger)

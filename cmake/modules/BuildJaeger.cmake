@@ -1,3 +1,11 @@
+# This module builds Jaeger after it's dependencies are installed and discovered
+# OpenTracing: is built using cmake/modules/BuildOpenTracing.cmake
+# Thrift: build using cmake/modules/Buildthrift.cmake
+# yaml-cpp, nlhomann-json: are installed locally and then discovered using
+# Find<package>.cmake
+# Boost Libraries used for building thrift are build and provided by
+# cmake/modules/BuildBoost.cmake
+
 function(build_jaeger)
   set(Jaeger_DOWNLOAD_DIR "${CMAKE_SOURCE_DIR}/src/jaegertracing")
   set(Jaeger_SOURCE_DIR "${CMAKE_SOURCE_DIR}/src/jaegertracing/jaeger-client-cpp")
@@ -10,11 +18,9 @@ function(build_jaeger)
   list(APPEND Jaeger_CMAKE_ARGS -DHUNTER_ENABLED=OFF)
   list(APPEND Jaeger_CMAKE_ARGS -DBUILD_TESTING=OFF)
   list(APPEND Jaeger_CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=<Jaeger_INSTALL_DIR>)
-  list(APPEND Jaeger_CMAKE_ARGS
-    -DCMAKE_PREFIX_PATH=${CMAKE_SOURCE_DIR}/src/jaegertracing})
   list(APPEND Jaeger_CMAKE_ARGS -DCMAKE_FIND_ROOT_PATH=${Jaeger_SOURCE_DIR}/src)
-  list(APPEND Jaeger_CMAKE_ARGS
-    -DCMAKE_PREFIX_PATH="${CMAKE_CURRENT_BINARY_DIR}/src")
+  #  list(APPEND Jaeger_CMAKE_ARGS -DCMAKE_PREFIX_PATH="${CMAKE_CURRENT_BINARY_DIR}/src")
+  list(APPEND Jaeger_CMAKE_ARGS -DOpenTracing_DIR=${CMAKE_SOURCE_DIR}/src/jaegertracing/opentracing-cpp)
   list(APPEND CMAKE_FIND_ROOT_PATH "${CMAKE_CURRENT_BINARY_DIR}/src")
 
   include(BuildOpenTracing)
@@ -32,7 +38,7 @@ function(build_jaeger)
   include(ExternalProject)
   ExternalProject_Add(Jaeger
     GIT_REPOSITORY https://github.com/jaegertracing/jaeger-client-cpp.git
-    GIT_TAG v0.5
+    GIT_TAG "v0.5.0"
     DOWNLOAD_DIR ${Jaeger_DOWNLOAD_DIR}
     SOURCE_DIR ${Jaeger_SOURCE_DIR}
     PREFIX ${Jaeger_ROOT_DIR}
@@ -41,7 +47,7 @@ function(build_jaeger)
     BUILD_COMMAND ${make_cmd}
     INSTALL_DIR ${Jaeger_INSTALL_DIR}
     INSTALL_COMMAND "true"
-    DEPENDS OpenTracing thrift #yaml-cpp nlohmann-json
+    DEPENDS OpenTracing thrift
     )
   #adds Jaeger libraries as build target
   #export_jaeger()

@@ -37,8 +37,8 @@ function(build_jaeger)
 
   include(ExternalProject)
   ExternalProject_Add(Jaeger
-    GIT_REPOSITORY https://github.com/jaegertracing/jaeger-client-cpp.git
-    GIT_TAG "v0.5.0"
+    GIT_REPOSITORY https://github.com/ideepika/jaeger-client-cpp.git
+    GIT_TAG "fixes-issue-162"
     DOWNLOAD_DIR ${Jaeger_DOWNLOAD_DIR}
     SOURCE_DIR ${Jaeger_SOURCE_DIR}
     PREFIX ${Jaeger_ROOT_DIR}
@@ -50,40 +50,38 @@ function(build_jaeger)
     DEPENDS OpenTracing thrift
     )
   #adds Jaeger libraries as build target
-  #export_jaeger()
+  export_jaeger()
 endfunction()
 
 function(export_jaeger)
   ExternalProject_Get_Property(Jaeger INSTALL_DIR)
   ExternalProject_Get_Property(Jaeger BINARY_DIR)
 
-  set(Jaeger_INCLUDE_DIRS /usr/local/include)
-  set(Jaeger_LIBRARIES /usr/local/lib/libjaegertracing.so)
-  #set(Jaeger_INCLUDE_DIRS ${Jaeger_SOURCE_DIR}/src/jaegertracing)
-  #set(Jaeger_LIBRARIES ${BINARY_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}jaegertracing${CMAKE_SHARED_LIBRARY_SUFFIX})
-  #list(APPEND Jaeger_LIBRARIES ${BINARY_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}jaegertracing${CMAKE_SHARED_LIBRARY_SUFFIX})
+  set(Jaeger_INCLUDE_DIRS ${Jaeger_SOURCE_DIR}/src/jaegertracing)
+  set(Jaeger_LIBRARIES ${BINARY_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}jaegertracing${CMAKE_SHARED_LIBRARY_SUFFIX})
+  list(APPEND Jaeger_LIBRARIES ${BINARY_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}jaegertracing${CMAKE_SHARED_LIBRARY_SUFFIX})
 
-  if(Jaeger_INCLUDE_DIRS AND Jaeger_LIBRARIES)
-
-    if(NOT TARGET Jaeger)
-      add_library(Jaeger UNKNOWN IMPORTED)
-      set_target_properties(Jaeger PROPERTIES
-	INTERFACE_INCLUDE_DIRECTORIES "${Jaeger_INCLUDE_DIRS}"
-	INTERFACE_LINK_LIBRARIES ${CMAKE_DL_LIBS}
-	IMPORTED_LINK_INTERFACE_LANGUAGES "C"
-	IMPORTED_LOCATION "${Jaeger_LIBRARIES}")
-    endif()
-
-    # add libdl to required libraries
-    set(Jaeger_LIBRARIES ${Jaeger_LIBRARIES} ${CMAKE_DL_LIBS})
-  endif()
-
-  include(FindPackageHandleStandardArgs)
-  find_package_handle_standard_args(Jaeger FOUND_VAR Jaeger_FOUND
-        			    REQUIRED_VARS Jaeger_LIBRARIES
-        					  Jaeger_INCLUDE_DIRS
-        					  Complete_Jaeger_LIBRARIES)
-  mark_as_advanced(Jaeger_LIBRARIES Jaeger_INCLUDE_DIRS)
+  #  if(Jaeger_INCLUDE_DIRS AND Jaeger_LIBRARIES)
+  #
+  #    if(NOT TARGET Jaeger)
+  #      add_library(Jaeger UNKNOWN IMPORTED)
+  #      set_target_properties(Jaeger PROPERTIES
+  #	INTERFACE_INCLUDE_DIRECTORIES "${Jaeger_INCLUDE_DIRS}"
+  #	INTERFACE_LINK_LIBRARIES ${CMAKE_DL_LIBS}
+  #	IMPORTED_LINK_INTERFACE_LANGUAGES "C"
+  #	IMPORTED_LOCATION "${Jaeger_LIBRARIES}")
+  #    endif()
+  #
+  #    # add libdl to required libraries
+  #    set(Jaeger_LIBRARIES ${Jaeger_LIBRARIES} ${CMAKE_DL_LIBS})
+  #  endif()
+  #
+  #  include(FindPackageHandleStandardArgs)
+  #  find_package_handle_standard_args(Jaeger FOUND_VAR Jaeger_FOUND
+  #        			    REQUIRED_VARS Jaeger_LIBRARIES
+  #        					  Jaeger_INCLUDE_DIRS
+  #        					  Complete_Jaeger_LIBRARIES)
+  #  mark_as_advanced(Jaeger_LIBRARIES Jaeger_INCLUDE_DIRS)
 
   set(Complete_Jaeger_LIBRARIES ${Jaeger_LIBRARIES} ${OpenTracing_LIBRARIES}
     ${yaml-cpp_LIBRARIES} ${thirft_LIBRARIES} /usr/local/lib/libyaml-cpp.so

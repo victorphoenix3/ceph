@@ -5,7 +5,7 @@ function(build_opentracing)
   set(OpenTracing_BINARY_DIR "${OpenTracing_ROOT_DIR}")
 
   set(OpenTracing_CMAKE_ARGS -DCMAKE_POSITION_INDEPENDENT_CODE=ON)
-  set(OpenTracing_CMAKE_ARGS -DBUILD_MOCKTRACER=ON)
+  set(OpenTracing_CMAKE_ARGS -DBUILD_MOCKTRACER=OFF)
 
   if(CMAKE_MAKE_PROGRAM MATCHES "make")
     # try to inherit command line arguments passed by parent "make" job
@@ -24,38 +24,38 @@ function(build_opentracing)
     PREFIX ${OpenTracing_ROOT_DIR}
     CMAKE_ARGS ${OpenTracing_CMAKE_ARGS}
     BUILD_IN_SOURCE 1
-    #BINARY_DIR ${OpenTracing_BINARY_DIR}
+    #    BINARY_DIR ${OpenTracing_BINARY_DIR}
     BUILD_COMMAND ${make_cmd}
     INSTALL_COMMAND "true"
     )
-  #add_opentracing_target()
+  add_opentracing_target()
 endfunction()
 
 function(add_opentracing_target)
   ExternalProject_Get_Property(OpenTracing INSTALL_DIR)
   ExternalProject_Get_Property(OpenTracing BINARY_DIR)
 
-  set(OpenTracing_INCLUDE_DIRS ${OpenTracing_SOURCE_DIR}/include)
+  set(OpenTracing_INCLUDE_DIRS ${INSTALL_DIR}/include)
   set(OpenTracing_LIBRARIES ${BINARY_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}opentracing${CMAKE_SHARED_LIBRARY_SUFFIX})
   list(APPEND OpenTracing_LIBRARIES ${BINARY_DIR}/${CMAKE_STATIC_LIBRARY_PREFIX}opentracing${CMAKE_SHARED_LIBRARY_SUFFIX})
-  #set(OpenTracing_LIBRARIES /usr/local/lib/libopentracing.so)
-  #set(OpenTracing_INCLUDE_DIRS /usr/local/include)
 
-    if(NOT TARGET OpenTracing)
-      add_library(OpenTracing UNKNOWN IMPORTED)
-      set_target_properties(OpenTracing PROPERTIES
-	INTERFACE_INCLUDE_DIRECTORIES "${OpenTracing_INCLUDE_DIRS}"
-	INTERFACE_LINK_LIBRARIES ${CMAKE_DL_LIBS}
-	IMPORTED_LINK_INTERFACE_LANGUAGES "C"
-	IMPORTED_LOCATION "${OpenTracing_LIBRARIES}")
-    endif()
-
-    # add libdl to required libraries
-    set(OpenTracing_LIBRARIES ${OpenTracing_LIBRARIES} ${CMAKE_DL_LIBS})
-
-  include(FindPackageHandleStandardArgs)
-  find_package_handle_standard_args(OpenTracing FOUND_VAR OpenTracing_FOUND
-				    REQUIRED_VARS OpenTracing_LIBRARIES
-						  OpenTracing_INCLUDE_DIRS)
-  mark_as_advanced(OpenTracing_LIBRARIES OpenTracing_INCLUDE_DIRS)
+  message( STATUS "INCLUDE DIR OPENTRACING ${OpenTracing_INCLUDE_DIRS} and
+  opentracing libraries ${OpenTracing_LIBRARIES} in module" )
+  #    if(NOT TARGET OpenTracing)
+  #      add_library(OpenTracing UNKNOWN IMPORTED)
+  #      set_target_properties(OpenTracing PROPERTIES
+  #	INTERFACE_INCLUDE_DIRECTORIES "${OpenTracing_INCLUDE_DIRS}"
+  #	INTERFACE_LINK_LIBRARIES ${CMAKE_DL_LIBS}
+  #	IMPORTED_LINK_INTERFACE_LANGUAGES "C"
+  #	IMPORTED_LOCATION "${OpenTracing_LIBRARIES}")
+  #    endif()
+  #
+  #    # add libdl to required libraries
+  #    set(OpenTracing_LIBRARIES ${OpenTracing_LIBRARIES} ${CMAKE_DL_LIBS})
+  #
+  #  include(FindPackageHandleStandardArgs)
+  #  find_package_handle_standard_args(OpenTracing FOUND_VAR OpenTracing_FOUND
+  #				    REQUIRED_VARS OpenTracing_LIBRARIES
+  #						  OpenTracing_INCLUDE_DIRS)
+  #  mark_as_advanced(OpenTracing_LIBRARIES OpenTracing_INCLUDE_DIRS)
 endfunction()

@@ -16,18 +16,12 @@
 #include "osd/OSD.h"
 
 namespace ceph::osd::scheduler {
-
-#ifdef WITH_JAEGER
-#include "common/tracer.h"
-#endif
-
 void PGOpItem::run(
   OSD *osd,
   OSDShard *sdata,
   PGRef& pg,
   ThreadPool::TPHandle &handle)
 {
-  jspan parent_span = JTracer::tracedFunction("op dequeued");
   osd->dequeue_op(pg, op, handle);
   pg->unlock();
 }

@@ -318,8 +318,6 @@ if(WITH_SEASTAR)
   add_subdirectory(crimson)
 endif()
 if(WITH_JAEGER)
-    include(BuildJaeger)
-    build_jaeger()
   set(HAVE_JAEGER TRUE)
 endif(WITH_JAEGER)
 

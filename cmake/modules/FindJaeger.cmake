@@ -53,7 +53,7 @@ if(Jaeger_INCLUDE_DIRS AND Jaeger_LIBRARIES)
   endif()
 
   # add libdl to required libraries
-  set(Jaeger_LIBRARIES ${Jaeger_LIBRARIES} ${CMAKE_DL_LIBS})
+  set(Jaeger_LIBRARIES ${Jaeger_LIBRARIES})# ${CMAKE_DL_LIBS})
 endif()
 
 include(FindPackageHandleStandardArgs)

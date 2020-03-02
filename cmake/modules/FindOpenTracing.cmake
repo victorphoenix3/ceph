@@ -67,7 +67,7 @@ if(OpenTracing_INCLUDE_DIRS AND OpenTracing_LIBRARIES)
   endif()
 
   # add libdl to required libraries
-  set(OpenTracing_LIBRARIES ${OpenTracing_LIBRARIES} ${CMAKE_DL_LIBS})
+  set(OpenTracing_LIBRARIES ${OpenTracing_LIBRARIES}) #${CMAKE_DL_LIBS})
 endif()
 
 # handle the QUIETLY and REQUIRED arguments and set LTTNGUST_FOUND to

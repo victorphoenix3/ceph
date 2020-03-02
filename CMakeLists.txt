@@ -357,6 +357,22 @@ endif(WITH_BLKIN)
 
 option(WITH_JAEGER "Use jaeger to create tracepoints and display it on Jaeger UI" ON)
 
+if(WITH_JAEGER)
+  set(OpenTracing_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/src/jaegertracing/opentracing-cpp/include)
+  set(OpenTracing_LIBRARIES ${CMAKE_BINARY_DIR}/src/OpenTracing/output/${CMAKE_SHARED_LIBRARY_PREFIX}opentracing${CMAKE_SHARED_LIBRARY_SUFFIX})
+  set(Jaeger_INCLUDE_DIRS)
+  include(BuildJaeger)
+  include(BuildOpenTracing)
+  build_opentracing()
+  #build_jaeger()
+  set(Complete_Jaeger_LIBRARIES ${Jaeger_LIBRARIES} ${yaml-cpp_LIBRARIES}
+    ${thirft_LIBRARIES} ${OpenTracing_LIBRARIES})
+  include_directories(SYSTEM ${Jaeger_INCLUDE_DIRS} ${yaml-cpp_INCLUDE_DIRS}
+    ${OpenTracing_INCLUDE_DIRS} ${THRIFT_INCLUDE_DIR})
+  message(STATUS "JAEGER LIBRARIES IN CMAKELISTS ${Complete_Jaeger_LIBRARIES}")
+set(HAVE_JAEGER TRUE)
+endif(WITH_JAEGER)
+
 option(WITH_BOOST_CONTEXT "Enable boost::asio stackful coroutines" ON)
 if(WITH_BOOST_CONTEXT)
   set(HAVE_BOOST_CONTEXT ON)

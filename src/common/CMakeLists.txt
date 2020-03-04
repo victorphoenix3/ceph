@@ -176,9 +176,10 @@ if(HAVE_ARMV8_CRC)
   set_target_properties(crc32 PROPERTIES
     COMPILE_FLAGS "${CMAKE_C_FLAGS} ${ARMV8_CRC_COMPILE_FLAGS}")
 endif()
+message( STATUS "COMPLETE LIBS JAEGER COMMON: ${Complete_Jaeger_LIBRARIES}")
 target_link_libraries(crc32
   arch
-  ${COMPLETE_Jaeger_LIBRARIES})
+  ${Complete_Jaeger_LIBRARIES})
 
 add_library(common_utf8 STATIC utf8.c)
 

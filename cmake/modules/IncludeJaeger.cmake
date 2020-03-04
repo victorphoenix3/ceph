@@ -12,8 +12,7 @@ add_dependencies(opentracing::libopentracing OpenTracing)
 #(set_library_properties_for_external_project _target _lib)
 set_library_properties_for_external_project(opentracing::libopentracing
   opentracing)
-set_library_properties_for_external_project(opentracing::libopentracing
-  yaml-cpp)
+#set_library_properties_for_external_project(opentracing::libopentracing yaml-cpp)
 set_property(TARGET opentracing::libopentracing APPEND PROPERTY
   INTERFACE_LINK_LIBRARIES opentracing::libopentracing
   INTERFACE_LINK_LIBRARIES "${CMAKE_DL_LIBS}")

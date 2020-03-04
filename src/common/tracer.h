@@ -111,4 +111,4 @@ inline void setup(const char* service_to_trace) {
 }
 };
 
-#endif
+#endif */

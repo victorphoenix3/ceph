@@ -7,7 +7,6 @@ function(build_opentracing)
   -DBUILD_MOCKTRACER=ON
   -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/external
   -DCMAKE_PREFIX_PATH=${CMAKE_BINARY_DIR}/external)
-  message(STATUS "CMAKE_ARGS ${OpenTracing_CMAKE_ARGS}")
 
   if(CMAKE_MAKE_PROGRAM MATCHES "make")
     # try to inherit command line arguments passed by parent "make" job
@@ -28,7 +27,6 @@ function(build_opentracing)
     CMAKE_ARGS ${OpenTracing_CMAKE_ARGS}
     BINARY_DIR ${OpenTracing_BINARY_DIR}
     BUILD_COMMAND ${make_cmd}
-    #INSTALL_COMMAND "true"
-    INSTALL_COMMAND sudo make install DEST_DIR=${CMAKE_BINARY_DIR}/external
+    INSTALL_COMMAND sudo make install
     )
 endfunction()

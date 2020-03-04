@@ -1,15 +1,17 @@
 function(build_thrift)
   set(THRIFT_DOWNLOAD_DIR "${CMAKE_SOURCE_DIR}/src/jaegertracing")
   set(THRIFT_SOURCE_DIR "${CMAKE_SOURCE_DIR}/src/jaegertracing/thrift")
-  set(THRIFT_ROOT_DIR "${CMAKE_CURRENT_BINARY_DIR}/thrift")
-  set(THRIFT_INSTALL_DIR "${THRIFT_ROOT_DIR}/install")
-  set(THRIFT_BINARY_DIR "${THRIFT_ROOT_DIR}/build")
+  set(THRIFT_INSTALL_DIR "${CMAKE_BINARY_DIR}/external")
+  set(THRIFT_ROOT_DIR "${THRIFT_INSTALL_DIR}/thrift")
+  set(THRIFT_BINARY_DIR "${THRIFT_INSTALL_DIR}/thrift/build")
 
   set(THRIFT_CMAKE_ARGS -DCMAKE_POSITION_INDEPENDENT_CODE=ON
       THRIFT_CMAKE_ARGS -DBUILD_JAVA=OFF
       THRIFT_CMAKE_ARGS -DBUILD_PYTHON=OFF
       THRIFT_CMAKE_ARGS -DBUILD_TESTING=OFF
-      THRIFT_CMAKE_ARGS -DBUILD_TUTORIALS=OFF)
+      THRIFT_CMAKE_ARGS -DBUILD_TUTORIALS=OFF
+      THRIFT_CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${THRIFT_INSTALL_DIR}
+      THRIFT_CMAKE_ARGS -DCMAKE_PREFIX_PATH=${THRIFT_INSTALL_DIR})
 
   if(CMAKE_MAKE_PROGRAM MATCHES "make")
     # try to inherit command line arguments passed by parent "make" job
@@ -22,16 +24,15 @@ function(build_thrift)
   ExternalProject_Add(thrift
     URL http://archive.apache.org/dist/thrift/0.11.0/thrift-0.11.0.tar.gz
     URL_HASH SHA1=bdf159ef455c6d3c71e95dba15a6d05f6aaca2a9
+    INSTALL_DIR ${THRIFT_INSTALL_DIR}
     DOWNLOAD_DIR ${THRIFT_DOWNLOAD_DIR}
     SOURCE_DIR ${THRIFT_SOURCE_DIR}
     PREFIX ${THRIFT_ROOT_DIR}
     CMAKE_ARGS ${THRIFT_CMAKE_ARGS}
     BINARY_DIR ${THRIFT_BINARY_DIR}
     BUILD_COMMAND ${make_cmd}
-    INSTALL_DIR ${THRIFT_INSTALL_DIR}
     INSTALL_COMMAND sudo make install
     )
-  add_thrift_target()
 endfunction()
 
 function(add_thrift_target)
@@ -42,16 +43,17 @@ function(add_thrift_target)
   set(thrift_LIBRARIES /usr/local/lib)
   #set(thrift_LIBRARIES ${BINARY_DIR}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}thrift${CMAKE_SHARED_LIBRARY_SUFFIX})
 
+  set(ALLOW_DUPLICATE_CUSTOM_TARGETS TRUE)
   if(thrift_INCLUDE_DIRS AND thrift_LIBRARIES)
 
-    if(NOT TARGET thrift)
+    # if(NOT TARGET thrift)
       add_library(thrift UNKNOWN IMPORTED)
       set_target_properties(thrift PROPERTIES
 	INTERFACE_INCLUDE_DIRECTORIES "${thrift_INCLUDE_DIRS}"
 	INTERFACE_LINK_LIBRARIES ${CMAKE_DL_LIBS}
 	IMPORTED_LINK_INTERFACE_LANGUAGES "C"
 	IMPORTED_LOCATION "${thrift_LIBRARIES}")
-    endif()
+      #endif()
 
     # add libdl to required libraries
     set(thrift_LIBRARIES ${thrift_LIBRARIES} ${CMAKE_DL_LIBS})

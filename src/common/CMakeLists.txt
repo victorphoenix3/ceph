@@ -179,6 +179,7 @@ endif()
 message( STATUS "COMPLETE LIBS JAEGER COMMON: ${Complete_Jaeger_LIBRARIES}")
 target_link_libraries(crc32
   arch
+  opentracing::libopentracing
   ${Complete_Jaeger_LIBRARIES})
 
 add_library(common_utf8 STATIC utf8.c)

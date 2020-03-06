@@ -54,7 +54,7 @@ if(WITH_CCACHE)
   endif(CCACHE_FOUND)
 endif(WITH_CCACHE)
 
-option(WITH_MANPAGE "Build man pages." ON)
+option(WITH_MANPAGE "Build man pages." OFF)
 if(WITH_MANPAGE)
   find_program(SPHINX_BUILD
     NAMES sphinx-build sphinx-build-3)
@@ -114,7 +114,7 @@ if(NOT HAVE_CXX11_ATOMIC)
     "${CMAKE_CXX_STANDARD_LIBRARIES} ${LIBATOMIC_LINK_FLAGS}")
 endif()
 
-option(WITH_RDMA "Enable RDMA in async messenger" ON)
+option(WITH_RDMA "Enable RDMA in async messenger" OFF)
 if(WITH_RDMA)
   find_package(verbs REQUIRED)
   set(HAVE_VERBS ${VERBS_FOUND})
@@ -125,7 +125,7 @@ endif()
 
 find_package(Backtrace)
 
-option(WITH_RBD "Enable RADOS Block Device related targets" ON)
+option(WITH_RBD "Enable RADOS Block Device related targets" OFF)
 
 if(LINUX)
   find_package(udev REQUIRED)
@@ -231,12 +231,12 @@ if(WITH_QATZIP)
 endif(WITH_QATZIP)
 
 # needs mds and? XXX
-option(WITH_LIBCEPHFS "libcephfs client library" ON)
+option(WITH_LIBCEPHFS "libcephfs client library" OFF)
 
 # key-value store
 option(WITH_KVS "Key value store is here" ON)
 
-option(WITH_KRBD "Enable Linux krbd support of 'rbd' utility" ON)
+option(WITH_KRBD "Enable Linux krbd support of 'rbd' utility" OFF)
 
 if(WITH_KRBD AND NOT WITH_RBD)
   message(FATAL_ERROR "Cannot have WITH_KRBD without WITH_RBD.")
@@ -348,12 +348,12 @@ if(WITH_BOOST_CONTEXT)
 endif()
 
 #option for RGW
-option(WITH_RADOSGW "Rados Gateway is enabled" ON)
+option(WITH_RADOSGW "Rados Gateway is enabled" OFF)
 option(WITH_RADOSGW_FCGI_FRONTEND "Rados Gateway's FCGI frontend is enabled" OFF)
-option(WITH_RADOSGW_BEAST_FRONTEND "Rados Gateway's Beast frontend is enabled" ON)
-option(WITH_RADOSGW_BEAST_OPENSSL "Rados Gateway's Beast frontend uses OpenSSL" ON)
-option(WITH_RADOSGW_AMQP_ENDPOINT "Rados Gateway's pubsub support for AMQP push endpoint" ON)
-option(WITH_RADOSGW_KAFKA_ENDPOINT "Rados Gateway's pubsub support for Kafka push endpoint" ON)
+option(WITH_RADOSGW_BEAST_FRONTEND "Rados Gateway's Beast frontend is enabled" OFF)
+option(WITH_RADOSGW_BEAST_OPENSSL "Rados Gateway's Beast frontend uses OpenSSL" OFF)
+option(WITH_RADOSGW_AMQP_ENDPOINT "Rados Gateway's pubsub support for AMQP push endpoint" OFF)
+option(WITH_RADOSGW_KAFKA_ENDPOINT "Rados Gateway's pubsub support for Kafka push endpoint" OFF)
 
 if(WITH_RADOSGW)
   find_package(EXPAT REQUIRED)
@@ -416,7 +416,7 @@ if(WITH_RADOSGW)
 endif (WITH_RADOSGW)
 
 #option for CephFS
-option(WITH_CEPHFS "CephFS is enabled" ON)
+option(WITH_CEPHFS "CephFS is enabled" OFF)
 
 # Please specify 3.[0-7] if you want to build with a certain version of python3.
 set(WITH_PYTHON3 "3" CACHE STRING "build with specified python3 version")
@@ -462,7 +462,7 @@ CMAKE_DEPENDENT_OPTION(
   OFF "USE_LTTNG" OFF)
 
 #option for LTTng
-option(WITH_LTTNG "LTTng tracing is enabled" ON)
+option(WITH_LTTNG "LTTng tracing is enabled" OFF)
 if(${WITH_LTTNG})
   find_package(LTTngUST REQUIRED)
   find_program(LTTNG_GEN_TP
@@ -475,7 +475,7 @@ endif(${WITH_LTTNG})
 option(WITH_OSD_INSTRUMENT_FUNCTIONS OFF)
 
 #option for Babeltrace
-option(WITH_BABELTRACE "Babeltrace libraries are enabled" ON)
+option(WITH_BABELTRACE "Babeltrace libraries are enabled" OFF)
 if(WITH_BABELTRACE)
   set(HAVE_BABELTRACE ON)
   find_package(babeltrace REQUIRED)
@@ -488,7 +488,7 @@ option(DEBUG_GATHER "C_Gather debugging is enabled" ON)
 option(ENABLE_COVERAGE "Coverage is enabled" OFF)
 option(PG_DEBUG_REFS "PG Ref debugging is enabled" OFF)
 
-option(WITH_TESTS "enable the build of ceph-test package scripts/binaries" ON)
+option(WITH_TESTS "enable the build of ceph-test package scripts/binaries" OFF)
 set(UNIT_TESTS_BUILT ${WITH_TESTS})
 set(CEPH_TEST_TIMEOUT 3600 CACHE STRING 
   "Maximum time before a CTest gets killed" )
@@ -593,7 +593,7 @@ include_directories(BEFORE SYSTEM ${Boost_INCLUDE_DIRS})
 set(Boost_USE_MULTITHREADED ON)
 
 # dashboard angular2 frontend
-option(WITH_MGR_DASHBOARD_FRONTEND "Build the mgr/dashboard frontend using `npm`" ON)
+option(WITH_MGR_DASHBOARD_FRONTEND "Build the mgr/dashboard frontend using `npm`" OFF)
 option(WITH_SYSTEM_NPM "Assume that dashboard build tools already installed through packages" OFF)
 if(WITH_SYSTEM_NPM)
   find_program(NPM npm)

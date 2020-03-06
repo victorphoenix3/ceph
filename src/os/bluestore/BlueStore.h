@@ -1065,7 +1065,7 @@ public:
     ghobject_t oid;
 
     /// key under PREFIX_OBJ where we are stored
-    mempool::bluestore_cache_other::string key;
+    mempool::bluestore_cache_meta::string key;
 
     boost::intrusive::list_member_hook<> lru_item, pin_item;
 
@@ -1083,7 +1083,7 @@ public:
     ceph::condition_variable flush_cond;   ///< wait here for uncommitted txns
 
     Onode(Collection *c, const ghobject_t& o,
-	  const mempool::bluestore_cache_other::string& k)
+	  const mempool::bluestore_cache_meta::string& k)
       : s(nullptr),
         nref(0),
 	c(c),

@@ -1958,10 +1958,11 @@ private:
   bool mounted = false;
 
   ceph::shared_mutex coll_lock = ceph::make_shared_mutex("BlueStore::coll_lock");  ///< rwlock to protect coll_map
-  mempool::bluestore_cache_other::unordered_map<coll_t, CollectionRef> coll_map;
+  mempool::bluestore_collections::unordered_map<coll_t, CollectionRef> coll_map;
   bool collections_had_errors = false;
   map<coll_t,CollectionRef> new_coll_map;
 
+  //are these tracked in mempool?
   vector<OnodeCacheShard*> onode_cache_shards;
   vector<BufferCacheShard*> buffer_cache_shards;
 

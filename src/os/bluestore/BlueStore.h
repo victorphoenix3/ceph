@@ -280,8 +280,11 @@ public:
 	boost::intrusive::list_member_hook<>,
 	&Buffer::state_item> > state_list_t;
 
-    mempool::bluestore_collections::map<uint32_t, std::unique_ptr<Buffer>
+     mempool::bluestore_cache_other::map<uint32_t, std::unique_ptr<Buffer>>
       buffer_map;
+
+//    mempool::bluestore_collections::map<uint32_t, std::unique_ptr<Buffer>
+//      buffer_map;
 
     // we use a bare intrusive list here instead of std::map because
     // it uses less memory and we expect this to be very small (very

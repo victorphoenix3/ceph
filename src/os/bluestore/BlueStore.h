@@ -469,7 +469,8 @@ public:
 
     // we use a bare pointer because we don't want to affect the ref
     // count
-    mempool::bluestore_cache_other::unordered_map<uint64_t,SharedBlob*> sb_map;
+    //mempool::bluestore_cache_other::unordered_map<uint64_t,SharedBlob*> sb_map;
+    mempool::bluestore_cache_meta::unordered_map<uint64_t,SharedBlob*> sb_map;
 
     SharedBlobRef lookup(uint64_t sbid) {
       std::lock_guard l(lock);
@@ -684,6 +685,7 @@ public:
 #endif
   };
   typedef boost::intrusive_ptr<Blob> BlobRef;
+  //fixme
   typedef mempool::bluestore_cache_other::map<int,BlobRef> blob_map_t;
 
   /// a logical extent, pointing to (some portion of) a blob

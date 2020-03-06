@@ -894,6 +894,7 @@ struct bluestore_onode_t {
   uint64_t nid = 0;                    ///< numeric id (locally unique)
   uint64_t size = 0;                   ///< object size
   // FIXME: bufferptr does not have a mempool
+  // mempool::bluestore_cache_onode::map<string, bufferptr> attrs;     ///< attrs
   map<mempool::bluestore_cache_other::string, bufferptr> attrs;        ///< attrs
 
   struct shard_info {

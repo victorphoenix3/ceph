@@ -6298,15 +6298,22 @@ TEST_P(StoreTestSpecificAUSize, TooManyBlobsTest) {
 #if defined(WITH_BLUESTORE)
 void get_mempool_stats(uint64_t* total_bytes, uint64_t* total_items)
 {
+  uint64_t collections_allocated = mempool::bluestore_collections::allocated_bytes();
+  uint64_t meta_allocated = mempool::bluestore_cache_meta::allocated_bytes();
   uint64_t onode_allocated = mempool::bluestore_cache_onode::allocated_bytes();
   uint64_t other_allocated = mempool::bluestore_cache_other::allocated_bytes();
 
+  uint64_t collections_items = mempool::bluestore_collections::allocated_items();
+  uint64_t meta_items = mempool::bluestore_cache_meta::allocated_items();
   uint64_t onode_items = mempool::bluestore_cache_onode::allocated_items();
   uint64_t other_items = mempool::bluestore_cache_other::allocated_items();
-  cout << "onode(" << onode_allocated << "/" << onode_items
+  cout << "collections(" << collections_allocated << "/" << collections_items
+       << ") meta(" << meta_allocated << "/" << meta_items
+       << ") onode(" << onode_allocated << "/" << onode_items
        << ") other(" << other_allocated << "/" << other_items
        << ")" << std::endl;
-  *total_bytes = onode_allocated + other_allocated;
+  *total_bytes = collections_allocated + meta_allocated + onode_allocated + other_allocated;
+  //why only onode items being considered?
   *total_items = onode_items;
 }
 

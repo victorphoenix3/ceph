@@ -87,7 +87,7 @@ static void setUpTracer(const char* serviceToTrace) {
  * Foundation.  See file COPYING.
  *
  */
-
+/*
 #ifndef TRACER_H_
 #define TRACER_H_
 

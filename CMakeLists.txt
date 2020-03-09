@@ -347,7 +347,7 @@ if(WITH_JAEGER)
   #  build_jaeger()
   #  #  include(BuildOpenTracing)
   #  #  build_opentracing()
-  set(Complete_Jaeger_LIBRARIES ${Jaeger_LIBRARIES} ${yaml-cpp_LIBRARIES}
+    set(Complete_Jaeger_LIBRARIES ${Jaeger_LIBRARIES} ${yaml-cpp_LIBRARIES}
     ${thirft_LIBRARIES} ${OpenTracing_LIBRARIES} ${CMAKE_DL_LIBS})
   include_directories(SYSTEM ${Jaeger_INCLUDE_DIRS} ${yaml-cpp_INCLUDE_DIRS}
     ${OpenTracing_INCLUDE_DIRS} ${THRIFT_INCLUDE_DIR})

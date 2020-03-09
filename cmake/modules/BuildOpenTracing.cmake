@@ -19,6 +19,7 @@ function(build_opentracing)
   ExternalProject_Add(OpenTracing
     GIT_REPOSITORY "https://github.com/opentracing/opentracing-cpp.git"
     GIT_TAG "v1.5.0"
+    UPDATE_COMMAND ""
     INSTALL_DIR "${CMAKE_BINARY_DIR}/external"
     #CONFIGURE_COMMAND -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
     DOWNLOAD_DIR ${OpenTracing_DOWNLOAD_DIR}
@@ -27,6 +28,6 @@ function(build_opentracing)
     CMAKE_ARGS ${OpenTracing_CMAKE_ARGS}
     BINARY_DIR ${OpenTracing_BINARY_DIR}
     BUILD_COMMAND ${make_cmd}
-    INSTALL_COMMAND sudo make install
+    INSTALL_COMMAND sudo make install 
     )
 endfunction()

@@ -129,7 +129,8 @@ add_library(common-common-objs OBJECT
 # Let's not rely on the default system headers and point Cmake to the
 # retrieved OpenSSL location. This is especially important when cross
 # compiling (e.g. targeting Windows).
-target_include_directories(common-common-objs PRIVATE ${OPENSSL_INCLUDE_DIR})
+target_include_directories(common-common-objs PRIVATE ${OPENSSL_INCLUDE_DIR}
+  yaml-cpp::yaml-cpp)
 # for options.cc
 target_compile_definitions(common-common-objs PRIVATE
   "CEPH_LIBDIR=\"${CMAKE_INSTALL_FULL_LIBDIR}\""
@@ -180,7 +181,8 @@ message( STATUS "COMPLETE LIBS JAEGER COMMON: ${Complete_Jaeger_LIBRARIES}")
 target_link_libraries(crc32
   arch
   opentracing::libopentracing
-  ${Complete_Jaeger_LIBRARIES})
+  jaegertracing::libjaegertracing
+  yaml-cpp::yaml-cpp)
 
 add_library(common_utf8 STATIC utf8.c)
 

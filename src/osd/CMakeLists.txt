@@ -46,7 +46,9 @@ endif()
 add_library(osd STATIC ${osd_srcs})
 target_link_libraries(osd
   PUBLIC dmclock::dmclock
-  PUBLIC ${COMPLETE_Jaeger_LIBRARIES}
+  PUBLIC opentracing::libopentracing
+  PUBLIC jaegertracing::libjaegertracing
+  PUBLIC yaml-cpp::yaml-cpp
   PRIVATE os heap_profiler cpu_profiler)
 if(WITH_LTTNG)
   add_dependencies(osd osd-tp pg-tp)

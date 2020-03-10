@@ -27,7 +27,7 @@ static void setUpTracer(const char* serviceToTrace) {
   auto parent_span = tracer->StartSpan("parent");
   assert(parent_span);
 
- dout(20) << "span_marked" << configYAML << dendl;
+// dout(20) << "span_marked" << configYAML << dendl;
 
 /*  // Create a child span.
   {
@@ -74,7 +74,7 @@ static void setUpTracer(const char* serviceToTrace) {
   parent_span->Finish();
   tracer->Close();
 
-  dout(20) << "\nRecorded spans as JSON << dendl;
+ // dout(20) << "\nRecorded spans as JSON << dendl;
 }
 // -*- mode:C++; tab-width:8; c-basic-offset:2; indent-tabs-mode:t -*-
 // vim: ts=8 sw=2 smarttab

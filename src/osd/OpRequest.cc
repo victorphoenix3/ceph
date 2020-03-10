@@ -23,10 +23,6 @@
 #define tracepoint(...)
 #endif
 
-#ifdef WITH_JAEGER
-#include "common/tracer.h"
-#endif
-
 using std::ostream;
 using std::set;
 using std::string;
@@ -130,11 +126,6 @@ void OpRequest::mark_flag_point(uint8_t flag, const char *s) {
   tracepoint(oprequest, mark_flag_point, reqid.name._type,
 	     reqid.name._num, reqid.tid, reqid.inc, op_info.get_flags(),
 	     flag, s, old_flags, hit_flag_points);
-#ifdef WITH_JAEGER
-  auto parent_span = opentracing::Tracer::Global()->StartSpan("parent");
-  assert(parent_span);
-  parent_span->Finish();
-#endif
 }
 
 void OpRequest::mark_flag_point_string(uint8_t flag, const string& s) {

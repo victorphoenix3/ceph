@@ -1,10 +1,6 @@
 function (set_library_properties_for_external_project _target _lib)
   set(_libfullname "${CMAKE_SHARED_LIBRARY_PREFIX}${_lib}${CMAKE_SHARED_LIBRARY_SUFFIX}")
-  if( _lib STREQUAL "jaegertracing")
-    set(_libpath "${CMAKE_BINARY_DIR}/external/lib64/${_libfullname}")
-  else()
-    set(_libpath "${CMAKE_BINARY_DIR}/external/lib/${_libfullname}")
-  endif()
+  set(_libpath "${CMAKE_BINARY_DIR}/external/lib/${_libfullname}")
   set(_includepath "${CMAKE_BINARY_DIR}/external/include")
   message(STATUS "Configuring ${_target} with ${_libpath}")
 

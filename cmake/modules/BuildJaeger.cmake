@@ -16,7 +16,7 @@ function(build_jaeger)
   list(APPEND Jaeger_CMAKE_ARGS -DBUILD_SHARED_LIBS=ON)
   list(APPEND Jaeger_CMAKE_ARGS -DHUNTER_ENABLED=OFF)
   list(APPEND Jaeger_CMAKE_ARGS -DBUILD_TESTING=OFF)
-  #  list(APPEND Jaeger_CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/external)
+  list(APPEND Jaeger_CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/external)
   list(APPEND Jaeger_CMAKE_ARGS -DCMAKE_FIND_ROOT_PATH=${Jaeger_SOURCE_DIR}/src)
   list(APPEND Jaeger_CMAKE_ARGS -DCMAKE_PREFIX_PATH={CMAKE_BINARY_DIR}/external)
   list(APPEND Jaeger_CMAKE_ARGS -DOpenTracing_DIR=${CMAKE_SOURCE_DIR}/src/jaegertracing/opentracing-cpp)
@@ -39,7 +39,7 @@ function(build_jaeger)
     GIT_REPOSITORY https://github.com/ideepika/jaeger-client-cpp.git
     GIT_TAG "fixes-issue-162"
     UPDATE_COMMAND ""
-    INSTALL_DIR ${Jaeger_INSTALL_DIR}
+    INSTALL_DIR "${CMAKE_BINARY_DIR}/external"
     DOWNLOAD_DIR ${Jaeger_DOWNLOAD_DIR}
     SOURCE_DIR ${Jaeger_SOURCE_DIR}
     PREFIX ${Jaeger_ROOT_DIR}

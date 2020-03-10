@@ -3,7 +3,7 @@ set -ex
 
 git submodule update --init --recursive
 
-: ${BUILD_DIR:=build3}
+: ${BUILD_DIR:=build}
 : ${CEPH_GIT_DIR:=..}
 
 if [ -e $BUILD_DIR ]; then

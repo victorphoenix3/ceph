@@ -21,7 +21,6 @@ function(build_opentracing)
     GIT_TAG "v1.5.0"
     UPDATE_COMMAND ""
     INSTALL_DIR "${CMAKE_BINARY_DIR}/external"
-    #CONFIGURE_COMMAND -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
     DOWNLOAD_DIR ${OpenTracing_DOWNLOAD_DIR}
     SOURCE_DIR ${OpenTracing_SOURCE_DIR}
     PREFIX "${CMAKE_BINARY_DIR}/external/opentracing-cpp"

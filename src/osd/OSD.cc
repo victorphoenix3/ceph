@@ -6993,7 +6993,7 @@ void OSD::dispatch_session_waiting(const ceph::ref_t<Session>& session, OSDMapRe
 
 void OSD::ms_fast_dispatch(Message *m)
 {
-  setUpTracer("osd-service");
+//  setUpTracer("osd-service");
   FUNCTRACE(cct);
   if (service.is_stopping()) {
     m->put();

@@ -44,11 +44,13 @@ if(HAS_VTA)
     PROPERTIES COMPILE_FLAGS -fno-var-tracking-assignments)
 endif()
 add_library(osd STATIC ${osd_srcs})
+#target_include_directories(yaml-cpp::yaml-cpp opentracing::libopentracing)
 target_link_libraries(osd
+  PUBLIC yaml-cpp::yaml-cpp
   PUBLIC dmclock::dmclock
   PUBLIC opentracing::libopentracing
   PUBLIC jaegertracing::libjaegertracing
-  PUBLIC yaml-cpp::yaml-cpp
+  -lopentracing
   PRIVATE os heap_profiler cpu_profiler)
 if(WITH_LTTNG)
   add_dependencies(osd osd-tp pg-tp)

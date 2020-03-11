@@ -11,21 +11,21 @@ function(build_jaeger)
   set(Jaeger_SOURCE_DIR "${CMAKE_SOURCE_DIR}/src/jaegertracing/jaeger-client-cpp")
   set(Jaeger_ROOT_DIR "${CMAKE_BINARY_DIR}/external")
   set(Jaeger_BINARY_DIR "${Jaeger_ROOT_DIR}/Jaeger")
-
-  set(Jaeger_CMAKE_ARGS -DCMAKE_POSITION_INDEPENDENT_CODE=ON)
-  list(APPEND Jaeger_CMAKE_ARGS -DBUILD_SHARED_LIBS=ON)
-  list(APPEND Jaeger_CMAKE_ARGS -DHUNTER_ENABLED=OFF)
-  list(APPEND Jaeger_CMAKE_ARGS -DBUILD_TESTING=OFF)
-  list(APPEND Jaeger_CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/external)
-  list(APPEND Jaeger_CMAKE_ARGS -DCMAKE_FIND_ROOT_PATH=${Jaeger_SOURCE_DIR}/src)
-  list(APPEND Jaeger_CMAKE_ARGS -DCMAKE_PREFIX_PATH={CMAKE_BINARY_DIR}/external)
-  list(APPEND Jaeger_CMAKE_ARGS -DOpenTracing_DIR=${CMAKE_SOURCE_DIR}/src/jaegertracing/opentracing-cpp)
   list(APPEND CMAKE_FIND_ROOT_PATH "${CMAKE_CURRENT_BINARY_DIR}/src")
+
+  set(Jaeger_CMAKE_ARGS -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+			-DBUILD_SHARED_LIBS=ON
+			-DHUNTER_ENABLED=OFF
+			-DBUILD_TESTING=OFF
+			-DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/external
+			-DCMAKE_FIND_ROOT_PATH=${Jaeger_SOURCE_DIR}/src
+			-DCMAKE_PREFIX_PATH={CMAKE_BINARY_DIR}/external
+			-DOpenTracing_DIR=${CMAKE_SOURCE_DIR}/src/jaegertracing/opentracing-cpp)
 
   include(BuildOpenTracing)
   build_opentracing()
-  #  include(Buildthrift)
-  #build_thrift()
+  include(Buildthrift)
+  build_thrift()
 
   if(CMAKE_MAKE_PROGRAM MATCHES "make")
     # try to inherit command line arguments passed by parent "make" job
@@ -47,6 +47,6 @@ function(build_jaeger)
     BINARY_DIR ${Jaeger_BINARY_DIR}
     BUILD_COMMAND ${make_cmd}
     INSTALL_COMMAND sudo make install
-    DEPENDS OpenTracing #thrift
+    DEPENDS OpenTracing thrift
     )
 endfunction()

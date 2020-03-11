@@ -1,17 +1,15 @@
 function(build_thrift)
-  set(THRIFT_DOWNLOAD_DIR "${CMAKE_SOURCE_DIR}/src/jaegertracing")
-  set(THRIFT_SOURCE_DIR "${CMAKE_SOURCE_DIR}/src/jaegertracing/thrift")
-  set(THRIFT_INSTALL_DIR "${CMAKE_BINARY_DIR}/external")
-  set(THRIFT_ROOT_DIR "${THRIFT_INSTALL_DIR}/thrift")
-  set(THRIFT_BINARY_DIR "${THRIFT_INSTALL_DIR}/thrift/build")
+  set(thrift_DOWNLOAD_DIR "${CMAKE_SOURCE_DIR}/src/jaegertracing")
+  set(thrift_SOURCE_DIR "${CMAKE_SOURCE_DIR}/src/jaegertracing/thrift")
+  set(thrift_BINARY_DIR "${CMAKE_BINARY_DIR}/external/thrift")
 
-  set(THRIFT_CMAKE_ARGS -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-      THRIFT_CMAKE_ARGS -DBUILD_JAVA=OFF
-      THRIFT_CMAKE_ARGS -DBUILD_PYTHON=OFF
-      THRIFT_CMAKE_ARGS -DBUILD_TESTING=OFF
-      THRIFT_CMAKE_ARGS -DBUILD_TUTORIALS=OFF
-      THRIFT_CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${THRIFT_INSTALL_DIR}
-      THRIFT_CMAKE_ARGS -DCMAKE_PREFIX_PATH=${THRIFT_INSTALL_DIR})
+  set(thrift_CMAKE_ARGS  -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+			 -DBUILD_JAVA=OFF
+			 -DBUILD_PYTHON=OFF
+			 -DBUILD_TESTING=OFF
+			 -DBUILD_TUTORIALS=OFF
+			 -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/external
+			 -DCMAKE_PREFIX_PATH=${CMAKE_BINARY_DIR}/external)
 
   if(CMAKE_MAKE_PROGRAM MATCHES "make")
     # try to inherit command line arguments passed by parent "make" job
@@ -24,44 +22,13 @@ function(build_thrift)
   ExternalProject_Add(thrift
     URL http://archive.apache.org/dist/thrift/0.11.0/thrift-0.11.0.tar.gz
     URL_HASH SHA1=bdf159ef455c6d3c71e95dba15a6d05f6aaca2a9
-    INSTALL_DIR ${THRIFT_INSTALL_DIR}
-    DOWNLOAD_DIR ${THRIFT_DOWNLOAD_DIR}
-    SOURCE_DIR ${THRIFT_SOURCE_DIR}
-    PREFIX ${THRIFT_ROOT_DIR}
-    CMAKE_ARGS ${THRIFT_CMAKE_ARGS}
-    BINARY_DIR ${THRIFT_BINARY_DIR}
+    INSTALL_DIR "${CMAKE_BINARY_DIR}/external"
+    DOWNLOAD_DIR ${thrift_DOWNLOAD_DIR}
+    SOURCE_DIR ${thrift_SOURCE_DIR}
+    PREFIX "${CMAKE_BINARY_DIR}/external/thrift"
+    CMAKE_ARGS ${thrift_CMAKE_ARGS}
+    BINARY_DIR ${thrift_BINARY_DIR}
     BUILD_COMMAND ${make_cmd}
     INSTALL_COMMAND sudo make install
     )
-endfunction()
-
-function(add_thrift_target)
-  ExternalProject_Get_Property(thrift INSTALL_DIR)
-  ExternalProject_Get_Property(thrift BINARY_DIR)
-
-  set(thrift_INCLUDE_DIRS /usr/local/include)
-  set(thrift_LIBRARIES /usr/local/lib)
-  #set(thrift_LIBRARIES ${BINARY_DIR}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}thrift${CMAKE_SHARED_LIBRARY_SUFFIX})
-
-  set(ALLOW_DUPLICATE_CUSTOM_TARGETS TRUE)
-  if(thrift_INCLUDE_DIRS AND thrift_LIBRARIES)
-
-    # if(NOT TARGET thrift)
-      add_library(thrift UNKNOWN IMPORTED)
-      set_target_properties(thrift PROPERTIES
-	INTERFACE_INCLUDE_DIRECTORIES "${thrift_INCLUDE_DIRS}"
-	INTERFACE_LINK_LIBRARIES ${CMAKE_DL_LIBS}
-	IMPORTED_LINK_INTERFACE_LANGUAGES "C"
-	IMPORTED_LOCATION "${thrift_LIBRARIES}")
-      #endif()
-
-    # add libdl to required libraries
-    set(thrift_LIBRARIES ${thrift_LIBRARIES} ${CMAKE_DL_LIBS})
-  endif()
-
-  include(FindPackageHandleStandardArgs)
-  find_package_handle_standard_args(thrift FOUND_VAR thrift_FOUND
-				    REQUIRED_VARS thrift_LIBRARIES
-						  thrift_INCLUDE_DIRS)
-  mark_as_advanced(thrift_LIBRARIES thrift_INCLUDE_DIRS)
 endfunction()

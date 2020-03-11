@@ -3,10 +3,10 @@ function(build_opentracing)
   set(OpenTracing_SOURCE_DIR "${CMAKE_SOURCE_DIR}/src/jaegertracing/opentracing-cpp")
   set(OpenTracing_BINARY_DIR "${CMAKE_BINARY_DIR}/external/opentracing-cpp")
 
-  set(OpenTracing_CMAKE_ARGS -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-  -DBUILD_MOCKTRACER=ON
-  -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/external
-  -DCMAKE_PREFIX_PATH=${CMAKE_BINARY_DIR}/external)
+  set(OpenTracing_CMAKE_ARGS  -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+			      -DBUILD_MOCKTRACER=OFF
+			      -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/external
+			      -DCMAKE_PREFIX_PATH=${CMAKE_BINARY_DIR}/external)
 
   if(CMAKE_MAKE_PROGRAM MATCHES "make")
     # try to inherit command line arguments passed by parent "make" job

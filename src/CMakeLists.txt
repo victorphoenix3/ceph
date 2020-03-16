@@ -415,10 +415,6 @@ if(WITH_JAEGER)
   # target_include_directories(opentracing::libopentracing
   # jaegertracing::libjaegertracing)
   # yaml-cpp::yaml-cpp)
-  target_link_libraries(common
-  ${yaml-cpp_LIBRARIES}
-  opentracing::libopentracing
-  jaegertracing::libjaegertracing)
 endif()
 
 add_library(ceph-common SHARED ${ceph_common_objs})

@@ -28,6 +28,6 @@ function(build_opentracing)
     CMAKE_ARGS ${OpenTracing_CMAKE_ARGS}
     BUILD_IN_SOURCE 1
     BUILD_COMMAND ${make_cmd}
-    INSTALL_COMMAND sudo make install 
+    INSTALL_COMMAND sudo make install
     )
 endfunction()

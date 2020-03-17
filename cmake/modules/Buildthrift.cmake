@@ -32,7 +32,7 @@ function(build_thrift)
     CMAKE_ARGS ${thrift_CMAKE_ARGS}
     BINARY_DIR ${thrift_BINARY_DIR}
     BUILD_COMMAND ${make_cmd}
-    INSTALL_COMMAND sudo make install
+    INSTALL_COMMAND make install
     DEPENDS Boost
     )
 endfunction()

@@ -48,7 +48,7 @@ function(build_jaeger)
     CMAKE_ARGS ${Jaeger_CMAKE_ARGS}
     BINARY_DIR ${Jaeger_BINARY_DIR}
     BUILD_COMMAND ${make_cmd}
-    INSTALL_COMMAND sudo make install
-    DEPENDS OpenTracing yaml-cpp::yaml-cpp thrift
+    INSTALL_COMMAND make install
+    DEPENDS OpenTracing thrift yaml-cpp::yaml-cpp
     )
 endfunction()

@@ -8,7 +8,9 @@ function(build_thrift)
 			 -DBUILD_PYTHON=OFF
 			 -DBUILD_TESTING=OFF
 			 -DBUILD_TUTORIALS=OFF
+			 -DCMAKE_FIND_ROOT_PATH=${CMAKE_BINARY_DIR}/boost
 			 -DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/external
+			 -DBOOST_ROOT=${CMAKE_BINARY_DIR}/boost
 			 -DCMAKE_INSTALL_LIBDIR=${CMAKE_BINARY_DIR}/external/lib
 			 -DCMAKE_PREFIX_PATH=${CMAKE_BINARY_DIR}/external)
 
@@ -31,5 +33,6 @@ function(build_thrift)
     BINARY_DIR ${thrift_BINARY_DIR}
     BUILD_COMMAND ${make_cmd}
     INSTALL_COMMAND sudo make install
+    DEPENDS Boost
     )
 endfunction()

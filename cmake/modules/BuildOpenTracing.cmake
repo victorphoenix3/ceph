@@ -26,7 +26,7 @@ function(build_opentracing)
     SOURCE_DIR ${OpenTracing_SOURCE_DIR}
     PREFIX "${CMAKE_BINARY_DIR}/external/opentracing-cpp"
     CMAKE_ARGS ${OpenTracing_CMAKE_ARGS}
-    BINARY_DIR ${OpenTracing_BINARY_DIR}
+    BUILD_IN_SOURCE 1
     BUILD_COMMAND ${make_cmd}
     INSTALL_COMMAND sudo make install 
     )

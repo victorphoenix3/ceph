@@ -11,17 +11,16 @@ function(build_jaeger)
   set(Jaeger_SOURCE_DIR "${CMAKE_SOURCE_DIR}/src/jaegertracing/jaeger-client-cpp")
   set(Jaeger_ROOT_DIR "${CMAKE_BINARY_DIR}/external")
   set(Jaeger_BINARY_DIR "${Jaeger_ROOT_DIR}/Jaeger")
-  #  list(APPEND CMAKE_FIND_ROOT_PATH "${CMAKE_CURRENT_BINARY_DIR}/Jaeger")
+  list(APPEND CMAKE_FIND_ROOT_PATH "${CMAKE_BINARY_DIR}/external")
 
   set(Jaeger_CMAKE_ARGS -DCMAKE_POSITION_INDEPENDENT_CODE=ON
 			-DBUILD_SHARED_LIBS=ON
 			-DHUNTER_ENABLED=OFF
 			-DBUILD_TESTING=OFF
 			-DBUILD_EXAMPLES=OFF
-			-DJAEGERGTRACING_WITH_YAML_CPP=ON
 			-DCMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/external
 			-DCMAKE_FIND_ROOT_PATH=${CMAKE_BINARY_DIR}/external
-			-DCMAKE_PREFIX_PATH={CMAKE_BINARY_DIR}/external
+			#-DCMAKE_PREFIX_PATH={CMAKE_BINARY_DIR}/external
 			-DCMAKE_INSTALL_LIBDIR=${CMAKE_BINARY_DIR}/external/lib)
 
   include(BuildOpenTracing)
@@ -49,6 +48,6 @@ function(build_jaeger)
     BINARY_DIR ${Jaeger_BINARY_DIR}
     BUILD_COMMAND ${make_cmd}
     INSTALL_COMMAND sudo make install
-    DEPENDS OpenTracing thrift yaml-cpp::yaml-cpp
+    DEPENDS OpenTracing yaml-cpp::yaml-cpp thrift
     )
 endfunction()

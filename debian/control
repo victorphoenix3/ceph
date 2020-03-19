@@ -8,8 +8,8 @@ Maintainer: Ceph Maintainers <ceph-maintainers@lists.ceph.com>
 Uploaders: Ken Dreyer <kdreyer@redhat.com>,
            Alfredo Deza <adeza@redhat.com>,
 Build-Depends: 
-# Jaeger       automake,
-# Jaeger       bison,
+               automake,
+               bison,
 	       cmake (>= 3.5),
                cpio,
                cryptsetup-bin | cryptsetup,
